@@ -319,6 +319,12 @@ export const educationRequestApi = {
     }
     throw new Error("Not found");
   },
+  delete: async (id: number) => {
+    await delay(300);
+    const requests = getMockData("educationRequests").filter((r: any) => r.id != id);
+    saveMockData("educationRequests", requests);
+    return { data: { success: true } };
+  },
 };
 
 export const hrVerificationApi = {
@@ -362,6 +368,23 @@ export const hrVerificationApi = {
       (v: any) => v.requestId == requestId,
     );
     return { data: verifications[0] || null };
+  },
+  update: async (id: number, data: any) => {
+    await delay(300);
+    const verifications = getMockData("hrVerifications");
+    const index = verifications.findIndex((v: any) => v.id == id);
+    if (index !== -1) {
+      verifications[index] = { ...verifications[index], ...data };
+      saveMockData("hrVerifications", verifications);
+      return { data: verifications[index] };
+    }
+    throw new Error("Not found");
+  },
+  delete: async (id: number) => {
+    await delay(300);
+    const verifications = getMockData("hrVerifications").filter((v: any) => v.id != id);
+    saveMockData("hrVerifications", verifications);
+    return { data: { success: true } };
   },
 };
 
@@ -409,6 +432,23 @@ export const committeeDecisionApi = {
       (d: any) => d.requestId == requestId,
     );
     return { data: decisions[0] || null };
+  },
+  update: async (id: number, data: any) => {
+    await delay(300);
+    const decisions = getMockData("committeeDecisions");
+    const index = decisions.findIndex((d: any) => d.id == id);
+    if (index !== -1) {
+      decisions[index] = { ...decisions[index], ...data };
+      saveMockData("committeeDecisions", decisions);
+      return { data: decisions[index] };
+    }
+    throw new Error("Not found");
+  },
+  delete: async (id: number) => {
+    await delay(300);
+    const decisions = getMockData("committeeDecisions").filter((d: any) => d.id != id);
+    saveMockData("committeeDecisions", decisions);
+    return { data: { success: true } };
   },
 };
 
@@ -467,6 +507,23 @@ export const contractApi = {
       },
     };
   },
+  update: async (id: number, data: any) => {
+    await delay(300);
+    const contracts = getMockData("contracts");
+    const index = contracts.findIndex((c: any) => c.id == id);
+    if (index !== -1) {
+      contracts[index] = { ...contracts[index], ...data };
+      saveMockData("contracts", contracts);
+      return { data: contracts[index] };
+    }
+    throw new Error("Not found");
+  },
+  delete: async (id: number) => {
+    await delay(300);
+    const contracts = getMockData("contracts").filter((c: any) => c.id != id);
+    saveMockData("contracts", contracts);
+    return { data: { success: true } };
+  },
 };
 
 export const guarantorApi = {
@@ -487,6 +544,17 @@ export const guarantorApi = {
       (g: any) => g.contractId == contractId,
     );
     return { data: guarantors };
+  },
+  update: async (id: number, data: any) => {
+    await delay(300);
+    const guarantors = getMockData("guarantors");
+    const index = guarantors.findIndex((g: any) => g.id == id);
+    if (index !== -1) {
+      guarantors[index] = { ...guarantors[index], ...data };
+      saveMockData("guarantors", guarantors);
+      return { data: guarantors[index] };
+    }
+    throw new Error("Not found");
   },
   delete: async (id: number) => {
     await delay(500);
@@ -536,6 +604,23 @@ export const progressReportApi = {
       },
     };
   },
+  update: async (id: number, data: any) => {
+    await delay(300);
+    const reports = getMockData("progressReports");
+    const index = reports.findIndex((r: any) => r.id == id);
+    if (index !== -1) {
+      reports[index] = { ...reports[index], ...data };
+      saveMockData("progressReports", reports);
+      return { data: reports[index] };
+    }
+    throw new Error("Not found");
+  },
+  delete: async (id: number) => {
+    await delay(300);
+    const reports = getMockData("progressReports").filter((r: any) => r.id != id);
+    saveMockData("progressReports", reports);
+    return { data: { success: true } };
+  },
 };
 
 export const completionApi = {
@@ -583,9 +668,37 @@ export const completionApi = {
       },
     };
   },
+  update: async (id: number, data: any) => {
+    await delay(300);
+    const completions = getMockData("educationCompletions");
+    const index = completions.findIndex((c: any) => c.id == id);
+    if (index !== -1) {
+      completions[index] = { ...completions[index], ...data };
+      saveMockData("educationCompletions", completions);
+      return { data: completions[index] };
+    }
+    throw new Error("Not found");
+  },
+  delete: async (id: number) => {
+    await delay(300);
+    const completions = getMockData("educationCompletions").filter((c: any) => c.id != id);
+    saveMockData("educationCompletions", completions);
+    return { data: { success: true } };
+  },
 };
 
 export const serviceObligationApi = {
+  create: async (data: any) => {
+    await delay(500);
+    const obligations = getMockData("serviceObligations");
+    const newObligation = {
+      id: obligations.length > 0 ? Math.max(...obligations.map((o: any) => o.id)) + 1 : 1,
+      ...data,
+    };
+    obligations.push(newObligation);
+    saveMockData("serviceObligations", obligations);
+    return { data: newObligation };
+  },
   getByContract: async (contractId: number) => {
     await delay(300);
     const obligations = getMockData("serviceObligations").filter(
@@ -605,5 +718,22 @@ export const serviceObligationApi = {
         number: page,
       },
     };
+  },
+  update: async (id: number, data: any) => {
+    await delay(300);
+    const obligations = getMockData("serviceObligations");
+    const index = obligations.findIndex((o: any) => o.id == id);
+    if (index !== -1) {
+      obligations[index] = { ...obligations[index], ...data };
+      saveMockData("serviceObligations", obligations);
+      return { data: obligations[index] };
+    }
+    throw new Error("Not found");
+  },
+  delete: async (id: number) => {
+    await delay(300);
+    const obligations = getMockData("serviceObligations").filter((o: any) => o.id != id);
+    saveMockData("serviceObligations", obligations);
+    return { data: { success: true } };
   },
 };

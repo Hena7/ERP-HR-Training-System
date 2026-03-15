@@ -5,7 +5,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { guarantorApi, contractApi } from "@/lib/api";
 import { Guarantor, Contract } from "@/types";
-import { Shield, Plus, Trash2 } from "lucide-react";
+import { Shield, Plus, Trash2, Edit } from "lucide-react";
 
 export default function GuarantorsPage() {
   const { t } = useLanguage();
@@ -21,6 +21,7 @@ export default function GuarantorsPage() {
     phone: "",
     address: "",
   });
+  const [editId, setEditId] = useState<number | null>(null);
 
   useEffect(() => {
     loadContracts();
@@ -54,21 +55,40 @@ export default function GuarantorsPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await guarantorApi.create({
+      const payload = {
         contractId: Number(form.contractId),
         fullName: form.fullName,
         nationalId: form.nationalId,
         phone: form.phone,
         address: form.address,
-      });
+      };
+      
+      if (editId) {
+        await guarantorApi.update(editId, payload);
+      } else {
+        await guarantorApi.create(payload);
+      }
       setShowForm(false);
+      setEditId(null);
       setForm({ contractId: "", fullName: "", nationalId: "", phone: "", address: "" });
       loadGuarantors(selectedContract);
     } catch {
-      alert("Failed to add guarantor");
+      alert("Failed to save guarantor");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleEdit = (g: Guarantor) => {
+    setForm({
+      contractId: String(g.contractId),
+      fullName: g.fullName || "",
+      nationalId: g.nationalId || "",
+      phone: g.phone || "",
+      address: g.address || "",
+    });
+    setEditId(g.id);
+    setShowForm(true);
   };
 
   const handleDelete = async (id: number) => {
@@ -89,7 +109,11 @@ export default function GuarantorsPage() {
             <Shield className="h-6 w-6 text-blue-600" />
             <h1 className="text-2xl font-bold text-gray-900">{t("guarantors")}</h1>
           </div>
-          <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition-colors">
+          <button onClick={() => {
+            setEditId(null);
+            setForm({ contractId: "", fullName: "", nationalId: "", phone: "", address: "" });
+            setShowForm(!showForm);
+          }} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition-colors">
             <Plus className="h-4 w-4" />
             {t("addGuarantor")}
           </button>
@@ -107,7 +131,7 @@ export default function GuarantorsPage() {
 
         {showForm && (
           <div className="rounded-xl border bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold">{t("addGuarantor")}</h2>
+            <h2 className="mb-4 text-lg font-semibold">{editId ? t("edit") || "Edit Guarantor" : t("addGuarantor")}</h2>
             <p className="mb-3 text-sm text-gray-500">{t("maxGuarantors")}</p>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
@@ -137,7 +161,10 @@ export default function GuarantorsPage() {
               </div>
               <div className="flex gap-2 md:col-span-2">
                 <button type="submit" disabled={loading} className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors">{loading ? t("loading") : t("submit")}</button>
-                <button type="button" onClick={() => setShowForm(false)} className="rounded-lg border border-gray-300 px-6 py-2 text-gray-700 hover:bg-gray-50 transition-colors">{t("cancel")}</button>
+                <button type="button" onClick={() => {
+                  setShowForm(false);
+                  setEditId(null);
+                }} className="rounded-lg border border-gray-300 px-6 py-2 text-gray-700 hover:bg-gray-50 transition-colors">{t("cancel")}</button>
               </div>
             </form>
           </div>
@@ -153,7 +180,7 @@ export default function GuarantorsPage() {
                   <th className="px-4 py-3">{t("nationalId")}</th>
                   <th className="px-4 py-3">{t("phone")}</th>
                   <th className="px-4 py-3">{t("address")}</th>
-                  <th className="px-4 py-3">{t("actions")}</th>
+                  <th className="px-4 py-3 text-right">{t("actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -164,10 +191,15 @@ export default function GuarantorsPage() {
                     <td className="px-4 py-3">{g.nationalId}</td>
                     <td className="px-4 py-3">{g.phone}</td>
                     <td className="px-4 py-3">{g.address}</td>
-                    <td className="px-4 py-3">
-                      <button onClick={() => handleDelete(g.id)} className="text-red-600 hover:text-red-800">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button onClick={() => handleEdit(g)} className="p-1 text-gray-500 hover:text-blue-600 transition-colors">
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button onClick={() => handleDelete(g.id)} className="p-1 text-gray-500 hover:text-red-600 transition-colors">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 )) : (

@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { educationRequestApi } from "@/lib/api";
 import { EducationRequest } from "@/types";
 import StatusBadge from "@/components/StatusBadge";
-import { Plus, FileText } from "lucide-react";
+import { Plus, FileText, Edit, Trash2 } from "lucide-react";
 
 export default function EducationRequestsPage() {
   const { t } = useLanguage();
@@ -24,6 +24,7 @@ export default function EducationRequestsPage() {
     studyMode: "ON_JOB",
     description: "",
   });
+  const [editId, setEditId] = useState<number | null>(null);
 
   useEffect(() => {
     loadRequests();
@@ -42,17 +43,47 @@ export default function EducationRequestsPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await educationRequestApi.create({
-        ...form,
-        employeeId: Number(form.employeeId) || user?.employeeId,
-      });
+      if (editId) {
+        await educationRequestApi.update(editId, form);
+      } else {
+        await educationRequestApi.create({
+          ...form,
+          employeeId: Number(form.employeeId) || user?.employeeId,
+        });
+      }
       setShowForm(false);
+      setEditId(null);
       setForm({ employeeId: "", requestedField: "", requestedLevel: "", university: "", country: "", studyMode: "ON_JOB", description: "" });
       loadRequests();
     } catch {
       alert("Failed to submit request");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEdit = (req: EducationRequest) => {
+    setForm({
+      employeeId: String(req.employeeId),
+      requestedField: req.requestedField || "",
+      requestedLevel: req.requestedLevel || "",
+      university: req.university || "",
+      country: req.country || "",
+      studyMode: req.studyMode || "ON_JOB",
+      description: req.description || "",
+    });
+    setEditId(req.id);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    if (confirm("Are you sure you want to delete this request?")) {
+      try {
+        await educationRequestApi.delete(id);
+        loadRequests();
+      } catch {
+        alert("Failed to delete request");
+      }
     }
   };
 
@@ -66,7 +97,11 @@ export default function EducationRequestsPage() {
           </div>
           {(user?.role === "EMPLOYEE" || user?.role === "ADMIN") && (
             <button
-              onClick={() => setShowForm(!showForm)}
+              onClick={() => {
+                setEditId(null);
+                setForm({ employeeId: "", requestedField: "", requestedLevel: "", university: "", country: "", studyMode: "ON_JOB", description: "" });
+                setShowForm(!showForm);
+              }}
               className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition-colors"
             >
               <Plus className="h-4 w-4" />
@@ -77,7 +112,7 @@ export default function EducationRequestsPage() {
 
         {showForm && (
           <div className="rounded-xl border bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold">{t("submitRequest")}</h2>
+            <h2 className="mb-4 text-lg font-semibold">{editId ? t("edit") || "Edit" : t("submitRequest")}</h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">{t("requestedField")}</label>
@@ -115,7 +150,10 @@ export default function EducationRequestsPage() {
                 <button type="submit" disabled={loading} className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors">
                   {loading ? t("loading") : t("submit")}
                 </button>
-                <button type="button" onClick={() => setShowForm(false)} className="rounded-lg border border-gray-300 px-6 py-2 text-gray-700 hover:bg-gray-50 transition-colors">
+                <button type="button" onClick={() => {
+                  setShowForm(false);
+                  setEditId(null);
+                }} className="rounded-lg border border-gray-300 px-6 py-2 text-gray-700 hover:bg-gray-50 transition-colors">
                   {t("cancel")}
                 </button>
               </div>
@@ -135,6 +173,7 @@ export default function EducationRequestsPage() {
                   <th className="px-4 py-3">{t("university")}</th>
                   <th className="px-4 py-3">{t("studyMode")}</th>
                   <th className="px-4 py-3">{t("status")}</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -148,11 +187,21 @@ export default function EducationRequestsPage() {
                       <td className="px-4 py-3">{req.university}</td>
                       <td className="px-4 py-3">{req.studyMode === "ON_JOB" ? t("onJob") : t("offJob")}</td>
                       <td className="px-4 py-3"><StatusBadge status={req.status} /></td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button onClick={() => handleEdit(req)} className="p-1 text-gray-500 hover:text-blue-600 transition-colors">
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button onClick={() => handleDelete(req.id)} className="p-1 text-gray-500 hover:text-red-600 transition-colors">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-gray-500">{t("noData")}</td>
+                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500">{t("noData")}</td>
                   </tr>
                 )}
               </tbody>
