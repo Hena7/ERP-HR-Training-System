@@ -1,3 +1,4 @@
+/* --- ORIGINAL BACKEND API (COMMENTED OUT FOR LOCALSTORAGE TESTING) ---
 import axios from "axios";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
@@ -122,4 +123,428 @@ export const serviceObligationApi = {
     api.get(`/api/service-obligations/contract/${contractId}`),
   getAll: (page = 0, size = 10) =>
     api.get(`/api/service-obligations?page=${page}&size=${size}`),
+};
+--- END ORIGINAL BACKEND API --- */
+
+// ==========================================
+// MOCK LOCALSTORAGE API IMPLEMENTATION
+// ==========================================
+
+const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+const getMockData = (key: string) => {
+  if (typeof window !== "undefined") {
+    const data = localStorage.getItem(key);
+    if (data) return JSON.parse(data);
+  }
+  return [];
+};
+
+const saveMockData = (key: string, data: any) => {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(key, JSON.stringify(data));
+  }
+};
+
+// Generic mock api instance to satisfy exports
+const api = {
+  interceptors: { request: { use: () => {} }, response: { use: () => {} } },
+  get: async () => ({ data: {} }),
+  post: async () => ({ data: {} }),
+  put: async () => ({ data: {} }),
+  delete: async () => ({ data: {} }),
+};
+export default api;
+
+export const authApi = {
+  login: async (email: string, password: string) => {
+    await delay(500);
+    if (email && password) {
+      const mockUser = {
+        token: "mock-jwt-token-123",
+        email: email,
+        fullName: "Mock Local User",
+        role: "ADMIN", // Defaulting to ADMIN for easiest local testing
+        employeeId: 1,
+      };
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem("token", mockUser.token);
+        localStorage.setItem("user", JSON.stringify(mockUser));
+      }
+
+      return { data: mockUser };
+    }
+    throw new Error("Invalid credentials");
+  },
+  register: async (data: Record<string, unknown>) => {
+    await delay(500);
+    return { data: { ...data, id: Date.now() } };
+  },
+};
+
+export const educationRequestApi = {
+  create: async (data: any) => {
+    await delay(500);
+    const requests = getMockData("educationRequests");
+    const newReq = {
+      ...data,
+      id: Date.now(),
+      status: "PENDING",
+      createdAt: new Date().toISOString(),
+    };
+    saveMockData("educationRequests", [...requests, newReq]);
+    return { data: newReq };
+  },
+  getById: async (id: number) => {
+    await delay(300);
+    const requests = getMockData("educationRequests");
+    const req = requests.find((r: any) => r.id == id);
+    return { data: req };
+  },
+  getAll: async (page = 0, size = 10) => {
+    await delay(300);
+    const requests = getMockData("educationRequests");
+    return {
+      data: {
+        content: requests,
+        totalElements: requests.length,
+        totalPages: Math.ceil(requests.length / size) || 1,
+        size,
+        number: page,
+      },
+    };
+  },
+  getByEmployee: async (employeeId: number, page = 0, size = 10) => {
+    await delay(300);
+    const requests = getMockData("educationRequests").filter(
+      (r: any) => r.employeeId == employeeId,
+    );
+    return {
+      data: {
+        content: requests,
+        totalElements: requests.length,
+        totalPages: Math.ceil(requests.length / size) || 1,
+        size,
+        number: page,
+      },
+    };
+  },
+  getByStatus: async (status: string, page = 0, size = 10) => {
+    await delay(300);
+    const requests = getMockData("educationRequests").filter(
+      (r: any) => r.status === status,
+    );
+    return {
+      data: {
+        content: requests,
+        totalElements: requests.length,
+        totalPages: Math.ceil(requests.length / size) || 1,
+        size,
+        number: page,
+      },
+    };
+  },
+  update: async (id: number, data: any) => {
+    await delay(500);
+    const requests = getMockData("educationRequests");
+    const index = requests.findIndex((r: any) => r.id == id);
+    if (index !== -1) {
+      requests[index] = {
+        ...requests[index],
+        ...data,
+        updatedAt: new Date().toISOString(),
+      };
+      saveMockData("educationRequests", requests);
+      return { data: requests[index] };
+    }
+    throw new Error("Not found");
+  },
+};
+
+export const hrVerificationApi = {
+  verify: async (data: any) => {
+    await delay(500);
+    const verifications = getMockData("hrVerifications");
+    const newVer = {
+      ...data,
+      id: Date.now(),
+      verifiedAt: new Date().toISOString(),
+    };
+    saveMockData("hrVerifications", [...verifications, newVer]);
+
+    // Update request status
+    if (data.requestId) {
+      const requests = getMockData("educationRequests");
+      const idx = requests.findIndex((r: any) => r.id == data.requestId);
+      if (idx !== -1) {
+        requests[idx].status = "HR_VERIFIED";
+        saveMockData("educationRequests", requests);
+      }
+    }
+    return { data: newVer };
+  },
+  getAll: async (page = 0, size = 10) => {
+    await delay(300);
+    const verifications = getMockData("hrVerifications");
+    return {
+      data: {
+        content: verifications,
+        totalElements: verifications.length,
+        totalPages: Math.ceil(verifications.length / size) || 1,
+        size,
+        number: page,
+      },
+    };
+  },
+  getByRequestId: async (requestId: number) => {
+    await delay(300);
+    const verifications = getMockData("hrVerifications").filter(
+      (v: any) => v.requestId == requestId,
+    );
+    return { data: verifications[0] || null };
+  },
+};
+
+export const committeeDecisionApi = {
+  decide: async (data: any) => {
+    await delay(500);
+    const decisions = getMockData("committeeDecisions");
+    const newDec = {
+      ...data,
+      id: Date.now(),
+      decisionDate: new Date().toISOString(),
+    };
+    saveMockData("committeeDecisions", [...decisions, newDec]);
+
+    // Update request status
+    if (data.requestId) {
+      const requests = getMockData("educationRequests");
+      const idx = requests.findIndex((r: any) => r.id == data.requestId);
+      if (idx !== -1) {
+        requests[idx].status =
+          data.decision === "APPROVED"
+            ? "COMMITTEE_APPROVED"
+            : "COMMITTEE_REJECTED";
+        saveMockData("educationRequests", requests);
+      }
+    }
+    return { data: newDec };
+  },
+  getAll: async (page = 0, size = 10) => {
+    await delay(300);
+    const decisions = getMockData("committeeDecisions");
+    return {
+      data: {
+        content: decisions,
+        totalElements: decisions.length,
+        totalPages: Math.ceil(decisions.length / size) || 1,
+        size,
+        number: page,
+      },
+    };
+  },
+  getByRequestId: async (requestId: number) => {
+    await delay(300);
+    const decisions = getMockData("committeeDecisions").filter(
+      (d: any) => d.requestId == requestId,
+    );
+    return { data: decisions[0] || null };
+  },
+};
+
+export const contractApi = {
+  create: async (data: any) => {
+    await delay(500);
+    const contracts = getMockData("contracts");
+    const newContract = {
+      ...data,
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+    };
+    saveMockData("contracts", [...contracts, newContract]);
+
+    if (data.requestId) {
+      const requests = getMockData("educationRequests");
+      const idx = requests.findIndex((r: any) => r.id == data.requestId);
+      if (idx !== -1) {
+        requests[idx].status = "CONTRACT_SIGNED";
+        saveMockData("educationRequests", requests);
+      }
+    }
+    return { data: newContract };
+  },
+  getById: async (id: number) => {
+    await delay(300);
+    const contracts = getMockData("contracts");
+    const c = contracts.find((c: any) => c.id == id);
+    return { data: c };
+  },
+  getAll: async (page = 0, size = 10) => {
+    await delay(300);
+    const contracts = getMockData("contracts");
+    return {
+      data: {
+        content: contracts,
+        totalElements: contracts.length,
+        totalPages: Math.ceil(contracts.length / size) || 1,
+        size,
+        number: page,
+      },
+    };
+  },
+  getByEmployee: async (employeeId: number, page = 0, size = 10) => {
+    await delay(300);
+    const contracts = getMockData("contracts").filter(
+      (c: any) => c.employeeId == employeeId,
+    );
+    return {
+      data: {
+        content: contracts,
+        totalElements: contracts.length,
+        totalPages: Math.ceil(contracts.length / size) || 1,
+        size,
+        number: page,
+      },
+    };
+  },
+};
+
+export const guarantorApi = {
+  create: async (data: any) => {
+    await delay(500);
+    const guarantors = getMockData("guarantors");
+    const newGuar = {
+      ...data,
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+    };
+    saveMockData("guarantors", [...guarantors, newGuar]);
+    return { data: newGuar };
+  },
+  getByContract: async (contractId: number) => {
+    await delay(300);
+    const guarantors = getMockData("guarantors").filter(
+      (g: any) => g.contractId == contractId,
+    );
+    return { data: guarantors };
+  },
+  delete: async (id: number) => {
+    await delay(500);
+    const guarantors = getMockData("guarantors").filter((g: any) => g.id != id);
+    saveMockData("guarantors", guarantors);
+    return { data: { success: true } };
+  },
+};
+
+export const progressReportApi = {
+  create: async (data: any) => {
+    await delay(500);
+    const reports = getMockData("progressReports");
+    const newRep = {
+      ...data,
+      id: Date.now(),
+      submittedAt: new Date().toISOString(),
+    };
+    saveMockData("progressReports", [...reports, newRep]);
+    return { data: newRep };
+  },
+  getByContract: async (contractId: number, page = 0, size = 10) => {
+    await delay(300);
+    const reports = getMockData("progressReports").filter(
+      (r: any) => r.contractId == contractId,
+    );
+    return {
+      data: {
+        content: reports,
+        totalElements: reports.length,
+        totalPages: Math.ceil(reports.length / size) || 1,
+        size,
+        number: page,
+      },
+    };
+  },
+  getAll: async (page = 0, size = 10) => {
+    await delay(300);
+    const reports = getMockData("progressReports");
+    return {
+      data: {
+        content: reports,
+        totalElements: reports.length,
+        totalPages: Math.ceil(reports.length / size) || 1,
+        size,
+        number: page,
+      },
+    };
+  },
+};
+
+export const completionApi = {
+  create: async (data: any) => {
+    await delay(500);
+    const completions = getMockData("educationCompletions");
+    const newComp = {
+      ...data,
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+    };
+    saveMockData("educationCompletions", [...completions, newComp]);
+
+    if (data.contractId) {
+      const contracts = getMockData("contracts");
+      const contract = contracts.find((c: any) => c.id == data.contractId);
+      if (contract && contract.requestId) {
+        const requests = getMockData("educationRequests");
+        const idx = requests.findIndex((r: any) => r.id == contract.requestId);
+        if (idx !== -1) {
+          requests[idx].status = "COMPLETED";
+          saveMockData("educationRequests", requests);
+        }
+      }
+    }
+    return { data: newComp };
+  },
+  getByContract: async (contractId: number) => {
+    await delay(300);
+    const completions = getMockData("educationCompletions").filter(
+      (c: any) => c.contractId == contractId,
+    );
+    return { data: completions[0] || null };
+  },
+  getAll: async (page = 0, size = 10) => {
+    await delay(300);
+    const completions = getMockData("educationCompletions");
+    return {
+      data: {
+        content: completions,
+        totalElements: completions.length,
+        totalPages: Math.ceil(completions.length / size) || 1,
+        size,
+        number: page,
+      },
+    };
+  },
+};
+
+export const serviceObligationApi = {
+  getByContract: async (contractId: number) => {
+    await delay(300);
+    const obligations = getMockData("serviceObligations").filter(
+      (o: any) => o.contractId == contractId,
+    );
+    return { data: obligations[0] || null };
+  },
+  getAll: async (page = 0, size = 10) => {
+    await delay(300);
+    const obligations = getMockData("serviceObligations");
+    return {
+      data: {
+        content: obligations,
+        totalElements: obligations.length,
+        totalPages: Math.ceil(obligations.length / size) || 1,
+        size,
+        number: page,
+      },
+    };
+  },
 };
