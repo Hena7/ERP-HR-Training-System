@@ -1,7 +1,6 @@
 package com.insa.education.dto.response;
 
 import com.insa.education.enums.RequestStatus;
-import com.insa.education.enums.StudyMode;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -19,8 +18,11 @@ public class EducationRequestResponse {
     private String educationType;
     private String educationLevel;
     private String institution;
-    private String country;
-    private StudyMode studyMode;
+    private String currentEducationLevel;
+    private Double workExperience;
+    private Double performanceScore;
+    private String employeePhone;
+    private String employeeDepartment;
     private String description;
     private RequestStatus status;
     private LocalDateTime createdAt;

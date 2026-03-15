@@ -1,6 +1,5 @@
 package com.insa.education.dto.request;
 
-import com.insa.education.enums.StudyMode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -18,11 +17,12 @@ public class EducationRequestDto {
     @NotNull(message = "Opportunity ID is required")
     private Long opportunityId;
 
-    @NotBlank(message = "Country is required")
-    private String country;
+    @NotBlank(message = "Current education level is required")
+    private String currentEducationLevel;
 
-    @NotNull(message = "Study mode is required")
-    private StudyMode studyMode;
+    private Double workExperience;
+
+    private Double performanceScore;
 
     private String description;
 }

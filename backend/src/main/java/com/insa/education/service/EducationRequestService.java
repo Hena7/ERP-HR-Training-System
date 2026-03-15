@@ -50,8 +50,9 @@ public class EducationRequestService {
         EducationRequest request = EducationRequest.builder()
                 .employee(employee)
                 .opportunity(opportunity)
-                .country(dto.getCountry())
-                .studyMode(dto.getStudyMode())
+                .currentEducationLevel(dto.getCurrentEducationLevel())
+                .workExperience(dto.getWorkExperience())
+                .performanceScore(dto.getPerformanceScore())
                 .description(dto.getDescription())
                 .status(RequestStatus.PENDING)
                 .build();
@@ -96,8 +97,9 @@ public class EducationRequestService {
                 .orElseThrow(() -> new ResourceNotFoundException("Opportunity not found with id: " + dto.getOpportunityId()));
 
         request.setOpportunity(opportunity);
-        request.setCountry(dto.getCountry());
-        request.setStudyMode(dto.getStudyMode());
+        request.setCurrentEducationLevel(dto.getCurrentEducationLevel());
+        request.setWorkExperience(dto.getWorkExperience());
+        request.setPerformanceScore(dto.getPerformanceScore());
         request.setDescription(dto.getDescription());
 
         EducationRequest saved = requestRepository.save(request);

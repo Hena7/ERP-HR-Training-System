@@ -29,8 +29,11 @@ export interface EducationRequest {
   educationType: string;
   educationLevel: string;
   institution: string;
-  country: string;
-  studyMode: string;
+  currentEducationLevel: string;
+  workExperience: number;
+  performanceScore: number;
+  employeePhone: string;
+  employeeDepartment: string;
   description: string;
   status: string;
   createdAt: string;
