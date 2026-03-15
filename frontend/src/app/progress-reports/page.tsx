@@ -5,7 +5,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { progressReportApi, contractApi } from "@/lib/api";
 import { ProgressReport, Contract } from "@/types";
-import { BarChart3, Plus } from "lucide-react";
+import { BarChart3, Plus, Edit, Trash2 } from "lucide-react";
 
 export default function ProgressReportsPage() {
   const { t } = useLanguage();
@@ -18,6 +18,7 @@ export default function ProgressReportsPage() {
     reportMonth: "",
     description: "",
   });
+  const [editId, setEditId] = useState<number | null>(null);
 
   useEffect(() => {
     loadData();
@@ -40,18 +41,46 @@ export default function ProgressReportsPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await progressReportApi.create({
+      const payload = {
         contractId: Number(form.contractId),
         reportMonth: form.reportMonth,
         description: form.description,
-      });
+      };
+
+      if (editId) {
+        await progressReportApi.update(editId, payload);
+      } else {
+        await progressReportApi.create(payload);
+      }
       setShowForm(false);
+      setEditId(null);
       setForm({ contractId: "", reportMonth: "", description: "" });
       loadData();
     } catch {
-      alert("Failed to submit report");
+      alert("Failed to save report");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEdit = (r: ProgressReport) => {
+    setForm({
+      contractId: String(r.contractId),
+      reportMonth: r.reportMonth || "",
+      description: r.description || "",
+    });
+    setEditId(r.id);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    if (confirm("Are you sure you want to delete this report?")) {
+      try {
+        await progressReportApi.delete(id);
+        loadData();
+      } catch {
+        alert("Failed to delete report");
+      }
     }
   };
 
@@ -63,7 +92,11 @@ export default function ProgressReportsPage() {
             <BarChart3 className="h-6 w-6 text-blue-600" />
             <h1 className="text-2xl font-bold text-gray-900">{t("progressReports")}</h1>
           </div>
-          <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition-colors">
+          <button onClick={() => {
+            setEditId(null);
+            setForm({ contractId: "", reportMonth: "", description: "" });
+            setShowForm(!showForm);
+          }} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition-colors">
             <Plus className="h-4 w-4" />
             {t("newReport")}
           </button>
@@ -71,7 +104,7 @@ export default function ProgressReportsPage() {
 
         {showForm && (
           <div className="rounded-xl border bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold">{t("submitReport")}</h2>
+            <h2 className="mb-4 text-lg font-semibold">{editId ? t("edit") || "Edit Report" : t("submitReport")}</h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">{t("contracts")}</label>
@@ -92,7 +125,10 @@ export default function ProgressReportsPage() {
               </div>
               <div className="flex gap-2 md:col-span-2">
                 <button type="submit" disabled={loading} className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors">{loading ? t("loading") : t("submit")}</button>
-                <button type="button" onClick={() => setShowForm(false)} className="rounded-lg border border-gray-300 px-6 py-2 text-gray-700 hover:bg-gray-50 transition-colors">{t("cancel")}</button>
+                <button type="button" onClick={() => {
+                  setShowForm(false);
+                  setEditId(null);
+                }} className="rounded-lg border border-gray-300 px-6 py-2 text-gray-700 hover:bg-gray-50 transition-colors">{t("cancel")}</button>
               </div>
             </form>
           </div>
@@ -107,6 +143,7 @@ export default function ProgressReportsPage() {
                   <th className="px-4 py-3">{t("contracts")} ID</th>
                   <th className="px-4 py-3">{t("reportMonth")}</th>
                   <th className="px-4 py-3">{t("description")}</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -116,9 +153,19 @@ export default function ProgressReportsPage() {
                     <td className="px-4 py-3">#{r.contractId}</td>
                     <td className="px-4 py-3">{r.reportMonth}</td>
                     <td className="px-4 py-3">{r.description}</td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button onClick={() => handleEdit(r)} className="p-1 text-gray-500 hover:text-blue-600 transition-colors">
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button onClick={() => handleDelete(r.id)} className="p-1 text-gray-500 hover:text-red-600 transition-colors">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 )) : (
-                  <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-500">{t("noData")}</td></tr>
+                  <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-500">{t("noData")}</td></tr>
                 )}
               </tbody>
             </table>

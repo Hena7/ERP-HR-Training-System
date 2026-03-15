@@ -5,7 +5,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { committeeDecisionApi, educationRequestApi } from "@/lib/api";
 import { CommitteeDecision, EducationRequest } from "@/types";
-import { Users, Plus } from "lucide-react";
+import { Users, Plus, Edit, Trash2 } from "lucide-react";
 
 export default function CommitteeDecisionsPage() {
   const { t } = useLanguage();
@@ -18,6 +18,7 @@ export default function CommitteeDecisionsPage() {
     decision: "APPROVED",
     comment: "",
   });
+  const [editId, setEditId] = useState<number | null>(null);
 
   useEffect(() => {
     loadData();
@@ -40,18 +41,46 @@ export default function CommitteeDecisionsPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await committeeDecisionApi.decide({
+      const payload = {
         requestId: Number(form.requestId),
         decision: form.decision,
         comment: form.comment,
-      });
+      };
+
+      if (editId) {
+        await committeeDecisionApi.update(editId, payload);
+      } else {
+        await committeeDecisionApi.decide(payload);
+      }
       setShowForm(false);
+      setEditId(null);
       setForm({ requestId: "", decision: "APPROVED", comment: "" });
       loadData();
     } catch {
-      alert("Failed to submit decision");
+      alert("Failed to save decision");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEdit = (d: CommitteeDecision) => {
+    setForm({
+      requestId: String(d.requestId),
+      decision: d.decision || "APPROVED",
+      comment: d.comment || "",
+    });
+    setEditId(d.id);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    if (confirm("Are you sure you want to delete this committee decision?")) {
+      try {
+        await committeeDecisionApi.delete(id);
+        loadData();
+      } catch {
+        alert("Failed to delete decision");
+      }
     }
   };
 
@@ -63,7 +92,11 @@ export default function CommitteeDecisionsPage() {
             <Users className="h-6 w-6 text-blue-600" />
             <h1 className="text-2xl font-bold text-gray-900">{t("committeeDecisions")}</h1>
           </div>
-          <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition-colors">
+          <button onClick={() => {
+            setEditId(null);
+            setForm({ requestId: "", decision: "APPROVED", comment: "" });
+            setShowForm(!showForm);
+          }} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition-colors">
             <Plus className="h-4 w-4" />
             {t("committeeDecision")}
           </button>
@@ -71,7 +104,7 @@ export default function CommitteeDecisionsPage() {
 
         {showForm && (
           <div className="rounded-xl border bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold">{t("committeeDecision")}</h2>
+            <h2 className="mb-4 text-lg font-semibold">{editId ? t("edit") || "Edit Decision" : t("committeeDecision")}</h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">{t("educationRequests")}</label>
@@ -95,7 +128,10 @@ export default function CommitteeDecisionsPage() {
               </div>
               <div className="flex gap-2 md:col-span-2">
                 <button type="submit" disabled={loading} className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors">{loading ? t("loading") : t("submit")}</button>
-                <button type="button" onClick={() => setShowForm(false)} className="rounded-lg border border-gray-300 px-6 py-2 text-gray-700 hover:bg-gray-50 transition-colors">{t("cancel")}</button>
+                <button type="button" onClick={() => {
+                  setShowForm(false);
+                  setEditId(null);
+                }} className="rounded-lg border border-gray-300 px-6 py-2 text-gray-700 hover:bg-gray-50 transition-colors">{t("cancel")}</button>
               </div>
             </form>
           </div>
@@ -111,6 +147,7 @@ export default function CommitteeDecisionsPage() {
                   <th className="px-4 py-3">{t("decision")}</th>
                   <th className="px-4 py-3">{t("comment")}</th>
                   <th className="px-4 py-3">{t("decidedBy")}</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -125,9 +162,19 @@ export default function CommitteeDecisionsPage() {
                     </td>
                     <td className="px-4 py-3">{d.comment}</td>
                     <td className="px-4 py-3">{d.decidedBy}</td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button onClick={() => handleEdit(d)} className="p-1 text-gray-500 hover:text-blue-600 transition-colors">
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button onClick={() => handleDelete(d.id)} className="p-1 text-gray-500 hover:text-red-600 transition-colors">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 )) : (
-                  <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-500">{t("noData")}</td></tr>
+                  <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-500">{t("noData")}</td></tr>
                 )}
               </tbody>
             </table>

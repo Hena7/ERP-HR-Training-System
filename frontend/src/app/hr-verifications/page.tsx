@@ -6,7 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { hrVerificationApi, educationRequestApi } from "@/lib/api";
 import { HRVerification, EducationRequest } from "@/types";
 import StatusBadge from "@/components/StatusBadge";
-import { ClipboardCheck, Plus } from "lucide-react";
+import { ClipboardCheck, Plus, Edit, Trash2 } from "lucide-react";
 
 export default function HRVerificationsPage() {
   const { t } = useLanguage();
@@ -20,6 +20,7 @@ export default function HRVerificationsPage() {
     performanceScore: "",
     disciplineRecord: false,
   });
+  const [editId, setEditId] = useState<number | null>(null);
 
   useEffect(() => {
     loadData();
@@ -42,19 +43,48 @@ export default function HRVerificationsPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await hrVerificationApi.verify({
+      const payload = {
         requestId: Number(form.requestId),
         workExperience: Number(form.workExperience),
         performanceScore: Number(form.performanceScore),
         disciplineRecord: form.disciplineRecord,
-      });
+      };
+
+      if (editId) {
+        await hrVerificationApi.update(editId, payload);
+      } else {
+        await hrVerificationApi.verify(payload);
+      }
       setShowForm(false);
+      setEditId(null);
       setForm({ requestId: "", workExperience: "", performanceScore: "", disciplineRecord: false });
       loadData();
     } catch {
-      alert("Failed to verify");
+      alert("Failed to save verification");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEdit = (v: HRVerification) => {
+    setForm({
+      requestId: String(v.requestId),
+      workExperience: String(v.workExperience || ""),
+      performanceScore: String(v.performanceScore || ""),
+      disciplineRecord: v.disciplineRecord || false,
+    });
+    setEditId(v.id);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    if (confirm("Are you sure you want to delete this HR verification?")) {
+      try {
+        await hrVerificationApi.delete(id);
+        loadData();
+      } catch {
+        alert("Failed to delete verification");
+      }
     }
   };
 
@@ -66,7 +96,11 @@ export default function HRVerificationsPage() {
             <ClipboardCheck className="h-6 w-6 text-blue-600" />
             <h1 className="text-2xl font-bold text-gray-900">{t("hrVerifications")}</h1>
           </div>
-          <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition-colors">
+          <button onClick={() => {
+            setEditId(null);
+            setForm({ requestId: "", workExperience: "", performanceScore: "", disciplineRecord: false });
+            setShowForm(!showForm);
+          }} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition-colors">
             <Plus className="h-4 w-4" />
             {t("verifyEmployee")}
           </button>
@@ -74,7 +108,7 @@ export default function HRVerificationsPage() {
 
         {showForm && (
           <div className="rounded-xl border bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold">{t("verifyEmployee")}</h2>
+            <h2 className="mb-4 text-lg font-semibold">{editId ? t("edit") || "Edit Verification" : t("verifyEmployee")}</h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">{t("educationRequests")}</label>
@@ -101,7 +135,10 @@ export default function HRVerificationsPage() {
                 <button type="submit" disabled={loading} className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors">
                   {loading ? t("loading") : t("submit")}
                 </button>
-                <button type="button" onClick={() => setShowForm(false)} className="rounded-lg border border-gray-300 px-6 py-2 text-gray-700 hover:bg-gray-50 transition-colors">{t("cancel")}</button>
+                <button type="button" onClick={() => {
+                  setShowForm(false);
+                  setEditId(null);
+                }} className="rounded-lg border border-gray-300 px-6 py-2 text-gray-700 hover:bg-gray-50 transition-colors">{t("cancel")}</button>
               </div>
             </form>
           </div>
@@ -118,6 +155,7 @@ export default function HRVerificationsPage() {
                   <th className="px-4 py-3">{t("performanceScore")}</th>
                   <th className="px-4 py-3">{t("disciplineRecord")}</th>
                   <th className="px-4 py-3">{t("verifiedBy")}</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -133,9 +171,19 @@ export default function HRVerificationsPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3">{v.verifiedBy}</td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button onClick={() => handleEdit(v)} className="p-1 text-gray-500 hover:text-blue-600 transition-colors">
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button onClick={() => handleDelete(v.id)} className="p-1 text-gray-500 hover:text-red-600 transition-colors">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 )) : (
-                  <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-500">{t("noData")}</td></tr>
+                  <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">{t("noData")}</td></tr>
                 )}
               </tbody>
             </table>
