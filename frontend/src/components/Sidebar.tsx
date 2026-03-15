@@ -14,11 +14,12 @@ import {
   BarChart3,
   GraduationCap,
   Clock,
+  BookOpen,
 } from "lucide-react";
 
 interface NavItem {
   href: string;
-  labelKey: "navDashboard" | "navRequests" | "navVerifications" | "navDecisions" | "navContracts" | "navGuarantors" | "navReports" | "navCompletions" | "navObligations" | "navUsers";
+  labelKey: "navDashboard" | "navOpportunities" | "navRequests" | "navVerifications" | "navDecisions" | "navContracts" | "navGuarantors" | "navReports" | "navCompletions" | "navObligations" | "navUsers";
   icon: React.ReactNode;
   roles: string[];
 }
@@ -29,6 +30,12 @@ const navItems: NavItem[] = [
     labelKey: "navDashboard",
     icon: <LayoutDashboard className="h-5 w-5" />,
     roles: ["EMPLOYEE", "HR_OFFICER", "EDUCATION_CENTER", "COMMITTEE_MEMBER", "DIRECTOR", "ADMIN"],
+  },
+  {
+    href: "/education-opportunities",
+    labelKey: "navOpportunities",
+    icon: <BookOpen className="h-5 w-5" />,
+    roles: ["EDUCATION_CENTER", "ADMIN", "EMPLOYEE"],
   },
   {
     href: "/education-requests",

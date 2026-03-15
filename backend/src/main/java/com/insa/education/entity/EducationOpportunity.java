@@ -1,46 +1,36 @@
 package com.insa.education.entity;
 
-import com.insa.education.enums.RequestStatus;
-import com.insa.education.enums.StudyMode;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "education_requests")
+@Table(name = "education_opportunities")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EducationRequest {
+public class EducationOpportunity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
-    private Employee employee;
+    @Column(name = "education_type", nullable = false)
+    private String educationType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "opportunity_id", nullable = false)
-    private EducationOpportunity opportunity;
+    @Column(name = "education_level", nullable = false)
+    private String educationLevel;
 
-    @Column(nullable = false, length = 100)
-    private String country;
+    @Column(nullable = false)
+    private String institution;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "study_mode", nullable = false)
-    private StudyMode studyMode;
+    @Column(nullable = false)
+    private String department;
 
     @Column(columnDefinition = "TEXT")
     private String description;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @Builder.Default
-    private RequestStatus status = RequestStatus.PENDING;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

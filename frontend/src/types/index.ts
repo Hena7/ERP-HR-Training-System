@@ -25,9 +25,10 @@ export interface EducationRequest {
   id: number;
   employeeId: number;
   employeeName: string;
-  requestedField: string;
-  requestedLevel: string;
-  university: string;
+  opportunityId: number;
+  educationType: string;
+  educationLevel: string;
+  institution: string;
   country: string;
   studyMode: string;
   description: string;
@@ -114,4 +115,15 @@ export interface PageResponse<T> {
   totalElements: number;
   size: number;
   number: number;
+}
+
+export interface EducationOpportunity {
+  id: number;
+  educationType: string;
+  educationLevel: string;
+  institution: string;
+  department: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
 }
