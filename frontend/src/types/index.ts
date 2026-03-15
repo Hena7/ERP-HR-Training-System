@@ -13,11 +13,12 @@ export interface Employee {
 }
 
 export interface AuthResponse {
+  id?: number;
   token: string;
   email: string;
   fullName: string;
   role: string;
-  employeeId: number;
+  employeeId?: number;
 }
 
 export interface EducationRequest {

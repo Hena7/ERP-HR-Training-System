@@ -27,6 +27,8 @@ export const translations = {
 
     // Auth
     email: "Email",
+    username: "Username",
+    or: "or",
     password: "Password",
     loginTitle: "Sign In to Education Module",
     loginSubtitle: "Enter your credentials to access the system",
@@ -128,7 +130,8 @@ export const translations = {
     requiredServiceYears: "Required Service Years",
     serviceStartDate: "Service Start Date",
     serviceEndDate: "Service End Date",
-    obligationRule: "ON_JOB: Service = Study Years | OFF_JOB: Service = Study Years x 2",
+    obligationRule:
+      "ON_JOB: Service = Study Years | OFF_JOB: Service = Study Years x 2",
 
     // Dashboard
     totalRequests: "Total Requests",
@@ -156,6 +159,7 @@ export const translations = {
     navReports: "Progress Reports",
     navCompletions: "Completions",
     navObligations: "Service Obligations",
+    navUsers: "Users",
   },
   am: {
     // Common
@@ -183,6 +187,8 @@ export const translations = {
 
     // Auth
     email: "ኢሜይል",
+    username: "የተጠቃሚ ስም",
+    or: "ወይም",
     password: "የይለፍ ቃል",
     loginTitle: "ወደ የትምህርት ሞዱል ይግቡ",
     loginSubtitle: "ስርዓቱን ለመድረስ የመግቢያ መረጃዎን ያስገቡ",
@@ -284,7 +290,8 @@ export const translations = {
     requiredServiceYears: "አስፈላጊ የአገልግሎት ዓመታት",
     serviceStartDate: "የአገልግሎት መጀመሪያ ቀን",
     serviceEndDate: "የአገልግሎት ማጠናቀቂያ ቀን",
-    obligationRule: "በስራ ላይ: አገልግሎት = የትምህርት ዓመታት | ከስራ ውጪ: አገልግሎት = የትምህርት ዓመታት x 2",
+    obligationRule:
+      "በስራ ላይ: አገልግሎት = የትምህርት ዓመታት | ከስራ ውጪ: አገልግሎት = የትምህርት ዓመታት x 2",
 
     // Dashboard
     totalRequests: "ጠቅላላ ጥያቄዎች",
@@ -312,6 +319,7 @@ export const translations = {
     navReports: "የሂደት ሪፖርቶች",
     navCompletions: "ማጠናቀቂያ",
     navObligations: "የአገልግሎት ግዴታዎች",
+    navUsers: "ተጠቃሚዎች",
   },
 } as const;
 

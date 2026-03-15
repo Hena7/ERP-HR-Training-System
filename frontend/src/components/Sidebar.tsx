@@ -18,7 +18,7 @@ import {
 
 interface NavItem {
   href: string;
-  labelKey: "navDashboard" | "navRequests" | "navVerifications" | "navDecisions" | "navContracts" | "navGuarantors" | "navReports" | "navCompletions" | "navObligations";
+  labelKey: "navDashboard" | "navRequests" | "navVerifications" | "navDecisions" | "navContracts" | "navGuarantors" | "navReports" | "navCompletions" | "navObligations" | "navUsers";
   icon: React.ReactNode;
   roles: string[];
 }
@@ -77,6 +77,12 @@ const navItems: NavItem[] = [
     labelKey: "navObligations",
     icon: <Clock className="h-5 w-5" />,
     roles: ["HR_OFFICER", "EDUCATION_CENTER", "ADMIN"],
+  },
+  {
+    href: "/users",
+    labelKey: "navUsers",
+    icon: <Users className="h-5 w-5" />,
+    roles: ["ADMIN"],
   },
 ];
 
