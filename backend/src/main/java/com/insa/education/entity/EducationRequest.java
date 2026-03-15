@@ -1,7 +1,6 @@
 package com.insa.education.entity;
 
 import com.insa.education.enums.RequestStatus;
-import com.insa.education.enums.StudyMode;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -27,12 +26,14 @@ public class EducationRequest {
     @JoinColumn(name = "opportunity_id", nullable = false)
     private EducationOpportunity opportunity;
 
-    @Column(nullable = false, length = 100)
-    private String country;
+    @Column(name = "current_education_level", nullable = false, length = 100)
+    private String currentEducationLevel;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "study_mode", nullable = false)
-    private StudyMode studyMode;
+    @Column(name = "work_experience")
+    private Double workExperience;
+
+    @Column(name = "performance_score")
+    private Double performanceScore;
 
     @Column(columnDefinition = "TEXT")
     private String description;

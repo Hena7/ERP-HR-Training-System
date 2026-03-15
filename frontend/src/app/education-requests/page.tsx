@@ -18,9 +18,13 @@ export default function EducationRequestsPage() {
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     employeeId: "",
+    fullName: "",
+    phone: "",
+    department: "",
     opportunityId: "",
-    country: "",
-    studyMode: "ON_JOB",
+    currentEducationLevel: "",
+    workExperience: "",
+    performanceScore: "",
     description: "",
   });
   const [editId, setEditId] = useState<number | null>(null);
@@ -28,11 +32,20 @@ export default function EducationRequestsPage() {
   useEffect(() => {
     loadRequests();
     loadOpportunities();
-  }, []);
+    if (user && user.role === "EMPLOYEE") {
+      setForm(prev => ({
+        ...prev,
+        employeeId: String(user.id || ""),
+        fullName: user.fullName || "",
+        phone: (user as any).phone || "",
+        department: (user as any).department || "",
+      }));
+    }
+  }, [user]);
 
   const loadRequests = async () => {
     try {
-      const res = await educationRequestApi.getAll(0, 20);
+      const res = await educationRequestApi.getAll(0, 50);
       setRequests(res.data.content || []);
     } catch {
       // API not available
@@ -55,10 +68,15 @@ export default function EducationRequestsPage() {
       const selectedOpp = opportunities.find(o => o.id === Number(form.opportunityId));
       if (!selectedOpp) throw new Error("Please select an opportunity");
 
-      // We map the referenced data so it displays in the frontend correctly without additional joins in mock DB.
       const submitData = {
         ...form,
         opportunityId: Number(form.opportunityId),
+        employeeId: Number(form.employeeId) || user?.employeeId,
+        employeeName: form.fullName, // explicitly pack these for mock API/backend compatibility
+        employeePhone: form.phone,
+        employeeDepartment: form.department,
+        workExperience: Number(form.workExperience) || 0,
+        performanceScore: Number(form.performanceScore) || 0,
         educationType: selectedOpp.educationType,
         educationLevel: selectedOpp.educationLevel,
         institution: selectedOpp.institution,
@@ -67,14 +85,21 @@ export default function EducationRequestsPage() {
       if (editId) {
         await educationRequestApi.update(editId, submitData);
       } else {
-        await educationRequestApi.create({
-          ...submitData,
-          employeeId: Number(form.employeeId) || user?.employeeId,
-        });
+        await educationRequestApi.create(submitData);
       }
       setShowForm(false);
       setEditId(null);
-      setForm({ employeeId: "", opportunityId: "", country: "", studyMode: "ON_JOB", description: "" });
+      setForm({
+        employeeId: (user?.role === "EMPLOYEE") ? String(user.id) : "",
+        fullName: (user?.role === "EMPLOYEE") ? user.fullName : "",
+        phone: (user?.role === "EMPLOYEE") ? (user as any).phone || "" : "",
+        department: (user?.role === "EMPLOYEE") ? (user as any).department || "" : "",
+        opportunityId: "",
+        currentEducationLevel: "",
+        workExperience: "",
+        performanceScore: "",
+        description: "",
+      });
       loadRequests();
     } catch (err: any) {
       alert(err.message || "Failed to submit request");
@@ -86,9 +111,13 @@ export default function EducationRequestsPage() {
   const handleEdit = (req: EducationRequest) => {
     setForm({
       employeeId: String(req.employeeId),
+      fullName: req.employeeName || "",
+      phone: req.employeePhone || "",
+      department: req.employeeDepartment || "",
       opportunityId: String(req.opportunityId),
-      country: req.country || "",
-      studyMode: req.studyMode || "ON_JOB",
+      currentEducationLevel: req.currentEducationLevel || "",
+      workExperience: String(req.workExperience || ""),
+      performanceScore: String(req.performanceScore || ""),
       description: req.description || "",
     });
     setEditId(req.id);
@@ -118,7 +147,17 @@ export default function EducationRequestsPage() {
             <button
               onClick={() => {
                 setEditId(null);
-                setForm({ employeeId: "", opportunityId: "", country: "", studyMode: "ON_JOB", description: "" });
+                setForm({
+                  employeeId: (user?.role === "EMPLOYEE") ? String(user.id) : "",
+                  fullName: (user?.role === "EMPLOYEE") ? user.fullName : "",
+                  phone: (user?.role === "EMPLOYEE") ? (user as any).phone || "" : "",
+                  department: (user?.role === "EMPLOYEE") ? (user as any).department || "" : "",
+                  opportunityId: "",
+                  currentEducationLevel: "",
+                  workExperience: "",
+                  performanceScore: "",
+                  description: "",
+                });
                 setShowForm(!showForm);
               }}
               className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition-colors"
@@ -153,24 +192,43 @@ export default function EducationRequestsPage() {
               {user?.role === "ADMIN" && (
                 <div>
                   <label className="mb-1 block text-sm font-medium text-gray-700">{t("employeeId")}</label>
-                  <input type="number" required={!editId && user?.role === "ADMIN"} value={form.employeeId} onChange={(e) => setForm({ ...form, employeeId: e.target.value })} className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none" />
+                  <input type="number" required value={form.employeeId} onChange={(e) => setForm({ ...form, employeeId: e.target.value })} className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none" />
                 </div>
               )}
-              
+
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">{t("country")}</label>
-                <input type="text" required value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none" />
+                <label className="mb-1 block text-sm font-medium text-gray-700">{t("fullName")}</label>
+                <input type="text" required value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none" readOnly={user?.role === "EMPLOYEE"} />
               </div>
+
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">{t("studyMode")}</label>
-                <select value={form.studyMode} onChange={(e) => setForm({ ...form, studyMode: e.target.value })} className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none">
-                  <option value="ON_JOB">{t("onJob")}</option>
-                  <option value="OFF_JOB">{t("offJob")}</option>
-                </select>
+                <label className="mb-1 block text-sm font-medium text-gray-700">{t("phone")}</label>
+                <input type="text" required value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none" readOnly={user?.role === "EMPLOYEE"} />
               </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">{t("department")}</label>
+                <input type="text" required value={form.department} onChange={(e) => setForm({ ...form, department: e.target.value })} className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none" readOnly={user?.role === "EMPLOYEE"} />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">{t("currentEducationLevel")}</label>
+                <input type="text" required value={form.currentEducationLevel} onChange={(e) => setForm({ ...form, currentEducationLevel: e.target.value })} className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none" placeholder="e.g. BSc in Computer Science" />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">{t("workExperience")}</label>
+                <input type="number" step="0.1" required value={form.workExperience} onChange={(e) => setForm({ ...form, workExperience: e.target.value })} className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none" />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">{t("averagePerformanceScore")}</label>
+                <input type="number" step="0.01" required value={form.performanceScore} onChange={(e) => setForm({ ...form, performanceScore: e.target.value })} className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none" />
+              </div>
+
               <div className="md:col-span-2">
                 <label className="mb-1 block text-sm font-medium text-gray-700">{t("description")}</label>
-                <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none" />
+                <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none" placeholder={t("description") + "..."} />
               </div>
               
               <div className="flex gap-2 md:col-span-2">
@@ -191,36 +249,42 @@ export default function EducationRequestsPage() {
         <div className="rounded-xl border bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b bg-gray-50 text-xs uppercase text-gray-500">
+              <thead className="border-b bg-gray-50 text-[10px] uppercase text-gray-500">
                 <tr>
-                  <th className="px-4 py-3">ID</th>
-                  <th className="px-4 py-3">{t("fullName")}</th>
-                  <th className="px-4 py-3">{t("educationType")}</th>
-                  <th className="px-4 py-3">{t("educationLevel")}</th>
-                  <th className="px-4 py-3">{t("institution")}</th>
-                  <th className="px-4 py-3">{t("studyMode")}</th>
-                  <th className="px-4 py-3">{t("status")}</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
+                  <th className="px-3 py-3">ID</th>
+                  <th className="px-3 py-3">{t("fullName")}</th>
+                  <th className="px-3 py-3">{t("currentEducationLevel")}</th>
+                  <th className="px-3 py-3">{t("workExperience")}</th>
+                  <th className="px-3 py-3">{t("averagePerformanceScore")}</th>
+                  <th className="px-3 py-3">{t("selectedEducationType")}</th>
+                  <th className="px-3 py-3">{t("selectedEducationLevel")}</th>
+                  <th className="px-3 py-3">{t("phone")}</th>
+                  <th className="px-3 py-3">{t("department")}</th>
+                  <th className="px-3 py-3">{t("description")}</th>
+                  <th className="px-3 py-3 text-right">{t("actions")}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y">
+              <tbody className="divide-y text-xs">
                 {requests.length > 0 ? (
                   requests.map((req) => (
                     <tr key={req.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3">{req.id}</td>
-                      <td className="px-4 py-3 font-medium">{req.employeeName}</td>
-                      <td className="px-4 py-3">{req.educationType}</td>
-                      <td className="px-4 py-3">{req.educationLevel}</td>
-                      <td className="px-4 py-3">{req.institution}</td>
-                      <td className="px-4 py-3">{req.studyMode === "ON_JOB" ? t("onJob") : t("offJob")}</td>
-                      <td className="px-4 py-3"><StatusBadge status={req.status} /></td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex justify-end gap-2">
-                          <button onClick={() => handleEdit(req)} className="p-1 text-gray-500 hover:text-blue-600 transition-colors" title={t("edit") || "Edit"}>
-                            <Edit className="h-4 w-4" />
+                      <td className="px-3 py-3 whitespace-nowrap">{req.id}</td>
+                      <td className="px-3 py-3 font-medium whitespace-nowrap">{req.employeeName}</td>
+                      <td className="px-3 py-3">{req.currentEducationLevel}</td>
+                      <td className="px-3 py-3">{req.workExperience}</td>
+                      <td className="px-3 py-3">{req.performanceScore}</td>
+                      <td className="px-3 py-3">{req.educationType}</td>
+                      <td className="px-3 py-3">{req.educationLevel}</td>
+                      <td className="px-3 py-3 whitespace-nowrap">{req.employeePhone}</td>
+                      <td className="px-3 py-3 whitespace-nowrap">{req.employeeDepartment}</td>
+                      <td className="px-3 py-3 max-w-[150px] truncate" title={req.description}>{req.description}</td>
+                      <td className="px-3 py-3 text-right">
+                        <div className="flex justify-end gap-1">
+                          <button onClick={() => handleEdit(req)} className="p-1 text-gray-400 hover:text-blue-600 transition-colors" title={t("edit") || "Edit"}>
+                            <Edit className="h-3.5 w-3.5" />
                           </button>
-                          <button onClick={() => handleDelete(req.id)} className="p-1 text-gray-500 hover:text-red-600 transition-colors" title={t("delete") || "Delete"}>
-                            <Trash2 className="h-4 w-4" />
+                          <button onClick={() => handleDelete(req.id)} className="p-1 text-gray-400 hover:text-red-600 transition-colors" title={t("delete") || "Delete"}>
+                            <Trash2 className="h-3.5 w-3.5" />
                           </button>
                         </div>
                       </td>
@@ -228,7 +292,7 @@ export default function EducationRequestsPage() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500">{t("noData")}</td>
+                    <td colSpan={11} className="px-4 py-8 text-center text-gray-500">{t("noData")}</td>
                   </tr>
                 )}
               </tbody>

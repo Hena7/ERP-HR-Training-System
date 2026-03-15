@@ -246,11 +246,17 @@ export const educationRequestApi = {
   create: async (data: any) => {
     await delay(500);
     const requests = getMockData("educationRequests");
+    const users = getMockData("users");
+    const employee = users.find((u: any) => u.id == data.employeeId || u.id == data.id);
+    
     const newReq = {
       ...data,
       id: Date.now(),
       status: "PENDING",
       createdAt: new Date().toISOString(),
+      employeeName: data.employeeName || (employee ? employee.fullName : "Unknown Employee"),
+      employeePhone: data.employeePhone || (employee ? employee.phone : "-"),
+      employeeDepartment: data.employeeDepartment || (employee ? employee.department : "-"),
     };
     saveMockData("educationRequests", [...requests, newReq]);
     return { data: newReq };
