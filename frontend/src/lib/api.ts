@@ -406,8 +406,8 @@ export const committeeDecisionApi = {
       if (idx !== -1) {
         requests[idx].status =
           data.decision === "APPROVED"
-            ? "COMMITTEE_APPROVED"
-            : "COMMITTEE_REJECTED";
+            ? "APPROVED"
+            : "REJECTED";
         saveMockData("educationRequests", requests);
       }
     }
@@ -467,7 +467,7 @@ export const contractApi = {
       const requests = getMockData("educationRequests");
       const idx = requests.findIndex((r: any) => r.id == data.requestId);
       if (idx !== -1) {
-        requests[idx].status = "CONTRACT_SIGNED";
+        requests[idx].status = "CONTRACT_CREATED";
         saveMockData("educationRequests", requests);
       }
     }
