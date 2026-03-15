@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import DashboardLayout from "@/components/DashboardLayout";
 import { BookOpen, Plus, Search, Edit, Trash2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EducationOpportunity } from "@/types";
@@ -81,11 +82,12 @@ export default function EducationOpportunitiesPage() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center">{t("loading")}</div>;
+  if (loading) return <DashboardLayout><div className="p-8 text-center">{t("loading")}</div></DashboardLayout>;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <DashboardLayout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{t("educationOpportunities")}</h1>
           <p className="mt-1 text-sm text-gray-500">Manage available education programs.</p>
@@ -245,5 +247,6 @@ export default function EducationOpportunitiesPage() {
         </div>
       </div>
     </div>
+    </DashboardLayout>
   );
 }
