@@ -159,27 +159,86 @@ export default api;
 export const authApi = {
   login: async (email: string, password: string) => {
     await delay(500);
-    if (email && password) {
+    if (!email || !password) throw new Error("Credentials required");
+
+    let users = getMockData("users");
+    if (!users || users.length === 0 || !users.find((u: any) => u.email === "admin@gmail.com")) {
+      const defaultAdmin = {
+        id: 1,
+        email: "admin@gmail.com",
+        password: "admin",
+        fullName: "System Admin",
+        role: "ADMIN",
+      };
+      
+      const filteredUsers = users ? users.filter((u: any) => u.email !== "admin") : [];
+      filteredUsers.push(defaultAdmin);
+      saveMockData("users", filteredUsers);
+      users = filteredUsers;
+    }
+
+    const user = users.find(
+      (u: any) => u.email === email && u.password === password,
+    );
+
+    if (user) {
       const mockUser = {
-        token: "mock-jwt-token-123",
-        email: email,
-        fullName: "Mock Local User",
-        role: "ADMIN", // Defaulting to ADMIN for easiest local testing
-        employeeId: 1,
+        ...user,
+        token: `mock-jwt-token-${user.id}`,
       };
 
       if (typeof window !== "undefined") {
         localStorage.setItem("token", mockUser.token);
-        localStorage.setItem("user", JSON.stringify(mockUser));
+        const { password, ...userWithoutPassword } = mockUser;
+        localStorage.setItem("user", JSON.stringify(userWithoutPassword));
       }
 
-      return { data: mockUser };
+      const { password, ...userWithoutPassword } = mockUser;
+      return { data: userWithoutPassword };
     }
     throw new Error("Invalid credentials");
   },
   register: async (data: Record<string, unknown>) => {
     await delay(500);
     return { data: { ...data, id: Date.now() } };
+  },
+};
+
+export const userApi = {
+  getAll: async () => {
+    await delay(300);
+    return { data: getMockData("users") };
+  },
+  create: async (data: any) => {
+    await delay(500);
+    const users = getMockData("users");
+    if (users.find((u: any) => u.email === data.email)) {
+      throw new Error("User already exists");
+    }
+    const newUser = {
+      ...data,
+      id: Date.now(),
+    };
+    saveMockData("users", [...users, newUser]);
+    return { data: newUser };
+  },
+  updateRole: async (id: number, role: string) => {
+    await delay(300);
+    const users = getMockData("users");
+    const index = users.findIndex((u: any) => u.id === id);
+    if (index !== -1) {
+      users[index].role = role;
+      saveMockData("users", users);
+      return { data: users[index] };
+    }
+    throw new Error("User not found");
+  },
+  delete: async (id: number) => {
+    await delay(300);
+    let users = getMockData("users");
+    users = users.filter((u: any) => u.id !== id);
+    saveMockData("users", users);
+    return { data: { success: true } };
   },
 };
 

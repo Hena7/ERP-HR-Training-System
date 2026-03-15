@@ -45,7 +45,9 @@ export default function LoginPage() {
               <GraduationCap className="h-12 w-12 text-blue-600" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">{t("loginTitle")}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {t("loginTitle")}
+          </h1>
           <p className="mt-2 text-sm text-gray-500">{t("loginSubtitle")}</p>
           <p className="mt-1 text-xs text-gray-400">{t("orgName")}</p>
         </div>
@@ -59,15 +61,15 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
-              {t("email")}
+              {t("email")} {t("or")} {t("username")}
             </label>
             <input
-              type="email"
+              type="text"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-              placeholder="name@insa.gov.et"
+              placeholder="username or email"
             />
           </div>
           <div>
