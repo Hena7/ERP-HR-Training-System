@@ -48,6 +48,16 @@ export const translations = {
     position: "Position",
     role: "Role",
 
+    // Education Opportunities
+    educationOpportunities: "Education Opportunities",
+    educationOpportunity: "Education Opportunity",
+    newOpportunity: "New Opportunity",
+    educationType: "Education Type",
+    educationLevel: "Education Level",
+    institution: "Institution",
+    addOpportunity: "Add Opportunity",
+    editOpportunity: "Edit Opportunity",
+
     // Education Request
     educationRequests: "Education Requests",
     newRequest: "New Education Request",
@@ -151,6 +161,7 @@ export const translations = {
 
     // Navigation
     navDashboard: "Dashboard",
+    navOpportunities: "Opportunities",
     navRequests: "Education Requests",
     navVerifications: "HR Verifications",
     navDecisions: "Committee Decisions",
@@ -207,6 +218,16 @@ export const translations = {
     department: "ክፍል",
     position: "የስራ ቦታ",
     role: "ሚና",
+
+    // Education Opportunities
+    educationOpportunities: "የትምህርት እድሎች",
+    educationOpportunity: "የትምህርት እድል",
+    newOpportunity: "አዲስ እድል",
+    educationType: "የትምህርት አይነት",
+    educationLevel: "የትምህርት ደረጃ",
+    institution: "ትምህርት የሚሰጥበት ተቋም",
+    addOpportunity: "እድል ጨምር",
+    editOpportunity: "እድል አርትዕ",
 
     // Education Request
     educationRequests: "የትምህርት ጥያቄዎች",
@@ -311,6 +332,7 @@ export const translations = {
 
     // Navigation
     navDashboard: "ዳሽቦርድ",
+    navOpportunities: "እድሎች",
     navRequests: "የትምህርት ጥያቄዎች",
     navVerifications: "የHR ማረጋገጫዎች",
     navDecisions: "የኮሚቴ ውሳኔዎች",

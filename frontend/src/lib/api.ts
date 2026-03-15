@@ -737,3 +737,56 @@ export const serviceObligationApi = {
     return { data: { success: true } };
   },
 };
+
+export const educationOpportunityApi = {
+  create: async (data: any) => {
+    await delay(500);
+    const opps = getMockData("educationOpportunities");
+    const newOpp = {
+      id: opps.length > 0 ? Math.max(...opps.map((o: any) => o.id)) + 1 : 1,
+      ...data,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    opps.push(newOpp);
+    saveMockData("educationOpportunities", opps);
+    return { data: newOpp };
+  },
+  getById: async (id: number) => {
+    await delay(300);
+    const opps = getMockData("educationOpportunities");
+    const opp = opps.find((o: any) => o.id == id);
+    if (opp) return { data: opp };
+    throw new Error("Not found");
+  },
+  getAll: async (page = 0, size = 10) => {
+    await delay(300);
+    const opps = getMockData("educationOpportunities");
+    return {
+      data: {
+        content: opps,
+        totalElements: opps.length,
+        totalPages: Math.ceil(opps.length / size) || 1,
+        size,
+        number: page,
+      },
+    };
+  },
+  update: async (id: number, data: any) => {
+    await delay(300);
+    const opps = getMockData("educationOpportunities");
+    const index = opps.findIndex((o: any) => o.id == id);
+    if (index !== -1) {
+      opps[index] = { ...opps[index], ...data, updatedAt: new Date().toISOString() };
+      saveMockData("educationOpportunities", opps);
+      return { data: opps[index] };
+    }
+    throw new Error("Not found");
+  },
+  delete: async (id: number) => {
+    await delay(300);
+    const opps = getMockData("educationOpportunities").filter((o: any) => o.id != id);
+    saveMockData("educationOpportunities", opps);
+    return { data: { success: true } };
+  },
+};

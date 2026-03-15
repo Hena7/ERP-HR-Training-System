@@ -3,6 +3,7 @@ package com.insa.education.service;
 import com.insa.education.dto.request.EducationRequestDto;
 import com.insa.education.dto.response.EducationRequestResponse;
 import com.insa.education.entity.EducationRequest;
+import com.insa.education.entity.EducationOpportunity;
 import com.insa.education.entity.Employee;
 import com.insa.education.enums.RequestStatus;
 import com.insa.education.exception.BadRequestException;
@@ -10,6 +11,7 @@ import com.insa.education.exception.ResourceNotFoundException;
 import com.insa.education.mapper.EducationMapper;
 import com.insa.education.repository.EducationRequestRepository;
 import com.insa.education.repository.EmployeeRepository;
+import com.insa.education.repository.EducationOpportunityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -24,13 +26,16 @@ public class EducationRequestService {
 
     private final EducationRequestRepository requestRepository;
     private final EmployeeRepository employeeRepository;
+    private final EducationOpportunityRepository opportunityRepository;
     private final EducationMapper mapper;
 
     public EducationRequestService(EducationRequestRepository requestRepository,
                                    EmployeeRepository employeeRepository,
+                                   EducationOpportunityRepository opportunityRepository,
                                    EducationMapper mapper) {
         this.requestRepository = requestRepository;
         this.employeeRepository = employeeRepository;
+        this.opportunityRepository = opportunityRepository;
         this.mapper = mapper;
     }
 
@@ -38,12 +43,13 @@ public class EducationRequestService {
     public EducationRequestResponse create(EducationRequestDto dto) {
         Employee employee = employeeRepository.findById(dto.getEmployeeId())
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + dto.getEmployeeId()));
+                
+        EducationOpportunity opportunity = opportunityRepository.findById(dto.getOpportunityId())
+                .orElseThrow(() -> new ResourceNotFoundException("Opportunity not found with id: " + dto.getOpportunityId()));
 
         EducationRequest request = EducationRequest.builder()
                 .employee(employee)
-                .requestedField(dto.getRequestedField())
-                .requestedLevel(dto.getRequestedLevel())
-                .university(dto.getUniversity())
+                .opportunity(opportunity)
                 .country(dto.getCountry())
                 .studyMode(dto.getStudyMode())
                 .description(dto.getDescription())
@@ -85,10 +91,11 @@ public class EducationRequestService {
         if (request.getStatus() != RequestStatus.PENDING) {
             throw new BadRequestException("Cannot edit request that is not in PENDING status");
         }
+        
+        EducationOpportunity opportunity = opportunityRepository.findById(dto.getOpportunityId())
+                .orElseThrow(() -> new ResourceNotFoundException("Opportunity not found with id: " + dto.getOpportunityId()));
 
-        request.setRequestedField(dto.getRequestedField());
-        request.setRequestedLevel(dto.getRequestedLevel());
-        request.setUniversity(dto.getUniversity());
+        request.setOpportunity(opportunity);
         request.setCountry(dto.getCountry());
         request.setStudyMode(dto.getStudyMode());
         request.setDescription(dto.getDescription());
