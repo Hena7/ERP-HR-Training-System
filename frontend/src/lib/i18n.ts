@@ -158,7 +158,7 @@ export const translations = {
 
     // Navigation
     navDashboard: "Dashboard",
-    navOpportunities: "Opportunities",
+    navOpportunities: "Education Opportunities",
     navRequests: "Education Requests",
     navVerifications: "HR Verifications",
     navDecisions: "Committee Decisions",
@@ -212,12 +212,12 @@ export const translations = {
     male: "ወንድ",
     female: "ሴት",
     phone: "ስልክ",
-    department: "ክፍል",
+    department: "የስራ ክፍል",
     position: "የስራ ቦታ",
     role: "ሚና",
 
     // Education Opportunities
-    educationOpportunities: "የትምህርት እድሎች",
+    educationOpportunities: "የትምህርት ፍላጎት(እድሎች)",
     educationOpportunity: "የትምህርት እድል",
     newOpportunity: "አዲስ እድል",
     educationType: "የትምህርት አይነት",
@@ -326,7 +326,7 @@ export const translations = {
 
     // Navigation
     navDashboard: "ዳሽቦርድ",
-    navOpportunities: "እድሎች",
+    navOpportunities: "የትምህርት ፍላጎት(እድሎች)",
     navRequests: "የትምህርት ጥያቄዎች",
     navVerifications: "የHR ማረጋገጫዎች",
     navDecisions: "የኮሚቴ ውሳኔዎች",
