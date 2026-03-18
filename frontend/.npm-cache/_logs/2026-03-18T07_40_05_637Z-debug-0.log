@@ -1,0 +1,18 @@
+0 verbose cli /home/sapient/.nvm/versions/node/v24.13.1/bin/node /home/sapient/.nvm/versions/node/v24.13.1/bin/npm
+1 info using npm@11.8.0
+2 info using node@v24.13.1
+3 silly config load:file:/home/sapient/.nvm/versions/node/v24.13.1/lib/node_modules/npm/npmrc
+4 silly config load:file:/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/.npmrc
+5 silly config load:file:/home/sapient/.npmrc
+6 silly config load:file:/home/sapient/.nvm/versions/node/v24.13.1/etc/npmrc
+7 verbose title npm run dev -H 127.0.0.1 -p 3000
+8 verbose argv "run" "dev" "--" "-H" "127.0.0.1" "-p" "3000"
+9 verbose logfile logs-max:10 dir:/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/.npm-cache/_logs/2026-03-18T07_40_05_637Z-
+10 verbose logfile /home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/.npm-cache/_logs/2026-03-18T07_40_05_637Z-debug-0.log
+11 silly logfile done cleaning log files
+12 verbose cwd /home/sapient/IdeaProjects/ERP-HR-Training-System/frontend
+13 verbose os Linux 6.18.7-76061807-generic
+14 verbose node v24.13.1
+15 verbose npm  v11.8.0
+16 verbose exit 0
+17 info ok

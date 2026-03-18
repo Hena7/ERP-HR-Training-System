@@ -1,0 +1,803 @@
+0 verbose cli /home/sapient/.nvm/versions/node/v24.13.1/bin/node /home/sapient/.nvm/versions/node/v24.13.1/bin/npm
+1 info using npm@11.8.0
+2 info using node@v24.13.1
+3 silly config load:file:/home/sapient/.nvm/versions/node/v24.13.1/lib/node_modules/npm/npmrc
+4 silly config load:file:/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/.npmrc
+5 silly config load:file:/home/sapient/.npmrc
+6 silly config load:file:/home/sapient/.nvm/versions/node/v24.13.1/etc/npmrc
+7 verbose title npm install
+8 verbose argv "install"
+9 verbose logfile logs-max:10 dir:/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/.npm-cache/_logs/2026-03-18T07_34_09_960Z-
+10 verbose logfile /home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/.npm-cache/_logs/2026-03-18T07_34_09_960Z-debug-0.log
+11 silly logfile done cleaning log files
+12 http fetch GET https://registry.npmjs.org/npm attempt 1 failed with ENOTFOUND
+13 silly packumentCache heap:4496293888 maxSize:1124073472 maxEntrySize:562036736
+14 silly idealTree buildDeps
+15 silly reify mark retired [
+15 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/baseline-browser-mapping'
+15 silly reify ]
+16 silly reify mark retired [
+16 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/es-iterator-helpers'
+16 silly reify ]
+17 silly reify mark retired [
+17 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-config-next'
+17 silly reify ]
+18 silly reify mark retired [
+18 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/flatted'
+18 silly reify ]
+19 silly reify mark retired [
+19 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/lucide-react'
+19 silly reify ]
+20 silly reify mark retired [
+20 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/next'
+20 silly reify ]
+21 silly reify mark retired [
+21 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/postcss'
+21 silly reify ]
+22 silly reify mark retired [
+22 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@next/env'
+22 silly reify ]
+23 silly reify mark retired [
+23 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@next/eslint-plugin-next'
+23 silly reify ]
+24 silly reify mark retired [
+24 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@next/swc-linux-x64-gnu'
+24 silly reify ]
+25 silly reify mark retired [
+25 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@next/swc-linux-x64-musl'
+25 silly reify ]
+26 silly reify mark retired [
+26 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@types/node'
+26 silly reify ]
+27 silly reify mark retired [
+27 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@types/react'
+27 silly reify ]
+28 silly reify mark retired [
+28 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@types/react-dom'
+28 silly reify ]
+29 silly reify mark retired [
+29 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@swc/helpers'
+29 silly reify ]
+30 silly reify mark retired [
+30 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@typescript-eslint/parser'
+30 silly reify ]
+31 silly reify mark retired [
+31 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@typescript-eslint/scope-manager'
+31 silly reify ]
+32 silly reify mark retired [
+32 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@typescript-eslint/types'
+32 silly reify ]
+33 silly reify mark retired [
+33 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@typescript-eslint/typescript-estree'
+33 silly reify ]
+34 silly reify mark retired [
+34 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@typescript-eslint/visitor-keys'
+34 silly reify ]
+35 silly reify mark retired [
+35 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/acorn',
+35 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/acorn'
+35 silly reify ]
+36 silly reify mark retired [
+36 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/autoprefixer',
+36 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/autoprefixer'
+36 silly reify ]
+37 silly reify mark retired [
+37 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/browserslist',
+37 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/browserslist'
+37 silly reify ]
+38 silly reify mark retired [
+38 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/cssesc',
+38 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/cssesc'
+38 silly reify ]
+39 silly reify mark retired [
+39 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint',
+39 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/eslint'
+39 silly reify ]
+40 silly reify mark retired [
+40 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-plugin-import/node_modules/semver',
+40 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-plugin-import/node_modules/.bin/semver'
+40 silly reify ]
+41 silly reify mark retired [
+41 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-plugin-react/node_modules/resolve',
+41 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-plugin-react/node_modules/.bin/resolve'
+41 silly reify ]
+42 silly reify mark retired [
+42 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-plugin-react/node_modules/semver',
+42 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-plugin-react/node_modules/.bin/semver'
+42 silly reify ]
+43 silly reify mark retired [
+43 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/glob',
+43 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/glob'
+43 silly reify ]
+44 silly reify mark retired [
+44 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/jiti',
+44 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/jiti'
+44 silly reify ]
+45 silly reify mark retired [
+45 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/js-yaml',
+45 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/js-yaml'
+45 silly reify ]
+46 silly reify mark retired [
+46 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/json5',
+46 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/json5'
+46 silly reify ]
+47 silly reify mark retired [
+47 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/loose-envify',
+47 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/loose-envify'
+47 silly reify ]
+48 silly reify mark retired [
+48 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/nanoid',
+48 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/nanoid'
+48 silly reify ]
+49 silly reify mark retired [
+49 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/napi-postinstall',
+49 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/napi-postinstall'
+49 silly reify ]
+50 silly reify mark retired [
+50 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/node-exports-info/node_modules/semver',
+50 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/node-exports-info/node_modules/.bin/semver'
+50 silly reify ]
+51 silly reify mark retired [
+51 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/resolve',
+51 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/resolve'
+51 silly reify ]
+52 silly reify mark retired [
+52 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/rimraf',
+52 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/rimraf'
+52 silly reify ]
+53 silly reify mark retired [
+53 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/semver',
+53 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/semver'
+53 silly reify ]
+54 silly reify mark retired [
+54 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/sucrase',
+54 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/sucrase',
+54 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/sucrase-node'
+54 silly reify ]
+55 silly reify mark retired [
+55 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/tailwindcss',
+55 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/tailwind',
+55 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/tailwindcss'
+55 silly reify ]
+56 silly reify mark retired [
+56 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/typescript',
+56 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/tsc',
+56 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/tsserver'
+56 silly reify ]
+57 silly reify mark retired [
+57 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/update-browserslist-db',
+57 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/update-browserslist-db'
+57 silly reify ]
+58 silly reify mark retired [
+58 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/which',
+58 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/node-which'
+58 silly reify ]
+59 silly reify moves {
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/baseline-browser-mapping': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.baseline-browser-mapping-0DxWqFOX',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/es-iterator-helpers': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.es-iterator-helpers-TKLyE0vD',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-config-next': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.eslint-config-next-18d5Dp6C',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/flatted': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.flatted-WX3gniA4',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/lucide-react': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.lucide-react-Utdlu5ru',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/next': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.next-DyU5lvMg',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/postcss': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.postcss-V7H5rM1b',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@next/env': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@next/.env-8J4OriCn',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@next/eslint-plugin-next': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@next/.eslint-plugin-next-0LQbpaUL',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@next/swc-linux-x64-gnu': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@next/.swc-linux-x64-gnu-6TygTyK0',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@next/swc-linux-x64-musl': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@next/.swc-linux-x64-musl-qtNdXmBC',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@types/node': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@types/.node-qVA5KU8V',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@types/react': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@types/.react-qSNM9yPP',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@types/react-dom': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@types/.react-dom-MN9M95xs',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@swc/helpers': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@swc/.helpers-a2qPyjBt',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@typescript-eslint/parser': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@typescript-eslint/.parser-ptQI7qd3',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@typescript-eslint/scope-manager': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@typescript-eslint/.scope-manager-nBnsiAiZ',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@typescript-eslint/types': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@typescript-eslint/.types-zE8he4JB',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@typescript-eslint/typescript-estree': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@typescript-eslint/.typescript-estree-SzllRv9L',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@typescript-eslint/visitor-keys': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/@typescript-eslint/.visitor-keys-VZyukOQ3',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/acorn': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.acorn-jxEtgD48',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/acorn': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.acorn-lKfQXJOq',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/autoprefixer': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.autoprefixer-b6Esgx8w',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/autoprefixer': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.autoprefixer-kJBzEk2q',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/browserslist': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.browserslist-ZptruWEq',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/browserslist': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.browserslist-6td6Br1O',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/cssesc': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.cssesc-9kMlrlUZ',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/cssesc': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.cssesc-8cPuL0VI',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.eslint-9KX6kUCh',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/eslint': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.eslint-6SHjeLuX',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-plugin-import/node_modules/semver': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-plugin-import/node_modules/.semver-zfdRf867',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-plugin-import/node_modules/.bin/semver': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-plugin-import/node_modules/.bin/.semver-7C9zRZz4',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-plugin-react/node_modules/resolve': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-plugin-react/node_modules/.resolve-GxjmnXwy',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-plugin-react/node_modules/.bin/resolve': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-plugin-react/node_modules/.bin/.resolve-skGkQQGW',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-plugin-react/node_modules/semver': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-plugin-react/node_modules/.semver-nfjGEhkO',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-plugin-react/node_modules/.bin/semver': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/eslint-plugin-react/node_modules/.bin/.semver-pCV07UFv',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/glob': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.glob-vm4EWrbZ',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/glob': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.glob-5NKSPKjc',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/jiti': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.jiti-liuqaRI1',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/jiti': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.jiti-Vlz6wgMR',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/js-yaml': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.js-yaml-zzgg6eqQ',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/js-yaml': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.js-yaml-UmqGWIcK',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/json5': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.json5-bCEtYBOe',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/json5': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.json5-Efd2wgao',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/loose-envify': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.loose-envify-TuDhdh6c',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/loose-envify': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.loose-envify-Nph7gLNA',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/nanoid': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.nanoid-Cud5Yam2',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/nanoid': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.nanoid-xZ6LkClN',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/napi-postinstall': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.napi-postinstall-a288JHSH',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/napi-postinstall': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.napi-postinstall-aXfclDcu',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/node-exports-info/node_modules/semver': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/node-exports-info/node_modules/.semver-kt0BbjSd',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/node-exports-info/node_modules/.bin/semver': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/node-exports-info/node_modules/.bin/.semver-C7pXT8YE',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/resolve': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.resolve-0HEOUiKX',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/resolve': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.resolve-mZWyrK2z',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/rimraf': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.rimraf-gvDVK9je',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/rimraf': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.rimraf-MrraKgqA',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/semver': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.semver-q9TDwBgn',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/semver': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.semver-AnYp1PWv',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/sucrase': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.sucrase-mDY91iB1',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/sucrase': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.sucrase-7ha846rI',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/sucrase-node': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.sucrase-node-mkZqi4Id',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/tailwindcss': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.tailwindcss-D9IJbywW',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/tailwind': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.tailwind-KgZBZUbB',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/tailwindcss': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.tailwindcss-BMyK5SNs',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/typescript': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.typescript-9BnawUoA',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/tsc': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.tsc-R0dD2ZHj',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/tsserver': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.tsserver-iVhZx3NM',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/update-browserslist-db': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.update-browserslist-db-RsgmTE1q',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/update-browserslist-db': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.update-browserslist-db-3DN1BNqt',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/which': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.which-vYuOMHoH',
+59 silly reify   '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/node-which': '/home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/node_modules/.bin/.node-which-ZVrRRXPI'
+59 silly reify }
+60 silly audit bulk request {
+60 silly audit   '@alloc/quick-lru': [ '5.2.0' ],
+60 silly audit   '@emnapi/core': [ '1.9.0' ],
+60 silly audit   '@emnapi/runtime': [ '1.9.0' ],
+60 silly audit   '@emnapi/wasi-threads': [ '1.2.0' ],
+60 silly audit   '@eslint-community/eslint-utils': [ '4.9.1' ],
+60 silly audit   '@eslint-community/regexpp': [ '4.12.2' ],
+60 silly audit   '@eslint/eslintrc': [ '2.1.4' ],
+60 silly audit   '@eslint/js': [ '8.57.1' ],
+60 silly audit   '@humanwhocodes/config-array': [ '0.13.0' ],
+60 silly audit   '@humanwhocodes/module-importer': [ '1.0.1' ],
+60 silly audit   '@humanwhocodes/object-schema': [ '2.0.3' ],
+60 silly audit   '@isaacs/cliui': [ '8.0.2' ],
+60 silly audit   'ansi-regex': [ '6.2.2', '5.0.1' ],
+60 silly audit   'strip-ansi': [ '7.2.0', '6.0.1' ],
+60 silly audit   '@jridgewell/gen-mapping': [ '0.3.13' ],
+60 silly audit   '@jridgewell/resolve-uri': [ '3.1.2' ],
+60 silly audit   '@jridgewell/sourcemap-codec': [ '1.5.5' ],
+60 silly audit   '@jridgewell/trace-mapping': [ '0.3.31' ],
+60 silly audit   '@napi-rs/wasm-runtime': [ '0.2.12' ],
+60 silly audit   '@next/env': [ '14.1.0' ],
+60 silly audit   '@next/eslint-plugin-next': [ '14.1.0' ],
+60 silly audit   '@next/swc-darwin-arm64': [ '14.1.0' ],
+60 silly audit   '@next/swc-darwin-x64': [ '14.1.0' ],
+60 silly audit   '@next/swc-linux-arm64-gnu': [ '14.1.0' ],
+60 silly audit   '@next/swc-linux-arm64-musl': [ '14.1.0' ],
+60 silly audit   '@next/swc-linux-x64-gnu': [ '14.1.0' ],
+60 silly audit   '@next/swc-linux-x64-musl': [ '14.1.0' ],
+60 silly audit   '@next/swc-win32-arm64-msvc': [ '14.1.0' ],
+60 silly audit   '@next/swc-win32-ia32-msvc': [ '14.1.0' ],
+60 silly audit   '@next/swc-win32-x64-msvc': [ '14.1.0' ],
+60 silly audit   '@nodelib/fs.scandir': [ '2.1.5' ],
+60 silly audit   '@nodelib/fs.stat': [ '2.0.5' ],
+60 silly audit   '@nodelib/fs.walk': [ '1.2.8' ],
+60 silly audit   '@nolyfill/is-core-module': [ '1.0.39' ],
+60 silly audit   '@pkgjs/parseargs': [ '0.11.0' ],
+60 silly audit   '@rtsao/scc': [ '1.1.0' ],
+60 silly audit   '@rushstack/eslint-patch': [ '1.16.1' ],
+60 silly audit   '@swc/helpers': [ '0.5.2' ],
+60 silly audit   '@tybys/wasm-util': [ '0.10.1' ],
+60 silly audit   '@types/json5': [ '0.0.29' ],
+60 silly audit   '@types/node': [ '20.19.37' ],
+60 silly audit   '@types/prop-types': [ '15.7.15' ],
+60 silly audit   '@types/react': [ '18.3.28' ],
+60 silly audit   '@types/react-dom': [ '18.3.7' ],
+60 silly audit   '@typescript-eslint/parser': [ '6.21.0' ],
+60 silly audit   '@typescript-eslint/scope-manager': [ '6.21.0' ],
+60 silly audit   '@typescript-eslint/types': [ '6.21.0' ],
+60 silly audit   '@typescript-eslint/typescript-estree': [ '6.21.0' ],
+60 silly audit   'brace-expansion': [ '2.0.2', '1.1.12' ],
+60 silly audit   minimatch: [ '9.0.3', '9.0.9', '3.1.5' ],
+60 silly audit   '@typescript-eslint/visitor-keys': [ '6.21.0' ],
+60 silly audit   '@ungap/structured-clone': [ '1.3.0' ],
+60 silly audit   '@unrs/resolver-binding-android-arm-eabi': [ '1.11.1' ],
+60 silly audit   '@unrs/resolver-binding-android-arm64': [ '1.11.1' ],
+60 silly audit   '@unrs/resolver-binding-darwin-arm64': [ '1.11.1' ],
+60 silly audit   '@unrs/resolver-binding-darwin-x64': [ '1.11.1' ],
+60 silly audit   '@unrs/resolver-binding-freebsd-x64': [ '1.11.1' ],
+60 silly audit   '@unrs/resolver-binding-linux-arm-gnueabihf': [ '1.11.1' ],
+60 silly audit   '@unrs/resolver-binding-linux-arm-musleabihf': [ '1.11.1' ],
+60 silly audit   '@unrs/resolver-binding-linux-arm64-gnu': [ '1.11.1' ],
+60 silly audit   '@unrs/resolver-binding-linux-arm64-musl': [ '1.11.1' ],
+60 silly audit   '@unrs/resolver-binding-linux-ppc64-gnu': [ '1.11.1' ],
+60 silly audit   '@unrs/resolver-binding-linux-riscv64-gnu': [ '1.11.1' ],
+60 silly audit   '@unrs/resolver-binding-linux-riscv64-musl': [ '1.11.1' ],
+60 silly audit   '@unrs/resolver-binding-linux-s390x-gnu': [ '1.11.1' ],
+60 silly audit   '@unrs/resolver-binding-linux-x64-gnu': [ '1.11.1' ],
+60 silly audit   '@unrs/resolver-binding-linux-x64-musl': [ '1.11.1' ],
+60 silly audit   '@unrs/resolver-binding-wasm32-wasi': [ '1.11.1' ],
+60 silly audit   '@unrs/resolver-binding-win32-arm64-msvc': [ '1.11.1' ],
+60 silly audit   '@unrs/resolver-binding-win32-ia32-msvc': [ '1.11.1' ],
+60 silly audit   '@unrs/resolver-binding-win32-x64-msvc': [ '1.11.1' ],
+60 silly audit   acorn: [ '8.16.0' ],
+60 silly audit   'acorn-jsx': [ '5.3.2' ],
+60 silly audit   ajv: [ '6.14.0' ],
+60 silly audit   'ansi-styles': [ '4.3.0', '6.2.3' ],
+60 silly audit   'any-promise': [ '1.3.0' ],
+60 silly audit   anymatch: [ '3.1.3' ],
+60 silly audit   arg: [ '5.0.2' ],
+60 silly audit   argparse: [ '2.0.1' ],
+60 silly audit   'aria-query': [ '5.3.2' ],
+60 silly audit   'array-buffer-byte-length': [ '1.0.2' ],
+60 silly audit   'array-includes': [ '3.1.9' ],
+60 silly audit   'array-union': [ '2.1.0' ],
+60 silly audit   'array.prototype.findlast': [ '1.2.5' ],
+60 silly audit   'array.prototype.findlastindex': [ '1.2.6' ],
+60 silly audit   'array.prototype.flat': [ '1.3.3' ],
+60 silly audit   'array.prototype.flatmap': [ '1.3.3' ],
+60 silly audit   'array.prototype.tosorted': [ '1.1.4' ],
+60 silly audit   'arraybuffer.prototype.slice': [ '1.0.4' ],
+60 silly audit   'ast-types-flow': [ '0.0.8' ],
+60 silly audit   'async-function': [ '1.0.0' ],
+60 silly audit   asynckit: [ '0.4.0' ],
+60 silly audit   autoprefixer: [ '10.4.27' ],
+60 silly audit   'available-typed-arrays': [ '1.0.7' ],
+60 silly audit   'axe-core': [ '4.11.1' ],
+60 silly audit   axios: [ '1.13.6' ],
+60 silly audit   'axobject-query': [ '4.1.0' ],
+60 silly audit   'balanced-match': [ '1.0.2' ],
+60 silly audit   'baseline-browser-mapping': [ '2.10.7' ],
+60 silly audit   'binary-extensions': [ '2.3.0' ],
+60 silly audit   braces: [ '3.0.3' ],
+60 silly audit   browserslist: [ '4.28.1' ],
+60 silly audit   busboy: [ '1.6.0' ],
+60 silly audit   'call-bind': [ '1.0.8' ],
+60 silly audit   'call-bind-apply-helpers': [ '1.0.2' ],
+60 silly audit   'call-bound': [ '1.0.4' ],
+60 silly audit   callsites: [ '3.1.0' ],
+60 silly audit   'camelcase-css': [ '2.0.1' ],
+60 silly audit   'caniuse-lite': [ '1.0.30001778' ],
+60 silly audit   chalk: [ '4.1.2' ],
+60 silly audit   chokidar: [ '3.6.0' ],
+60 silly audit   'glob-parent': [ '5.1.2', '6.0.2' ],
+60 silly audit   'client-only': [ '0.0.1' ],
+60 silly audit   'color-convert': [ '2.0.1' ],
+60 silly audit   'color-name': [ '1.1.4' ],
+60 silly audit   'combined-stream': [ '1.0.8' ],
+60 silly audit   commander: [ '4.1.1' ],
+60 silly audit   'concat-map': [ '0.0.1' ],
+60 silly audit   'cross-spawn': [ '7.0.6' ],
+60 silly audit   cssesc: [ '3.0.0' ],
+60 silly audit   csstype: [ '3.2.3' ],
+60 silly audit   'damerau-levenshtein': [ '1.0.8' ],
+60 silly audit   'data-view-buffer': [ '1.0.2' ],
+60 silly audit   'data-view-byte-length': [ '1.0.2' ],
+60 silly audit   'data-view-byte-offset': [ '1.0.1' ],
+60 silly audit   debug: [ '4.4.3', '3.2.7' ],
+60 silly audit   'deep-is': [ '0.1.4' ],
+60 silly audit   'define-data-property': [ '1.1.4' ],
+60 silly audit   'define-properties': [ '1.2.1' ],
+60 silly audit   'delayed-stream': [ '1.0.0' ],
+60 silly audit   didyoumean: [ '1.2.2' ],
+60 silly audit   'dir-glob': [ '3.0.1' ],
+60 silly audit   dlv: [ '1.1.3' ],
+60 silly audit   doctrine: [ '3.0.0', '2.1.0' ],
+60 silly audit   'dunder-proto': [ '1.0.1' ],
+60 silly audit   eastasianwidth: [ '0.2.0' ],
+60 silly audit   'electron-to-chromium': [ '1.5.313' ],
+60 silly audit   'emoji-regex': [ '9.2.2', '8.0.0' ],
+60 silly audit   'es-abstract': [ '1.24.1' ],
+60 silly audit   'es-define-property': [ '1.0.1' ],
+60 silly audit   'es-errors': [ '1.3.0' ],
+60 silly audit   'es-iterator-helpers': [ '1.3.1' ],
+60 silly audit   'es-object-atoms': [ '1.1.1' ],
+60 silly audit   'es-set-tostringtag': [ '2.1.0' ],
+60 silly audit   'es-shim-unscopables': [ '1.1.0' ],
+60 silly audit   'es-to-primitive': [ '1.3.0' ],
+60 silly audit   escalade: [ '3.2.0' ],
+60 silly audit   'escape-string-regexp': [ '4.0.0' ],
+60 silly audit   eslint: [ '8.57.1' ],
+60 silly audit   'eslint-config-next': [ '14.1.0' ],
+60 silly audit   'eslint-import-resolver-node': [ '0.3.9' ],
+60 silly audit   'eslint-import-resolver-typescript': [ '3.10.1' ],
+60 silly audit   'eslint-module-utils': [ '2.12.1' ],
+60 silly audit   'eslint-plugin-import': [ '2.32.0' ],
+60 silly audit   semver: [ '6.3.1', '7.7.4' ],
+60 silly audit   'eslint-plugin-jsx-a11y': [ '6.10.2' ],
+60 silly audit   'eslint-plugin-react': [ '7.37.5' ],
+60 silly audit   'eslint-plugin-react-hooks': [ '5.0.0-canary-7118f5dd7-20230705' ],
+60 silly audit   resolve: [ '2.0.0-next.6', '1.22.11' ],
+60 silly audit   'eslint-scope': [ '7.2.2' ],
+60 silly audit   'eslint-visitor-keys': [ '3.4.3' ],
+60 silly audit   espree: [ '9.6.1' ],
+60 silly audit   esquery: [ '1.7.0' ],
+60 silly audit   esrecurse: [ '4.3.0' ],
+60 silly audit   estraverse: [ '5.3.0' ],
+60 silly audit   esutils: [ '2.0.3' ],
+60 silly audit   'fast-deep-equal': [ '3.1.3' ],
+60 silly audit   'fast-glob': [ '3.3.3' ],
+60 silly audit   'fast-json-stable-stringify': [ '2.1.0' ],
+60 silly audit   'fast-levenshtein': [ '2.0.6' ],
+60 silly audit   fastq: [ '1.20.1' ],
+60 silly audit   'file-entry-cache': [ '6.0.1' ],
+60 silly audit   'fill-range': [ '7.1.1' ],
+60 silly audit   'find-up': [ '5.0.0' ],
+60 silly audit   'flat-cache': [ '3.2.0' ],
+60 silly audit   flatted: [ '3.4.1' ],
+60 silly audit   'follow-redirects': [ '1.15.11' ],
+60 silly audit   'for-each': [ '0.3.5' ],
+60 silly audit   'foreground-child': [ '3.3.1' ],
+60 silly audit   'form-data': [ '4.0.5' ],
+60 silly audit   'fraction.js': [ '5.3.4' ],
+60 silly audit   'fs.realpath': [ '1.0.0' ],
+60 silly audit   fsevents: [ '2.3.3' ],
+60 silly audit   'function-bind': [ '1.1.2' ],
+60 silly audit   'function.prototype.name': [ '1.1.8' ],
+60 silly audit   'functions-have-names': [ '1.2.3' ],
+60 silly audit   'generator-function': [ '2.0.1' ],
+60 silly audit   'get-intrinsic': [ '1.3.0' ],
+60 silly audit   'get-proto': [ '1.0.1' ],
+60 silly audit   'get-symbol-description': [ '1.1.0' ],
+60 silly audit   'get-tsconfig': [ '4.13.6' ],
+60 silly audit   glob: [ '10.3.10', '7.2.3' ],
+60 silly audit   globals: [ '13.24.0' ],
+60 silly audit   globalthis: [ '1.0.4' ],
+60 silly audit   globby: [ '11.1.0' ],
+60 silly audit   gopd: [ '1.2.0' ],
+60 silly audit   'graceful-fs': [ '4.2.11' ],
+60 silly audit   graphemer: [ '1.4.0' ],
+60 silly audit   'has-bigints': [ '1.1.0' ],
+60 silly audit   'has-flag': [ '4.0.0' ],
+60 silly audit   'has-property-descriptors': [ '1.0.2' ],
+60 silly audit   'has-proto': [ '1.2.0' ],
+60 silly audit   'has-symbols': [ '1.1.0' ],
+60 silly audit   'has-tostringtag': [ '1.0.2' ],
+60 silly audit   hasown: [ '2.0.2' ],
+60 silly audit   ignore: [ '5.3.2' ],
+60 silly audit   'import-fresh': [ '3.3.1' ],
+60 silly audit   imurmurhash: [ '0.1.4' ],
+60 silly audit   inflight: [ '1.0.6' ],
+60 silly audit   inherits: [ '2.0.4' ],
+60 silly audit   'internal-slot': [ '1.1.0' ],
+60 silly audit   'is-array-buffer': [ '3.0.5' ],
+60 silly audit   'is-async-function': [ '2.1.1' ],
+60 silly audit   'is-bigint': [ '1.1.0' ],
+60 silly audit   'is-binary-path': [ '2.1.0' ],
+60 silly audit   'is-boolean-object': [ '1.2.2' ],
+60 silly audit   'is-bun-module': [ '2.0.0' ],
+60 silly audit   'is-callable': [ '1.2.7' ],
+60 silly audit   'is-core-module': [ '2.16.1' ],
+60 silly audit   'is-data-view': [ '1.0.2' ],
+60 silly audit   'is-date-object': [ '1.1.0' ],
+60 silly audit   'is-extglob': [ '2.1.1' ],
+60 silly audit   'is-finalizationregistry': [ '1.1.1' ],
+60 silly audit   'is-fullwidth-code-point': [ '3.0.0' ],
+60 silly audit   'is-generator-function': [ '1.1.2' ],
+60 silly audit   'is-glob': [ '4.0.3' ],
+60 silly audit   'is-map': [ '2.0.3' ],
+60 silly audit   'is-negative-zero': [ '2.0.3' ],
+60 silly audit   'is-number': [ '7.0.0' ],
+60 silly audit   'is-number-object': [ '1.1.1' ],
+60 silly audit   'is-path-inside': [ '3.0.3' ],
+60 silly audit   'is-regex': [ '1.2.1' ],
+60 silly audit   'is-set': [ '2.0.3' ],
+60 silly audit   'is-shared-array-buffer': [ '1.0.4' ],
+60 silly audit   'is-string': [ '1.1.1' ],
+60 silly audit   'is-symbol': [ '1.1.1' ],
+60 silly audit   'is-typed-array': [ '1.1.15' ],
+60 silly audit   'is-weakmap': [ '2.0.2' ],
+60 silly audit   'is-weakref': [ '1.1.1' ],
+60 silly audit   'is-weakset': [ '2.0.4' ],
+60 silly audit   isarray: [ '2.0.5' ],
+60 silly audit   isexe: [ '2.0.0' ],
+60 silly audit   'iterator.prototype': [ '1.1.5' ],
+60 silly audit   jackspeak: [ '2.3.6' ],
+60 silly audit   jiti: [ '1.21.7' ],
+60 silly audit   'js-tokens': [ '4.0.0' ],
+60 silly audit   'js-yaml': [ '4.1.1' ],
+60 silly audit   'json-buffer': [ '3.0.1' ],
+60 silly audit   'json-schema-traverse': [ '0.4.1' ],
+60 silly audit   'json-stable-stringify-without-jsonify': [ '1.0.1' ],
+60 silly audit   json5: [ '1.0.2' ],
+60 silly audit   'jsx-ast-utils': [ '3.3.5' ],
+60 silly audit   keyv: [ '4.5.4' ],
+60 silly audit   'language-subtag-registry': [ '0.3.23' ],
+60 silly audit   'language-tags': [ '1.0.9' ],
+60 silly audit   levn: [ '0.4.1' ],
+60 silly audit   lilconfig: [ '3.1.3' ],
+60 silly audit   'lines-and-columns': [ '1.2.4' ],
+60 silly audit   'locate-path': [ '6.0.0' ],
+60 silly audit   'lodash.merge': [ '4.6.2' ],
+60 silly audit   'loose-envify': [ '1.4.0' ],
+60 silly audit   'lru-cache': [ '10.4.3' ],
+60 silly audit   'lucide-react': [ '0.309.0' ],
+60 silly audit   'math-intrinsics': [ '1.1.0' ],
+60 silly audit   merge2: [ '1.4.1' ],
+60 silly audit   micromatch: [ '4.0.8' ],
+60 silly audit   'mime-db': [ '1.52.0' ],
+60 silly audit   'mime-types': [ '2.1.35' ],
+60 silly audit   minimist: [ '1.2.8' ],
+60 silly audit   minipass: [ '7.1.3' ],
+60 silly audit   ms: [ '2.1.3' ],
+60 silly audit   mz: [ '2.7.0' ],
+60 silly audit   nanoid: [ '3.3.11' ],
+60 silly audit   'napi-postinstall': [ '0.3.4' ],
+60 silly audit   'natural-compare': [ '1.4.0' ],
+60 silly audit   next: [ '14.1.0' ],
+60 silly audit   postcss: [ '8.4.31', '8.5.8' ],
+60 silly audit   'node-exports-info': [ '1.6.0' ],
+60 silly audit   'node-releases': [ '2.0.36' ],
+60 silly audit   'normalize-path': [ '3.0.0' ],
+60 silly audit   'object-assign': [ '4.1.1' ],
+60 silly audit   'object-hash': [ '3.0.0' ],
+60 silly audit   'object-inspect': [ '1.13.4' ],
+60 silly audit   'object-keys': [ '1.1.1' ],
+60 silly audit   'object.assign': [ '4.1.7' ],
+60 silly audit   'object.entries': [ '1.1.9' ],
+60 silly audit   'object.fromentries': [ '2.0.8' ],
+60 silly audit   'object.groupby': [ '1.0.3' ],
+60 silly audit   'object.values': [ '1.2.1' ],
+60 silly audit   once: [ '1.4.0' ],
+60 silly audit   optionator: [ '0.9.4' ],
+60 silly audit   'own-keys': [ '1.0.1' ],
+60 silly audit   'p-limit': [ '3.1.0' ],
+60 silly audit   'p-locate': [ '5.0.0' ],
+60 silly audit   'parent-module': [ '1.0.1' ],
+60 silly audit   'path-exists': [ '4.0.0' ],
+60 silly audit   'path-is-absolute': [ '1.0.1' ],
+60 silly audit   'path-key': [ '3.1.1' ],
+60 silly audit   'path-parse': [ '1.0.7' ],
+60 silly audit   'path-scurry': [ '1.11.1' ],
+60 silly audit   'path-type': [ '4.0.0' ],
+60 silly audit   picocolors: [ '1.1.1' ],
+60 silly audit   picomatch: [ '2.3.1', '4.0.3' ],
+60 silly audit   pify: [ '2.3.0' ],
+60 silly audit   pirates: [ '4.0.7' ],
+60 silly audit   'possible-typed-array-names': [ '1.1.0' ],
+60 silly audit   'postcss-import': [ '15.1.0' ],
+60 silly audit   'postcss-js': [ '4.1.0' ],
+60 silly audit   'postcss-load-config': [ '6.0.1' ],
+60 silly audit   'postcss-nested': [ '6.2.0' ],
+60 silly audit   'postcss-selector-parser': [ '6.1.2' ],
+60 silly audit   'postcss-value-parser': [ '4.2.0' ],
+60 silly audit   'prelude-ls': [ '1.2.1' ],
+60 silly audit   'prop-types': [ '15.8.1' ],
+60 silly audit   'proxy-from-env': [ '1.1.0' ],
+60 silly audit   punycode: [ '2.3.1' ],
+60 silly audit   'queue-microtask': [ '1.2.3' ],
+60 silly audit   react: [ '18.3.1' ],
+60 silly audit   'react-dom': [ '18.3.1' ],
+60 silly audit   'react-is': [ '16.13.1' ],
+60 silly audit   'read-cache': [ '1.0.0' ],
+60 silly audit   readdirp: [ '3.6.0' ],
+60 silly audit   'reflect.getprototypeof': [ '1.0.10' ],
+60 silly audit   'regexp.prototype.flags': [ '1.5.4' ],
+60 silly audit   'resolve-from': [ '4.0.0' ],
+60 silly audit   'resolve-pkg-maps': [ '1.0.0' ],
+60 silly audit   reusify: [ '1.1.0' ],
+60 silly audit   rimraf: [ '3.0.2' ],
+60 silly audit   'run-parallel': [ '1.2.0' ],
+60 silly audit   'safe-array-concat': [ '1.1.3' ],
+60 silly audit   'safe-push-apply': [ '1.0.0' ],
+60 silly audit   'safe-regex-test': [ '1.1.0' ],
+60 silly audit   scheduler: [ '0.23.2' ],
+60 silly audit   'set-function-length': [ '1.2.2' ],
+60 silly audit   'set-function-name': [ '2.0.2' ],
+60 silly audit   'set-proto': [ '1.0.0' ],
+60 silly audit   'shebang-command': [ '2.0.0' ],
+60 silly audit   'shebang-regex': [ '3.0.0' ],
+60 silly audit   'side-channel': [ '1.1.0' ],
+60 silly audit   'side-channel-list': [ '1.0.0' ],
+60 silly audit   'side-channel-map': [ '1.0.1' ],
+60 silly audit   'side-channel-weakmap': [ '1.0.2' ],
+60 silly audit   'signal-exit': [ '4.1.0' ],
+60 silly audit   slash: [ '3.0.0' ],
+60 silly audit   'source-map-js': [ '1.2.1' ],
+60 silly audit   'stable-hash': [ '0.0.5' ],
+60 silly audit   'stop-iteration-iterator': [ '1.1.0' ],
+60 silly audit   streamsearch: [ '1.1.0' ],
+60 silly audit   'string-width': [ '5.1.2', '4.2.3' ],
+60 silly audit   'string.prototype.includes': [ '2.0.1' ],
+60 silly audit   'string.prototype.matchall': [ '4.0.12' ],
+60 silly audit   'string.prototype.repeat': [ '1.0.0' ],
+60 silly audit   'string.prototype.trim': [ '1.2.10' ],
+60 silly audit   'string.prototype.trimend': [ '1.0.9' ],
+60 silly audit   'string.prototype.trimstart': [ '1.0.8' ],
+60 silly audit   'strip-bom': [ '3.0.0' ],
+60 silly audit   'strip-json-comments': [ '3.1.1' ],
+60 silly audit   'styled-jsx': [ '5.1.1' ],
+60 silly audit   sucrase: [ '3.35.1' ],
+60 silly audit   'supports-color': [ '7.2.0' ],
+60 silly audit   'supports-preserve-symlinks-flag': [ '1.0.0' ],
+60 silly audit   tailwindcss: [ '3.4.19' ],
+60 silly audit   'text-table': [ '0.2.0' ],
+60 silly audit   thenify: [ '3.3.1' ],
+60 silly audit   'thenify-all': [ '1.6.0' ],
+60 silly audit   tinyglobby: [ '0.2.15' ],
+60 silly audit   fdir: [ '6.5.0' ],
+60 silly audit   'to-regex-range': [ '5.0.1' ],
+60 silly audit   'ts-api-utils': [ '1.4.3' ],
+60 silly audit   'ts-interface-checker': [ '0.1.13' ],
+60 silly audit   'tsconfig-paths': [ '3.15.0' ],
+60 silly audit   tslib: [ '2.8.1' ],
+60 silly audit   'type-check': [ '0.4.0' ],
+60 silly audit   'type-fest': [ '0.20.2' ],
+60 silly audit   'typed-array-buffer': [ '1.0.3' ],
+60 silly audit   'typed-array-byte-length': [ '1.0.3' ],
+60 silly audit   'typed-array-byte-offset': [ '1.0.4' ],
+60 silly audit   'typed-array-length': [ '1.0.7' ],
+60 silly audit   typescript: [ '5.9.3' ],
+60 silly audit   'unbox-primitive': [ '1.1.0' ],
+60 silly audit   'undici-types': [ '6.21.0' ],
+60 silly audit   'unrs-resolver': [ '1.11.1' ],
+60 silly audit   'update-browserslist-db': [ '1.2.3' ],
+60 silly audit   'uri-js': [ '4.4.1' ],
+60 silly audit   'util-deprecate': [ '1.0.2' ],
+60 silly audit   which: [ '2.0.2' ],
+60 silly audit   'which-boxed-primitive': [ '1.1.1' ],
+60 silly audit   'which-builtin-type': [ '1.2.1' ],
+60 silly audit   'which-collection': [ '1.0.2' ],
+60 silly audit   'which-typed-array': [ '1.1.20' ],
+60 silly audit   'word-wrap': [ '1.2.5' ],
+60 silly audit   'wrap-ansi': [ '8.1.0', '7.0.0' ],
+60 silly audit   wrappy: [ '1.0.2' ],
+60 silly audit   'yocto-queue': [ '0.1.0' ]
+60 silly audit }
+61 verbose audit error FetchError: request to https://registry.npmjs.org/-/npm/v1/security/advisories/bulk failed, reason: getaddrinfo ENOTFOUND registry.npmjs.org
+61 verbose audit error     at ClientRequest.<anonymous> (/home/sapient/.nvm/versions/node/v24.13.1/lib/node_modules/npm/node_modules/minipass-fetch/lib/index.js:130:14)
+61 verbose audit error     at ClientRequest.emit (node:events:508:28)
+61 verbose audit error     at emitErrorEvent (node:_http_client:108:11)
+61 verbose audit error     at _destroy (node:_http_client:963:9)
+61 verbose audit error     at onSocketNT (node:_http_client:983:5)
+61 verbose audit error     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+61 verbose audit error   code: 'ENOTFOUND',
+61 verbose audit error   errno: 'ENOTFOUND',
+61 verbose audit error   syscall: 'getaddrinfo',
+61 verbose audit error   hostname: 'registry.npmjs.org',
+61 verbose audit error   type: 'system'
+61 verbose audit error }
+62 silly audit error undefined
+63 silly audit report null
+64 http cache update-browserslist-db@https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.2.3.tgz 0ms (cache hit)
+65 http cache typescript@https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz 0ms (cache hit)
+66 http cache which@https://registry.npmjs.org/which/-/which-2.0.2.tgz 0ms (cache hit)
+67 http cache tailwindcss@https://registry.npmjs.org/tailwindcss/-/tailwindcss-3.4.19.tgz 0ms (cache hit)
+68 http cache sucrase@https://registry.npmjs.org/sucrase/-/sucrase-3.35.1.tgz 0ms (cache hit)
+69 http cache semver@https://registry.npmjs.org/semver/-/semver-7.7.4.tgz 0ms (cache hit)
+70 http cache rimraf@https://registry.npmjs.org/rimraf/-/rimraf-3.0.2.tgz 0ms (cache hit)
+71 http cache loose-envify@https://registry.npmjs.org/loose-envify/-/loose-envify-1.4.0.tgz 0ms (cache hit)
+72 http cache napi-postinstall@https://registry.npmjs.org/napi-postinstall/-/napi-postinstall-0.3.4.tgz 1ms (cache hit)
+73 http cache nanoid@https://registry.npmjs.org/nanoid/-/nanoid-3.3.11.tgz 0ms (cache hit)
+74 http cache resolve@https://registry.npmjs.org/resolve/-/resolve-1.22.11.tgz 0ms (cache hit)
+75 http cache json5@https://registry.npmjs.org/json5/-/json5-1.0.2.tgz 0ms (cache hit)
+76 http cache js-yaml@https://registry.npmjs.org/js-yaml/-/js-yaml-4.1.1.tgz 0ms (cache hit)
+77 http cache jiti@https://registry.npmjs.org/jiti/-/jiti-1.21.7.tgz 0ms (cache hit)
+78 http cache glob@https://registry.npmjs.org/glob/-/glob-10.3.10.tgz 0ms (cache hit)
+79 http cache eslint@https://registry.npmjs.org/eslint/-/eslint-8.57.1.tgz 0ms (cache hit)
+80 http cache cssesc@https://registry.npmjs.org/cssesc/-/cssesc-3.0.0.tgz 0ms (cache hit)
+81 http cache browserslist@https://registry.npmjs.org/browserslist/-/browserslist-4.28.1.tgz 0ms (cache hit)
+82 http cache autoprefixer@https://registry.npmjs.org/autoprefixer/-/autoprefixer-10.4.27.tgz 0ms (cache hit)
+83 http cache acorn@https://registry.npmjs.org/acorn/-/acorn-8.16.0.tgz 0ms (cache hit)
+84 http cache @typescript-eslint/visitor-keys@https://registry.npmjs.org/@typescript-eslint/visitor-keys/-/visitor-keys-6.21.0.tgz 0ms (cache hit)
+85 http cache @typescript-eslint/scope-manager@https://registry.npmjs.org/@typescript-eslint/scope-manager/-/scope-manager-6.21.0.tgz 0ms (cache hit)
+86 http cache @typescript-eslint/typescript-estree@https://registry.npmjs.org/@typescript-eslint/typescript-estree/-/typescript-estree-6.21.0.tgz 0ms (cache hit)
+87 http cache @typescript-eslint/types@https://registry.npmjs.org/@typescript-eslint/types/-/types-6.21.0.tgz 0ms (cache hit)
+88 http cache @typescript-eslint/parser@https://registry.npmjs.org/@typescript-eslint/parser/-/parser-6.21.0.tgz 0ms (cache hit)
+89 http cache @types/react-dom@https://registry.npmjs.org/@types/react-dom/-/react-dom-18.3.7.tgz 0ms (cache hit)
+90 http cache @swc/helpers@https://registry.npmjs.org/@swc/helpers/-/helpers-0.5.2.tgz 0ms (cache hit)
+91 http cache @types/react@https://registry.npmjs.org/@types/react/-/react-18.3.28.tgz 0ms (cache hit)
+92 http cache @types/node@https://registry.npmjs.org/@types/node/-/node-20.19.37.tgz 0ms (cache hit)
+93 http cache @next/swc-linux-x64-musl@https://registry.npmjs.org/@next/swc-linux-x64-musl/-/swc-linux-x64-musl-14.1.0.tgz 0ms (cache hit)
+94 http cache @next/swc-linux-x64-gnu@https://registry.npmjs.org/@next/swc-linux-x64-gnu/-/swc-linux-x64-gnu-14.1.0.tgz 0ms (cache hit)
+95 http cache @next/eslint-plugin-next@https://registry.npmjs.org/@next/eslint-plugin-next/-/eslint-plugin-next-14.1.0.tgz 0ms (cache hit)
+96 http cache postcss@https://registry.npmjs.org/postcss/-/postcss-8.5.8.tgz 0ms (cache hit)
+97 http cache next@https://registry.npmjs.org/next/-/next-14.1.0.tgz 0ms (cache hit)
+98 http cache lucide-react@https://registry.npmjs.org/lucide-react/-/lucide-react-0.309.0.tgz 0ms (cache hit)
+99 http cache flatted@https://registry.npmjs.org/flatted/-/flatted-3.4.1.tgz 0ms (cache hit)
+100 http cache @next/env@https://registry.npmjs.org/@next/env/-/env-14.1.0.tgz 0ms (cache hit)
+101 http cache eslint-config-next@https://registry.npmjs.org/eslint-config-next/-/eslint-config-next-14.1.0.tgz 0ms (cache hit)
+102 http cache es-iterator-helpers@https://registry.npmjs.org/es-iterator-helpers/-/es-iterator-helpers-1.3.1.tgz 0ms (cache hit)
+103 http cache baseline-browser-mapping@https://registry.npmjs.org/baseline-browser-mapping/-/baseline-browser-mapping-2.10.7.tgz 0ms (cache hit)
+104 http cache semver@https://registry.npmjs.org/semver/-/semver-6.3.1.tgz 0ms (cache hit)
+105 http cache semver@https://registry.npmjs.org/semver/-/semver-6.3.1.tgz 0ms (cache hit)
+106 http cache semver@https://registry.npmjs.org/semver/-/semver-6.3.1.tgz 0ms (cache hit)
+107 http cache resolve@https://registry.npmjs.org/resolve/-/resolve-2.0.0-next.6.tgz 0ms (cache hit)
+108 silly tarball no local data for update-browserslist-db@https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.2.3.tgz. Extracting by manifest.
+109 silly tarball no local data for typescript@https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz. Extracting by manifest.
+110 silly tarball no local data for which@https://registry.npmjs.org/which/-/which-2.0.2.tgz. Extracting by manifest.
+111 silly tarball no local data for tailwindcss@https://registry.npmjs.org/tailwindcss/-/tailwindcss-3.4.19.tgz. Extracting by manifest.
+112 silly tarball no local data for sucrase@https://registry.npmjs.org/sucrase/-/sucrase-3.35.1.tgz. Extracting by manifest.
+113 silly tarball no local data for semver@https://registry.npmjs.org/semver/-/semver-7.7.4.tgz. Extracting by manifest.
+114 silly tarball no local data for rimraf@https://registry.npmjs.org/rimraf/-/rimraf-3.0.2.tgz. Extracting by manifest.
+115 silly tarball no local data for loose-envify@https://registry.npmjs.org/loose-envify/-/loose-envify-1.4.0.tgz. Extracting by manifest.
+116 silly tarball no local data for napi-postinstall@https://registry.npmjs.org/napi-postinstall/-/napi-postinstall-0.3.4.tgz. Extracting by manifest.
+117 silly tarball no local data for nanoid@https://registry.npmjs.org/nanoid/-/nanoid-3.3.11.tgz. Extracting by manifest.
+118 silly tarball no local data for resolve@https://registry.npmjs.org/resolve/-/resolve-1.22.11.tgz. Extracting by manifest.
+119 silly tarball no local data for json5@https://registry.npmjs.org/json5/-/json5-1.0.2.tgz. Extracting by manifest.
+120 silly tarball no local data for js-yaml@https://registry.npmjs.org/js-yaml/-/js-yaml-4.1.1.tgz. Extracting by manifest.
+121 silly tarball no local data for jiti@https://registry.npmjs.org/jiti/-/jiti-1.21.7.tgz. Extracting by manifest.
+122 silly tarball no local data for glob@https://registry.npmjs.org/glob/-/glob-10.3.10.tgz. Extracting by manifest.
+123 silly tarball no local data for eslint@https://registry.npmjs.org/eslint/-/eslint-8.57.1.tgz. Extracting by manifest.
+124 silly tarball no local data for cssesc@https://registry.npmjs.org/cssesc/-/cssesc-3.0.0.tgz. Extracting by manifest.
+125 silly tarball no local data for browserslist@https://registry.npmjs.org/browserslist/-/browserslist-4.28.1.tgz. Extracting by manifest.
+126 silly tarball no local data for autoprefixer@https://registry.npmjs.org/autoprefixer/-/autoprefixer-10.4.27.tgz. Extracting by manifest.
+127 silly tarball no local data for acorn@https://registry.npmjs.org/acorn/-/acorn-8.16.0.tgz. Extracting by manifest.
+128 silly tarball no local data for @typescript-eslint/visitor-keys@https://registry.npmjs.org/@typescript-eslint/visitor-keys/-/visitor-keys-6.21.0.tgz. Extracting by manifest.
+129 silly tarball no local data for @typescript-eslint/scope-manager@https://registry.npmjs.org/@typescript-eslint/scope-manager/-/scope-manager-6.21.0.tgz. Extracting by manifest.
+130 silly tarball no local data for @typescript-eslint/typescript-estree@https://registry.npmjs.org/@typescript-eslint/typescript-estree/-/typescript-estree-6.21.0.tgz. Extracting by manifest.
+131 silly tarball no local data for @typescript-eslint/types@https://registry.npmjs.org/@typescript-eslint/types/-/types-6.21.0.tgz. Extracting by manifest.
+132 silly tarball no local data for @typescript-eslint/parser@https://registry.npmjs.org/@typescript-eslint/parser/-/parser-6.21.0.tgz. Extracting by manifest.
+133 silly tarball no local data for @types/react-dom@https://registry.npmjs.org/@types/react-dom/-/react-dom-18.3.7.tgz. Extracting by manifest.
+134 silly tarball no local data for @swc/helpers@https://registry.npmjs.org/@swc/helpers/-/helpers-0.5.2.tgz. Extracting by manifest.
+135 silly tarball no local data for @types/react@https://registry.npmjs.org/@types/react/-/react-18.3.28.tgz. Extracting by manifest.
+136 silly tarball no local data for @types/node@https://registry.npmjs.org/@types/node/-/node-20.19.37.tgz. Extracting by manifest.
+137 silly tarball no local data for @next/swc-linux-x64-musl@https://registry.npmjs.org/@next/swc-linux-x64-musl/-/swc-linux-x64-musl-14.1.0.tgz. Extracting by manifest.
+138 silly tarball no local data for @next/swc-linux-x64-gnu@https://registry.npmjs.org/@next/swc-linux-x64-gnu/-/swc-linux-x64-gnu-14.1.0.tgz. Extracting by manifest.
+139 silly tarball no local data for @next/eslint-plugin-next@https://registry.npmjs.org/@next/eslint-plugin-next/-/eslint-plugin-next-14.1.0.tgz. Extracting by manifest.
+140 silly tarball no local data for postcss@https://registry.npmjs.org/postcss/-/postcss-8.5.8.tgz. Extracting by manifest.
+141 silly tarball no local data for next@https://registry.npmjs.org/next/-/next-14.1.0.tgz. Extracting by manifest.
+142 silly tarball no local data for lucide-react@https://registry.npmjs.org/lucide-react/-/lucide-react-0.309.0.tgz. Extracting by manifest.
+143 silly tarball no local data for flatted@https://registry.npmjs.org/flatted/-/flatted-3.4.1.tgz. Extracting by manifest.
+144 silly tarball no local data for @next/env@https://registry.npmjs.org/@next/env/-/env-14.1.0.tgz. Extracting by manifest.
+145 silly tarball no local data for eslint-config-next@https://registry.npmjs.org/eslint-config-next/-/eslint-config-next-14.1.0.tgz. Extracting by manifest.
+146 silly tarball no local data for es-iterator-helpers@https://registry.npmjs.org/es-iterator-helpers/-/es-iterator-helpers-1.3.1.tgz. Extracting by manifest.
+147 silly tarball no local data for baseline-browser-mapping@https://registry.npmjs.org/baseline-browser-mapping/-/baseline-browser-mapping-2.10.7.tgz. Extracting by manifest.
+148 silly tarball no local data for semver@https://registry.npmjs.org/semver/-/semver-6.3.1.tgz. Extracting by manifest.
+149 silly tarball no local data for semver@https://registry.npmjs.org/semver/-/semver-6.3.1.tgz. Extracting by manifest.
+150 silly tarball no local data for semver@https://registry.npmjs.org/semver/-/semver-6.3.1.tgz. Extracting by manifest.
+151 silly tarball no local data for resolve@https://registry.npmjs.org/resolve/-/resolve-2.0.0-next.6.tgz. Extracting by manifest.
+152 http fetch GET https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.2.3.tgz attempt 1 failed with ENOTFOUND
+153 http fetch GET https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz attempt 1 failed with ENOTFOUND
+154 http fetch GET https://registry.npmjs.org/which/-/which-2.0.2.tgz attempt 1 failed with ENOTFOUND
+155 http fetch GET https://registry.npmjs.org/tailwindcss/-/tailwindcss-3.4.19.tgz attempt 1 failed with ENOTFOUND
+156 http fetch GET https://registry.npmjs.org/sucrase/-/sucrase-3.35.1.tgz attempt 1 failed with ENOTFOUND
+157 http fetch GET https://registry.npmjs.org/semver/-/semver-7.7.4.tgz attempt 1 failed with ENOTFOUND
+158 http fetch GET https://registry.npmjs.org/rimraf/-/rimraf-3.0.2.tgz attempt 1 failed with ENOTFOUND
+159 http fetch GET https://registry.npmjs.org/loose-envify/-/loose-envify-1.4.0.tgz attempt 1 failed with ENOTFOUND
+160 http fetch GET https://registry.npmjs.org/napi-postinstall/-/napi-postinstall-0.3.4.tgz attempt 1 failed with ENOTFOUND
+161 http fetch GET https://registry.npmjs.org/nanoid/-/nanoid-3.3.11.tgz attempt 1 failed with ENOTFOUND
+162 http fetch GET https://registry.npmjs.org/resolve/-/resolve-1.22.11.tgz attempt 1 failed with ENOTFOUND
+163 http fetch GET https://registry.npmjs.org/json5/-/json5-1.0.2.tgz attempt 1 failed with ENOTFOUND
+164 http fetch GET https://registry.npmjs.org/js-yaml/-/js-yaml-4.1.1.tgz attempt 1 failed with ENOTFOUND
+165 http fetch GET https://registry.npmjs.org/jiti/-/jiti-1.21.7.tgz attempt 1 failed with ENOTFOUND
+166 http fetch GET https://registry.npmjs.org/glob/-/glob-10.3.10.tgz attempt 1 failed with ENOTFOUND
+167 http fetch GET https://registry.npmjs.org/npm attempt 2 failed with ENOTFOUND
+168 http fetch GET https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.2.3.tgz attempt 2 failed with ENOTFOUND
+169 http fetch GET https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz attempt 2 failed with ENOTFOUND
+170 http fetch GET https://registry.npmjs.org/which/-/which-2.0.2.tgz attempt 2 failed with ENOTFOUND
+171 http fetch GET https://registry.npmjs.org/tailwindcss/-/tailwindcss-3.4.19.tgz attempt 2 failed with ENOTFOUND
+172 http fetch GET https://registry.npmjs.org/sucrase/-/sucrase-3.35.1.tgz attempt 2 failed with ENOTFOUND
+173 http fetch GET https://registry.npmjs.org/semver/-/semver-7.7.4.tgz attempt 2 failed with ENOTFOUND
+174 http fetch GET https://registry.npmjs.org/rimraf/-/rimraf-3.0.2.tgz attempt 2 failed with ENOTFOUND
+175 http fetch GET https://registry.npmjs.org/loose-envify/-/loose-envify-1.4.0.tgz attempt 2 failed with ENOTFOUND
+176 http fetch GET https://registry.npmjs.org/napi-postinstall/-/napi-postinstall-0.3.4.tgz attempt 2 failed with ENOTFOUND
+177 http fetch GET https://registry.npmjs.org/nanoid/-/nanoid-3.3.11.tgz attempt 2 failed with ENOTFOUND
+178 http fetch GET https://registry.npmjs.org/resolve/-/resolve-1.22.11.tgz attempt 2 failed with ENOTFOUND
+179 http fetch GET https://registry.npmjs.org/json5/-/json5-1.0.2.tgz attempt 2 failed with ENOTFOUND
+180 http fetch GET https://registry.npmjs.org/js-yaml/-/js-yaml-4.1.1.tgz attempt 2 failed with ENOTFOUND
+181 http fetch GET https://registry.npmjs.org/jiti/-/jiti-1.21.7.tgz attempt 2 failed with ENOTFOUND
+182 http fetch GET https://registry.npmjs.org/glob/-/glob-10.3.10.tgz attempt 2 failed with ENOTFOUND
+183 http fetch GET https://registry.npmjs.org/npm attempt 3 failed with ENOTFOUND
+184 http fetch GET https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.2.3.tgz attempt 3 failed with ENOTFOUND
+185 http fetch GET https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz attempt 3 failed with ENOTFOUND
+186 http fetch GET https://registry.npmjs.org/which/-/which-2.0.2.tgz attempt 3 failed with ENOTFOUND
+187 http fetch GET https://registry.npmjs.org/tailwindcss/-/tailwindcss-3.4.19.tgz attempt 3 failed with ENOTFOUND
+188 http fetch GET https://registry.npmjs.org/sucrase/-/sucrase-3.35.1.tgz attempt 3 failed with ENOTFOUND
+189 http fetch GET https://registry.npmjs.org/semver/-/semver-7.7.4.tgz attempt 3 failed with ENOTFOUND
+190 http fetch GET https://registry.npmjs.org/rimraf/-/rimraf-3.0.2.tgz attempt 3 failed with ENOTFOUND
+191 http fetch GET https://registry.npmjs.org/loose-envify/-/loose-envify-1.4.0.tgz attempt 3 failed with ENOTFOUND
+192 http fetch GET https://registry.npmjs.org/napi-postinstall/-/napi-postinstall-0.3.4.tgz attempt 3 failed with ENOTFOUND
+193 http fetch GET https://registry.npmjs.org/nanoid/-/nanoid-3.3.11.tgz attempt 3 failed with ENOTFOUND
+194 http fetch GET https://registry.npmjs.org/resolve/-/resolve-1.22.11.tgz attempt 3 failed with ENOTFOUND
+195 http fetch GET https://registry.npmjs.org/json5/-/json5-1.0.2.tgz attempt 3 failed with ENOTFOUND
+196 http fetch GET https://registry.npmjs.org/js-yaml/-/js-yaml-4.1.1.tgz attempt 3 failed with ENOTFOUND
+197 http fetch GET https://registry.npmjs.org/jiti/-/jiti-1.21.7.tgz attempt 3 failed with ENOTFOUND
+198 http fetch GET https://registry.npmjs.org/glob/-/glob-10.3.10.tgz attempt 3 failed with ENOTFOUND
+199 verbose cwd /home/sapient/IdeaProjects/ERP-HR-Training-System/frontend
+200 verbose os Linux 6.18.7-76061807-generic
+201 verbose node v24.13.1
+202 verbose npm  v11.8.0
+203 error Exit handler never called!
+204 error This is an error with npm itself. Please report this error at:
+205 error   <https://github.com/npm/cli/issues>
+206 verbose exit 1
+207 verbose code 1
+208 error A complete log of this run can be found in: /home/sapient/IdeaProjects/ERP-HR-Training-System/frontend/.npm-cache/_logs/2026-03-18T07_34_09_960Z-debug-0.log
