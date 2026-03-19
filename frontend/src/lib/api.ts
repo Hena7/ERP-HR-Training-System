@@ -162,16 +162,23 @@ export const authApi = {
     if (!email || !password) throw new Error("Credentials required");
 
     let users = getMockData("users");
-    if (!users || users.length === 0 || !users.find((u: any) => u.email === "admin@gmail.com")) {
+    if (
+      !users ||
+      users.length === 0 ||
+      !users.find((u: any) => u.email === "admin@gmail.com")
+    ) {
       const defaultAdmin = {
         id: 1,
         email: "admin@gmail.com",
         password: "admin",
         fullName: "System Admin",
         role: "ADMIN",
+        department: "ADMIN",
       };
-      
-      const filteredUsers = users ? users.filter((u: any) => u.email !== "admin") : [];
+
+      const filteredUsers = users
+        ? users.filter((u: any) => u.email !== "admin")
+        : [];
       filteredUsers.push(defaultAdmin);
       saveMockData("users", filteredUsers);
       users = filteredUsers;
@@ -217,6 +224,7 @@ export const userApi = {
     }
     const newUser = {
       ...data,
+      department: data.department || "",
       id: Date.now(),
     };
     saveMockData("users", [...users, newUser]);
@@ -247,16 +255,61 @@ export const educationRequestApi = {
     await delay(500);
     const requests = getMockData("educationRequests");
     const users = getMockData("users");
-    const employee = users.find((u: any) => u.id == data.employeeId || u.id == data.id);
-    
+    const opportunities = getMockData("educationOpportunities");
+    const employee = users.find(
+      (u: any) => u.id == data.employeeId || u.id == data.id,
+    );
+    const opportunity = opportunities.find(
+      (o: any) => o.id == data.opportunityId,
+    );
+
+    const employeeDepartment = (
+      employee?.department ||
+      data.employeeDepartment ||
+      ""
+    )
+      .toString()
+      .trim()
+      .toLowerCase();
+
+    const targetDepartments = Array.isArray(opportunity?.targetDepartments)
+      ? opportunity.targetDepartments
+          .map((d: any) => d?.toString().trim().toLowerCase())
+          .filter(Boolean)
+      : [];
+
+    const legacyDepartment = (opportunity?.department || "")
+      .toString()
+      .trim()
+      .toLowerCase();
+
+    const canApply =
+      !!employeeDepartment &&
+      (targetDepartments.includes(employeeDepartment) ||
+        (!!legacyDepartment && legacyDepartment === employeeDepartment));
+
+    if (!opportunity) {
+      throw new Error("Selected education opportunity was not found");
+    }
+
+    if (!canApply) {
+      throw new Error(
+        "This education opportunity is not assigned to the employee's department",
+      );
+    }
+
     const newReq = {
       ...data,
       id: Date.now(),
-      status: "PENDING",
+      status: "PENDING_DEPARTMENT_SUBMISSION",
       createdAt: new Date().toISOString(),
-      employeeName: data.employeeName || (employee ? employee.fullName : "Unknown Employee"),
+      updatedAt: new Date().toISOString(),
+      employeeName:
+        data.employeeName ||
+        (employee ? employee.fullName : "Unknown Employee"),
       employeePhone: data.employeePhone || (employee ? employee.phone : "-"),
-      employeeDepartment: data.employeeDepartment || (employee ? employee.department : "-"),
+      employeeDepartment:
+        data.employeeDepartment || (employee ? employee.department : "-"),
     };
     saveMockData("educationRequests", [...requests, newReq]);
     return { data: newReq };
@@ -325,9 +378,65 @@ export const educationRequestApi = {
     }
     throw new Error("Not found");
   },
+  submitToCenter: async (id: number) => {
+    await delay(300);
+    const requests = getMockData("educationRequests");
+    const index = requests.findIndex((r: any) => r.id == id);
+    if (index === -1) throw new Error("Not found");
+    if (requests[index].status !== "PENDING_DEPARTMENT_SUBMISSION") {
+      throw new Error(
+        "Request must be in PENDING_DEPARTMENT_SUBMISSION status to submit to center",
+      );
+    }
+    requests[index] = {
+      ...requests[index],
+      status: "SUBMITTED_TO_CENTER",
+      updatedAt: new Date().toISOString(),
+    };
+    saveMockData("educationRequests", requests);
+    return { data: requests[index] };
+  },
+  centerReview: async (id: number) => {
+    await delay(300);
+    const requests = getMockData("educationRequests");
+    const index = requests.findIndex((r: any) => r.id == id);
+    if (index === -1) throw new Error("Not found");
+    if (requests[index].status !== "SUBMITTED_TO_CENTER") {
+      throw new Error(
+        "Request must be in SUBMITTED_TO_CENTER status for center review",
+      );
+    }
+    requests[index] = {
+      ...requests[index],
+      status: "CENTER_REVIEWED",
+      updatedAt: new Date().toISOString(),
+    };
+    saveMockData("educationRequests", requests);
+    return { data: requests[index] };
+  },
+  forwardToHr: async (id: number) => {
+    await delay(300);
+    const requests = getMockData("educationRequests");
+    const index = requests.findIndex((r: any) => r.id == id);
+    if (index === -1) throw new Error("Not found");
+    if (requests[index].status !== "CENTER_REVIEWED") {
+      throw new Error(
+        "Request must be in CENTER_REVIEWED status to forward to HR",
+      );
+    }
+    requests[index] = {
+      ...requests[index],
+      status: "FORWARDED_TO_HR",
+      updatedAt: new Date().toISOString(),
+    };
+    saveMockData("educationRequests", requests);
+    return { data: requests[index] };
+  },
   delete: async (id: number) => {
     await delay(300);
-    const requests = getMockData("educationRequests").filter((r: any) => r.id != id);
+    const requests = getMockData("educationRequests").filter(
+      (r: any) => r.id != id,
+    );
     saveMockData("educationRequests", requests);
     return { data: { success: true } };
   },
@@ -349,7 +458,7 @@ export const hrVerificationApi = {
       const requests = getMockData("educationRequests");
       const idx = requests.findIndex((r: any) => r.id == data.requestId);
       if (idx !== -1) {
-        requests[idx].status = "HR_VERIFIED";
+        requests[idx].status = "COMMITTEE_REVIEW";
         saveMockData("educationRequests", requests);
       }
     }
@@ -388,7 +497,9 @@ export const hrVerificationApi = {
   },
   delete: async (id: number) => {
     await delay(300);
-    const verifications = getMockData("hrVerifications").filter((v: any) => v.id != id);
+    const verifications = getMockData("hrVerifications").filter(
+      (v: any) => v.id != id,
+    );
     saveMockData("hrVerifications", verifications);
     return { data: { success: true } };
   },
@@ -411,9 +522,7 @@ export const committeeDecisionApi = {
       const idx = requests.findIndex((r: any) => r.id == data.requestId);
       if (idx !== -1) {
         requests[idx].status =
-          data.decision === "APPROVED"
-            ? "APPROVED"
-            : "REJECTED";
+          data.decision === "APPROVED" ? "APPROVED" : "REJECTED";
         saveMockData("educationRequests", requests);
       }
     }
@@ -452,7 +561,9 @@ export const committeeDecisionApi = {
   },
   delete: async (id: number) => {
     await delay(300);
-    const decisions = getMockData("committeeDecisions").filter((d: any) => d.id != id);
+    const decisions = getMockData("committeeDecisions").filter(
+      (d: any) => d.id != id,
+    );
     saveMockData("committeeDecisions", decisions);
     return { data: { success: true } };
   },
@@ -623,7 +734,9 @@ export const progressReportApi = {
   },
   delete: async (id: number) => {
     await delay(300);
-    const reports = getMockData("progressReports").filter((r: any) => r.id != id);
+    const reports = getMockData("progressReports").filter(
+      (r: any) => r.id != id,
+    );
     saveMockData("progressReports", reports);
     return { data: { success: true } };
   },
@@ -687,7 +800,9 @@ export const completionApi = {
   },
   delete: async (id: number) => {
     await delay(300);
-    const completions = getMockData("educationCompletions").filter((c: any) => c.id != id);
+    const completions = getMockData("educationCompletions").filter(
+      (c: any) => c.id != id,
+    );
     saveMockData("educationCompletions", completions);
     return { data: { success: true } };
   },
@@ -698,7 +813,10 @@ export const serviceObligationApi = {
     await delay(500);
     const obligations = getMockData("serviceObligations");
     const newObligation = {
-      id: obligations.length > 0 ? Math.max(...obligations.map((o: any) => o.id)) + 1 : 1,
+      id:
+        obligations.length > 0
+          ? Math.max(...obligations.map((o: any) => o.id)) + 1
+          : 1,
       ...data,
     };
     obligations.push(newObligation);
@@ -738,7 +856,9 @@ export const serviceObligationApi = {
   },
   delete: async (id: number) => {
     await delay(300);
-    const obligations = getMockData("serviceObligations").filter((o: any) => o.id != id);
+    const obligations = getMockData("serviceObligations").filter(
+      (o: any) => o.id != id,
+    );
     saveMockData("serviceObligations", obligations);
     return { data: { success: true } };
   },
@@ -748,9 +868,22 @@ export const educationOpportunityApi = {
   create: async (data: any) => {
     await delay(500);
     const opps = getMockData("educationOpportunities");
+
+    const normalizedTargets = Array.isArray(data.targetDepartments)
+      ? data.targetDepartments
+          .map((department: any) => department?.toString().trim())
+          .filter(Boolean)
+      : [];
+
+    if (normalizedTargets.length === 0) {
+      throw new Error("At least one target department is required");
+    }
+
     const newOpp = {
       id: opps.length > 0 ? Math.max(...opps.map((o: any) => o.id)) + 1 : 1,
       ...data,
+      department: data.department || normalizedTargets[0],
+      targetDepartments: normalizedTargets,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -783,7 +916,25 @@ export const educationOpportunityApi = {
     const opps = getMockData("educationOpportunities");
     const index = opps.findIndex((o: any) => o.id == id);
     if (index !== -1) {
-      opps[index] = { ...opps[index], ...data, updatedAt: new Date().toISOString() };
+      const normalizedTargets = Array.isArray(data.targetDepartments)
+        ? data.targetDepartments
+            .map((department: any) => department?.toString().trim())
+            .filter(Boolean)
+        : Array.isArray(opps[index].targetDepartments)
+          ? opps[index].targetDepartments
+          : [];
+
+      if (normalizedTargets.length === 0) {
+        throw new Error("At least one target department is required");
+      }
+
+      opps[index] = {
+        ...opps[index],
+        ...data,
+        department: data.department || normalizedTargets[0],
+        targetDepartments: normalizedTargets,
+        updatedAt: new Date().toISOString(),
+      };
       saveMockData("educationOpportunities", opps);
       return { data: opps[index] };
     }
@@ -791,7 +942,9 @@ export const educationOpportunityApi = {
   },
   delete: async (id: number) => {
     await delay(300);
-    const opps = getMockData("educationOpportunities").filter((o: any) => o.id != id);
+    const opps = getMockData("educationOpportunities").filter(
+      (o: any) => o.id != id,
+    );
     saveMockData("educationOpportunities", opps);
     return { data: { success: true } };
   },

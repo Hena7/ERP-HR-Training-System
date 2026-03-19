@@ -1,7 +1,10 @@
 package com.insa.education.enums;
 
 public enum RequestStatus {
-    PENDING,
+    PENDING_DEPARTMENT_SUBMISSION,
+    SUBMITTED_TO_CENTER,
+    CENTER_REVIEWED,
+    FORWARDED_TO_HR,
     HR_VERIFIED,
     COMMITTEE_REVIEW,
     APPROVED,

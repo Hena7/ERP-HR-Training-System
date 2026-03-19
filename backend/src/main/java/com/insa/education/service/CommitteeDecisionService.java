@@ -43,7 +43,7 @@ public class CommitteeDecisionService {
                 .orElseThrow(() -> new ResourceNotFoundException("Education request not found with id: " + dto.getRequestId()));
 
         if (request.getStatus() != RequestStatus.HR_VERIFIED) {
-            throw new BadRequestException("Request must be HR_VERIFIED before committee review");
+            throw new BadRequestException("Request must be in HR_VERIFIED status before committee decision");
         }
 
         if (decisionRepository.existsByRequestId(dto.getRequestId())) {

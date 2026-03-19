@@ -20,19 +20,19 @@ public class EducationOpportunityController {
     private final EducationOpportunityService service;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'EDUCATION_CENTER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CYBER_DEVELOPMENT_CENTER')")
     public ResponseEntity<EducationOpportunityResponse> create(@Valid @RequestBody EducationOpportunityDto dto) {
         return new ResponseEntity<>(service.create(dto), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'EDUCATION_CENTER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CYBER_DEVELOPMENT_CENTER')")
     public ResponseEntity<EducationOpportunityResponse> update(@PathVariable Long id, @Valid @RequestBody EducationOpportunityDto dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'EDUCATION_CENTER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CYBER_DEVELOPMENT_CENTER')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();

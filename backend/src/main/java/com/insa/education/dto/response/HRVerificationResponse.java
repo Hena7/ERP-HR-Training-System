@@ -12,9 +12,10 @@ import java.time.LocalDateTime;
 public class HRVerificationResponse {
     private Long id;
     private Long requestId;
-    private Integer workExperience;
-    private Integer performanceScore;
-    private Boolean disciplineRecord;
+    private Double semester1Score;
+    private Double semester2Score;
+    private Double averageScore;
+    private String status;
     private String verifiedBy;
     private LocalDateTime verifiedAt;
 }

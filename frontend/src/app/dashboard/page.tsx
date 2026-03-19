@@ -44,8 +44,10 @@ export default function DashboardPage() {
       setContracts(cons);
       setStats({
         total: reqRes.data.totalElements || 0,
-        pending: reqs.filter((r: EducationRequest) => r.status === "PENDING").length,
-        approved: reqs.filter((r: EducationRequest) => r.status === "APPROVED").length,
+        pending: reqs.filter((r: EducationRequest) => r.status === "PENDING")
+          .length,
+        approved: reqs.filter((r: EducationRequest) => r.status === "APPROVED")
+          .length,
         activeContracts: conRes.data.totalElements || 0,
       });
     } catch {
@@ -54,10 +56,30 @@ export default function DashboardPage() {
   };
 
   const statCards = [
-    { label: t("totalRequests"), value: stats.total, icon: <FileText className="h-8 w-8 text-blue-500" />, color: "bg-blue-50 border-blue-200" },
-    { label: t("pendingRequests"), value: stats.pending, icon: <ClipboardCheck className="h-8 w-8 text-yellow-500" />, color: "bg-yellow-50 border-yellow-200" },
-    { label: t("approvedRequests"), value: stats.approved, icon: <BarChart3 className="h-8 w-8 text-green-500" />, color: "bg-green-50 border-green-200" },
-    { label: t("activeContracts"), value: stats.activeContracts, icon: <FileSignature className="h-8 w-8 text-purple-500" />, color: "bg-purple-50 border-purple-200" },
+    {
+      label: t("totalRequests"),
+      value: stats.total,
+      icon: <FileText className="h-8 w-8 text-blue-500" />,
+      color: "bg-blue-50 border-blue-200",
+    },
+    {
+      label: t("pendingRequests"),
+      value: stats.pending,
+      icon: <ClipboardCheck className="h-8 w-8 text-yellow-500" />,
+      color: "bg-yellow-50 border-yellow-200",
+    },
+    {
+      label: t("approvedRequests"),
+      value: stats.approved,
+      icon: <BarChart3 className="h-8 w-8 text-green-500" />,
+      color: "bg-green-50 border-green-200",
+    },
+    {
+      label: t("activeContracts"),
+      value: stats.activeContracts,
+      icon: <FileSignature className="h-8 w-8 text-purple-500" />,
+      color: "bg-purple-50 border-purple-200",
+    },
   ];
 
   return (
@@ -73,11 +95,16 @@ export default function DashboardPage() {
         {/* Stats */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {statCards.map((card) => (
-            <div key={card.label} className={`rounded-xl border p-5 ${card.color}`}>
+            <div
+              key={card.label}
+              className={`rounded-xl border p-5 ${card.color}`}
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">{card.label}</p>
-                  <p className="mt-1 text-3xl font-bold text-gray-900">{card.value}</p>
+                  <p className="mt-1 text-3xl font-bold text-gray-900">
+                    {card.value}
+                  </p>
                 </div>
                 {card.icon}
               </div>
@@ -87,7 +114,9 @@ export default function DashboardPage() {
 
         {/* Quick Actions */}
         <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">{t("quickActions")}</h2>
+          <h2 className="mb-4 text-lg font-semibold text-gray-900">
+            {t("quickActions")}
+          </h2>
           <div className="flex flex-wrap gap-3">
             {user?.role === "EMPLOYEE" || user?.role === "ADMIN" ? (
               <Link
@@ -117,24 +146,28 @@ export default function DashboardPage() {
 
         {/* Recent Requests */}
         <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">{t("recentActivity")}</h2>
+          <h2 className="mb-4 text-lg font-semibold text-gray-900">
+            {t("recentActivity")}
+          </h2>
           {requests.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead className="bg-gray-50 text-xs uppercase text-gray-500">
                   <tr>
-                    <th className="px-4 py-3">{t("employeeId")}</th>
-                    <th className="px-4 py-3">{t("requestedField")}</th>
-                    <th className="px-4 py-3">{t("university")}</th>
+                    <th className="px-4 py-3">{t("fullName")}</th>
+                    <th className="px-4 py-3">{t("selectedEducationType")}</th>
+                    <th className="px-4 py-3">{t("institution")}</th>
                     <th className="px-4 py-3">{t("status")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
                   {requests.map((req) => (
                     <tr key={req.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium">{req.employeeName}</td>
-                      <td className="px-4 py-3">{req.requestedField}</td>
-                      <td className="px-4 py-3">{req.university}</td>
+                      <td className="px-4 py-3 font-medium">
+                        {req.employeeName}
+                      </td>
+                      <td className="px-4 py-3">{req.educationType}</td>
+                      <td className="px-4 py-3">{req.institution}</td>
                       <td className="px-4 py-3">
                         <StatusBadge status={req.status} />
                       </td>

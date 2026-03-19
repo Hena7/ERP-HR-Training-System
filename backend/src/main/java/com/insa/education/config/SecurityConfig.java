@@ -40,24 +40,42 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                // Education opportunities are posted by Cyber Development Center,
+                // but department heads can read only the opportunities targeted to them
+                .requestMatchers("/api/education-opportunities/**").hasAnyRole(
+                    "DEPARTMENT_HEAD", "CYBER_DEVELOPMENT_CENTER", "ADMIN")
+
+                // Requests originate from department heads and can be accessed through the workflow chain
                 .requestMatchers("/api/education-requests/**").hasAnyRole(
-                    "EMPLOYEE", "HR_OFFICER", "EDUCATION_CENTER", "ADMIN")
+                    "DEPARTMENT_HEAD", "HR_OFFICER", "CYBER_DEVELOPMENT_CENTER", "ADMIN")
+
+                // HR receives forwarded requests and verifies them
                 .requestMatchers("/api/hr-verifications/**").hasAnyRole(
                     "HR_OFFICER", "ADMIN")
+
                 .requestMatchers("/api/committee-decisions/**").hasAnyRole(
                     "COMMITTEE_MEMBER", "ADMIN")
+
+                // Contract handling after approvals
                 .requestMatchers("/api/contracts/**").hasAnyRole(
-                    "EDUCATION_CENTER", "HR_OFFICER", "ADMIN")
+                    "CYBER_DEVELOPMENT_CENTER", "HR_OFFICER", "ADMIN")
+
                 .requestMatchers("/api/guarantors/**").hasAnyRole(
-                    "EMPLOYEE", "HR_OFFICER", "ADMIN")
+                    "DEPARTMENT_HEAD", "HR_OFFICER", "ADMIN")
+
                 .requestMatchers("/api/progress-reports/**").hasAnyRole(
-                    "EMPLOYEE", "HR_OFFICER", "EDUCATION_CENTER", "ADMIN")
+                    "DEPARTMENT_HEAD", "HR_OFFICER", "CYBER_DEVELOPMENT_CENTER", "ADMIN")
+
                 .requestMatchers("/api/education-completions/**").hasAnyRole(
-                    "EMPLOYEE", "HR_OFFICER", "EDUCATION_CENTER", "ADMIN")
+                    "DEPARTMENT_HEAD", "HR_OFFICER", "CYBER_DEVELOPMENT_CENTER", "ADMIN")
+
                 .requestMatchers("/api/service-obligations/**").hasAnyRole(
-                    "HR_OFFICER", "EDUCATION_CENTER", "ADMIN")
+                    "HR_OFFICER", "CYBER_DEVELOPMENT_CENTER", "ADMIN")
+
                 .requestMatchers("/api/employees/**").hasAnyRole(
                     "HR_OFFICER", "ADMIN")
+
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

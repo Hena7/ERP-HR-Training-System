@@ -22,7 +22,7 @@ public class ContractController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('EDUCATION_CENTER', 'HR_OFFICER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('CYBER_DEVELOPMENT_CENTER', 'ADMIN')")
     public ResponseEntity<ContractResponse> create(@Valid @RequestBody ContractDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(contractService.create(dto));
     }

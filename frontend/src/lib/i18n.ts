@@ -72,6 +72,10 @@ export const translations = {
     myRequests: "My Requests",
 
     // Status
+    PENDING_DEPARTMENT_SUBMISSION: "Pending Department Submission",
+    SUBMITTED_TO_CENTER: "Submitted to Center",
+    CENTER_REVIEWED: "Center Reviewed",
+    FORWARDED_TO_HR: "Forwarded to HR",
     PENDING: "Pending",
     HR_VERIFIED: "HR Verified",
     COMMITTEE_REVIEW: "Committee Review",
@@ -150,8 +154,9 @@ export const translations = {
 
     // Roles
     EMPLOYEE: "Employee",
+    DEPARTMENT_HEAD: "Department Head",
     HR_OFFICER: "HR Officer",
-    EDUCATION_CENTER: "Education Center",
+    CYBER_DEVELOPMENT_CENTER: "Cyber Development Center",
     COMMITTEE_MEMBER: "Committee Member",
     DIRECTOR: "Director",
     ADMIN: "Admin",
@@ -217,7 +222,7 @@ export const translations = {
     role: "ሚና",
 
     // Education Opportunities
-    educationOpportunities: "የትምህርት ፍላጎት(እድሎች)",
+    educationOpportunities: "የትምህርት ፍላጎት (እድሎች)",
     educationOpportunity: "የትምህርት እድል",
     newOpportunity: "አዲስ እድል",
     educationType: "የትምህርት አይነት",
@@ -231,15 +236,19 @@ export const translations = {
     newRequest: "አዲስ የትምህርት ጥያቄ",
     editRequest: "የትምህርት ጥያቄ አርትዕ",
     currentEducationLevel: "የአሁን የትምህርት ደረጃ",
-    selectedEducationType: "የመረጡት የትምህርት አይነት",
-    selectedEducationLevel: "የመረጡት የትምህርት ደረጃ",
-    averagePerformanceScore: "አፈፃፀም ምዘና 2 ጊዜ አማካይ",
+    selectedEducationType: "የተመረጠ የትምህርት አይነት",
+    selectedEducationLevel: "የተመረጠ የትምህርት ደረጃ",
+    averagePerformanceScore: "አማካይ የአፈጻጸም ውጤት",
     description: "መግለጫ",
     requestStatus: "የጥያቄ ሁኔታ",
     submitRequest: "ጥያቄ አስገባ",
     myRequests: "የእኔ ጥያቄዎች",
 
     // Status
+    PENDING_DEPARTMENT_SUBMISSION: "የክፍል ኃላፊ ማስገባት በመጠባበቅ ላይ",
+    SUBMITTED_TO_CENTER: "ወደ ማዕከል ተልኳል",
+    CENTER_REVIEWED: "በማዕከል ተገምግሟል",
+    FORWARDED_TO_HR: "ወደ HR ተላልፏል",
     PENDING: "በመጠባበቅ ላይ",
     HR_VERIFIED: "በHR ተረጋግጧል",
     COMMITTEE_REVIEW: "በኮሚቴ ግምገማ ላይ",
@@ -318,15 +327,16 @@ export const translations = {
 
     // Roles
     EMPLOYEE: "ሰራተኛ",
+    DEPARTMENT_HEAD: "የክፍል ኃላፊ",
     HR_OFFICER: "የHR ኦፊሰር",
-    EDUCATION_CENTER: "የትምህርት ማእከል",
+    CYBER_DEVELOPMENT_CENTER: "ሳይበር ልህቀት ማእከል",
     COMMITTEE_MEMBER: "የኮሚቴ አባል",
     DIRECTOR: "ዳይሬክተር",
     ADMIN: "አስተዳዳሪ",
 
     // Navigation
     navDashboard: "ዳሽቦርድ",
-    navOpportunities: "የትምህርት ፍላጎት(እድሎች)",
+    navOpportunities: "የትምህርት ፍላጎት (እድሎች)",
     navRequests: "የትምህርት ጥያቄዎች",
     navVerifications: "የHR ማረጋገጫዎች",
     navDecisions: "የኮሚቴ ውሳኔዎች",

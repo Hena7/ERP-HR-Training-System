@@ -4,6 +4,7 @@ import com.insa.education.dto.request.HRVerificationDto;
 import com.insa.education.dto.response.HRVerificationResponse;
 import com.insa.education.entity.EducationRequest;
 import com.insa.education.entity.HRVerification;
+import com.insa.education.enums.HRVerificationStatus;
 import com.insa.education.enums.RequestStatus;
 import com.insa.education.exception.BadRequestException;
 import com.insa.education.exception.DuplicateResourceException;
@@ -39,44 +40,81 @@ public class HRVerificationService {
     @Transactional
     public HRVerificationResponse verify(HRVerificationDto dto) {
         EducationRequest request = requestRepository.findById(dto.getRequestId())
-                .orElseThrow(() -> new ResourceNotFoundException("Education request not found with id: " + dto.getRequestId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Education request not found with id: " + dto.getRequestId()));
 
-        if (request.getStatus() != RequestStatus.PENDING) {
-            throw new BadRequestException("Request must be in PENDING status for HR verification");
+        if (request.getStatus() != RequestStatus.FORWARDED_TO_HR) {
+            throw new BadRequestException(
+                    "Request must be in FORWARDED_TO_HR status for HR verification");
         }
 
         if (verificationRepository.existsByRequestId(dto.getRequestId())) {
-            throw new DuplicateResourceException("HR verification already exists for request: " + dto.getRequestId());
+            throw new DuplicateResourceException(
+                    "HR verification already exists for request: " + dto.getRequestId());
         }
 
+        validateScore(dto.getSemester1Score(), "Semester 1 score");
+        validateScore(dto.getSemester2Score(), "Semester 2 score");
+
+        HRVerificationStatus verificationStatus =
+                dto.getStatus() == null ? HRVerificationStatus.VERIFIED : dto.getStatus();
+
+        double averageScore = calculateAverage(dto.getSemester1Score(), dto.getSemester2Score());
         String verifiedBy = SecurityContextHolder.getContext().getAuthentication().getName();
 
         HRVerification verification = HRVerification.builder()
                 .request(request)
-                .workExperience(dto.getWorkExperience())
-                .performanceScore(dto.getPerformanceScore())
-                .disciplineRecord(dto.getDisciplineRecord())
+                .semester1Score(dto.getSemester1Score())
+                .semester2Score(dto.getSemester2Score())
+                .averageScore(averageScore)
+                .status(verificationStatus)
                 .verifiedBy(verifiedBy)
                 .build();
 
         HRVerification saved = verificationRepository.save(verification);
 
-        request.setStatus(RequestStatus.HR_VERIFIED);
+        if (verificationStatus == HRVerificationStatus.VERIFIED) {
+            request.setStatus(RequestStatus.HR_VERIFIED);
+        } else {
+            request.setStatus(RequestStatus.REJECTED);
+        }
         requestRepository.save(request);
 
-        log.info("HR verification completed for request: {}", dto.getRequestId());
+        log.info(
+                "HR verification completed for request: {}, status: {}, averageScore: {}",
+                dto.getRequestId(),
+                verificationStatus,
+                averageScore
+        );
+
         return mapper.toHRVerificationResponse(saved);
     }
 
     @Transactional(readOnly = true)
     public Page<HRVerificationResponse> getAll(Pageable pageable) {
-        return verificationRepository.findAll(pageable).map(mapper::toHRVerificationResponse);
+        return verificationRepository.findAll(pageable)
+                .map(mapper::toHRVerificationResponse);
     }
 
     @Transactional(readOnly = true)
     public HRVerificationResponse getByRequestId(Long requestId) {
         HRVerification verification = verificationRepository.findByRequestId(requestId)
-                .orElseThrow(() -> new ResourceNotFoundException("HR verification not found for request: " + requestId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "HR verification not found for request: " + requestId));
         return mapper.toHRVerificationResponse(verification);
+    }
+
+    private void validateScore(Double score, String fieldName) {
+        if (score == null) {
+            throw new BadRequestException(fieldName + " is required");
+        }
+
+        if (score < 0 || score > 100) {
+            throw new BadRequestException(fieldName + " must be between 0 and 100");
+        }
+    }
+
+    private double calculateAverage(Double semester1Score, Double semester2Score) {
+        return (semester1Score + semester2Score) / 2.0;
     }
 }

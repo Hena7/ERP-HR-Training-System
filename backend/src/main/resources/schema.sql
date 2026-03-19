@@ -16,6 +16,23 @@ CREATE TABLE IF NOT EXISTS employees (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS education_opportunities (
+    id SERIAL PRIMARY KEY,
+    education_type VARCHAR(200) NOT NULL,
+    education_level VARCHAR(100) NOT NULL,
+    institution VARCHAR(200) NOT NULL,
+    department VARCHAR(100) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS education_opportunity_target_departments (
+    opportunity_id INT NOT NULL REFERENCES education_opportunities(id) ON DELETE CASCADE,
+    department_name VARCHAR(100) NOT NULL,
+    PRIMARY KEY (opportunity_id, department_name)
+);
+
 CREATE TABLE IF NOT EXISTS education_requests (
     id SERIAL PRIMARY KEY,
     employee_id INT NOT NULL REFERENCES employees(id),
@@ -25,7 +42,7 @@ CREATE TABLE IF NOT EXISTS education_requests (
     country VARCHAR(100) NOT NULL,
     study_mode VARCHAR(20) NOT NULL,
     description TEXT,
-    status VARCHAR(30) NOT NULL DEFAULT 'PENDING',
+    status VARCHAR(50) NOT NULL DEFAULT 'PENDING_DEPARTMENT_SUBMISSION',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -33,9 +50,10 @@ CREATE TABLE IF NOT EXISTS education_requests (
 CREATE TABLE IF NOT EXISTS hr_verifications (
     id SERIAL PRIMARY KEY,
     request_id INT NOT NULL UNIQUE REFERENCES education_requests(id),
-    work_experience INT,
-    performance_score INT,
-    discipline_record BOOLEAN,
+    semester1_score NUMERIC(5, 2) NOT NULL,
+    semester2_score NUMERIC(5, 2) NOT NULL,
+    average_score NUMERIC(5, 2) NOT NULL,
+    status VARCHAR(20) NOT NULL,
     verified_by VARCHAR(100),
     verified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

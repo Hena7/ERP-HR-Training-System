@@ -84,6 +84,7 @@ public class AuthService {
                 .fullName(employee.getFirstName() + " " + employee.getLastName())
                 .role(employee.getRole())
                 .employeeId(employee.getId())
+                .department(employee.getDepartment())
                 .build();
     }
 }

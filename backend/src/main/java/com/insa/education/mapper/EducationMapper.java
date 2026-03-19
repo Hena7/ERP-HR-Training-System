@@ -33,9 +33,10 @@ public class EducationMapper {
         return HRVerificationResponse.builder()
                 .id(entity.getId())
                 .requestId(entity.getRequest().getId())
-                .workExperience(entity.getWorkExperience())
-                .performanceScore(entity.getPerformanceScore())
-                .disciplineRecord(entity.getDisciplineRecord())
+                .semester1Score(entity.getSemester1Score())
+                .semester2Score(entity.getSemester2Score())
+                .averageScore(entity.getAverageScore())
+                .status(entity.getStatus())
                 .verifiedBy(entity.getVerifiedBy())
                 .verifiedAt(entity.getVerifiedAt())
                 .build();

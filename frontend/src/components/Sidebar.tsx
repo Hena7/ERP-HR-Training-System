@@ -19,7 +19,18 @@ import {
 
 interface NavItem {
   href: string;
-  labelKey: "navDashboard" | "navOpportunities" | "navRequests" | "navVerifications" | "navDecisions" | "navContracts" | "navGuarantors" | "navReports" | "navCompletions" | "navObligations" | "navUsers";
+  labelKey:
+    | "navDashboard"
+    | "navOpportunities"
+    | "navRequests"
+    | "navVerifications"
+    | "navDecisions"
+    | "navContracts"
+    | "navGuarantors"
+    | "navReports"
+    | "navCompletions"
+    | "navObligations"
+    | "navUsers";
   icon: React.ReactNode;
   roles: string[];
 }
@@ -29,19 +40,32 @@ const navItems: NavItem[] = [
     href: "/dashboard",
     labelKey: "navDashboard",
     icon: <LayoutDashboard className="h-5 w-5" />,
-    roles: ["EMPLOYEE", "HR_OFFICER", "EDUCATION_CENTER", "COMMITTEE_MEMBER", "DIRECTOR", "ADMIN"],
+    roles: [
+      "EMPLOYEE",
+      "DEPARTMENT_HEAD",
+      "HR_OFFICER",
+      "CYBER_DEVELOPMENT_CENTER",
+      "COMMITTEE_MEMBER",
+      "DIRECTOR",
+      "ADMIN",
+    ],
   },
   {
     href: "/education-opportunities",
     labelKey: "navOpportunities",
     icon: <BookOpen className="h-5 w-5" />,
-    roles: ["EDUCATION_CENTER", "ADMIN", "EMPLOYEE"],
+    roles: ["CYBER_DEVELOPMENT_CENTER", "ADMIN", "DEPARTMENT_HEAD"],
   },
   {
     href: "/education-requests",
     labelKey: "navRequests",
     icon: <FileText className="h-5 w-5" />,
-    roles: ["EMPLOYEE", "HR_OFFICER", "EDUCATION_CENTER", "ADMIN"],
+    roles: [
+      "DEPARTMENT_HEAD",
+      "HR_OFFICER",
+      "CYBER_DEVELOPMENT_CENTER",
+      "ADMIN",
+    ],
   },
   {
     href: "/hr-verifications",
@@ -59,31 +83,41 @@ const navItems: NavItem[] = [
     href: "/contracts",
     labelKey: "navContracts",
     icon: <FileSignature className="h-5 w-5" />,
-    roles: ["EDUCATION_CENTER", "HR_OFFICER", "ADMIN"],
+    roles: ["CYBER_DEVELOPMENT_CENTER", "HR_OFFICER", "ADMIN"],
   },
   {
     href: "/guarantors",
     labelKey: "navGuarantors",
     icon: <Shield className="h-5 w-5" />,
-    roles: ["EMPLOYEE", "HR_OFFICER", "ADMIN"],
+    roles: ["DEPARTMENT_HEAD", "HR_OFFICER", "ADMIN"],
   },
   {
     href: "/progress-reports",
     labelKey: "navReports",
     icon: <BarChart3 className="h-5 w-5" />,
-    roles: ["EMPLOYEE", "HR_OFFICER", "EDUCATION_CENTER", "ADMIN"],
+    roles: [
+      "DEPARTMENT_HEAD",
+      "HR_OFFICER",
+      "CYBER_DEVELOPMENT_CENTER",
+      "ADMIN",
+    ],
   },
   {
     href: "/completions",
     labelKey: "navCompletions",
     icon: <GraduationCap className="h-5 w-5" />,
-    roles: ["EMPLOYEE", "HR_OFFICER", "EDUCATION_CENTER", "ADMIN"],
+    roles: [
+      "DEPARTMENT_HEAD",
+      "HR_OFFICER",
+      "CYBER_DEVELOPMENT_CENTER",
+      "ADMIN",
+    ],
   },
   {
     href: "/service-obligations",
     labelKey: "navObligations",
     icon: <Clock className="h-5 w-5" />,
-    roles: ["HR_OFFICER", "EDUCATION_CENTER", "ADMIN"],
+    roles: ["HR_OFFICER", "CYBER_DEVELOPMENT_CENTER", "ADMIN"],
   },
   {
     href: "/users",
@@ -99,7 +133,7 @@ export default function Sidebar() {
   const { user } = useAuth();
 
   const filteredItems = navItems.filter(
-    (item) => user && item.roles.includes(user.role)
+    (item) => user && item.roles.includes(user.role),
   );
 
   return (

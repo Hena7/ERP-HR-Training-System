@@ -12,13 +12,23 @@ export interface Employee {
   createdAt: string;
 }
 
+export type UserRole =
+  | "EMPLOYEE"
+  | "DEPARTMENT_HEAD"
+  | "HR_OFFICER"
+  | "CYBER_DEVELOPMENT_CENTER"
+  | "COMMITTEE_MEMBER"
+  | "DIRECTOR"
+  | "ADMIN";
+
 export interface AuthResponse {
   id?: number;
   token: string;
   email: string;
   fullName: string;
-  role: string;
+  role: UserRole;
   employeeId?: number;
+  department?: string;
 }
 
 export interface EducationRequest {
@@ -126,6 +136,7 @@ export interface EducationOpportunity {
   educationLevel: string;
   institution: string;
   department: string;
+  targetDepartments: string[];
   description: string;
   createdAt: string;
   updatedAt: string;

@@ -6,6 +6,15 @@ import { useRouter } from "next/navigation";
 import LanguageToggle from "./LanguageToggle";
 import { LogOut, User } from "lucide-react";
 
+type HeaderRole =
+  | "EMPLOYEE"
+  | "DEPARTMENT_HEAD"
+  | "HR_OFFICER"
+  | "CYBER_DEVELOPMENT_CENTER"
+  | "COMMITTEE_MEMBER"
+  | "DIRECTOR"
+  | "ADMIN";
+
 export default function Header() {
   const { user, logout } = useAuth();
   const { t } = useLanguage();
@@ -14,6 +23,16 @@ export default function Header() {
   const handleLogout = () => {
     logout();
     router.push("/login");
+  };
+
+  const roleLabel = (role: string) => {
+    const translated = t(role as HeaderRole);
+    return translated === role
+      ? role
+          .split("_")
+          .map((part) => part.charAt(0) + part.slice(1).toLowerCase())
+          .join(" ")
+      : translated;
   };
 
   return (
@@ -28,15 +47,17 @@ export default function Header() {
             <div className="flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-1.5">
               <User className="h-4 w-4 text-blue-600" />
               <div className="text-sm">
-                <span className="font-medium text-blue-900">{user.fullName}</span>
+                <span className="font-medium text-blue-900">
+                  {user.fullName}
+                </span>
                 <span className="ml-2 rounded bg-blue-100 px-1.5 py-0.5 text-xs text-blue-700">
-                  {t(user.role as "EMPLOYEE" | "HR_OFFICER" | "EDUCATION_CENTER" | "COMMITTEE_MEMBER" | "DIRECTOR" | "ADMIN")}
+                  {roleLabel(user.role)}
                 </span>
               </div>
             </div>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-1 rounded-lg border border-red-200 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              className="flex items-center gap-1 rounded-lg border border-red-200 px-3 py-1.5 text-sm text-red-600 transition-colors hover:bg-red-50"
             >
               <LogOut className="h-4 w-4" />
               {t("logout")}

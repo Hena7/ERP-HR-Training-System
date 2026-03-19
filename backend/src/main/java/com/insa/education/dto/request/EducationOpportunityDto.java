@@ -1,7 +1,10 @@
 package com.insa.education.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,8 +22,14 @@ public class EducationOpportunityDto {
     @NotBlank(message = "Institution is required")
     private String institution;
 
-    @NotBlank(message = "Department is required")
+    /**
+     * Legacy single-department field kept for backward compatibility.
+     * New logic should use targetDepartments.
+     */
     private String department;
+
+    @NotEmpty(message = "At least one target department is required")
+    private List<@NotBlank(message = "Target department cannot be blank") String> targetDepartments;
 
     private String description;
 }
