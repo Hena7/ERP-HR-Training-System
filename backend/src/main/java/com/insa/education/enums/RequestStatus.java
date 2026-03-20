@@ -6,6 +6,7 @@ public enum RequestStatus {
     CENTER_REVIEWED,
     FORWARDED_TO_HR,
     HR_VERIFIED,
+    SCORED,
     COMMITTEE_REVIEW,
     APPROVED,
     REJECTED,

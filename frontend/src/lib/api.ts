@@ -446,22 +446,48 @@ export const hrVerificationApi = {
   verify: async (data: any) => {
     await delay(500);
     const verifications = getMockData("hrVerifications");
+
+    const semester1Score = Number(data.semester1Score);
+    const semester2Score = Number(data.semester2Score);
+
+    if (Number.isNaN(semester1Score) || Number.isNaN(semester2Score)) {
+      throw new Error("Semester scores are required");
+    }
+
+    if (
+      semester1Score < 0 ||
+      semester1Score > 100 ||
+      semester2Score < 0 ||
+      semester2Score > 100
+    ) {
+      throw new Error("Semester scores must be between 0 and 100");
+    }
+
+    const averageScore = (semester1Score + semester2Score) / 2;
+    const status = data.status || "VERIFIED";
+
     const newVer = {
       ...data,
+      semester1Score,
+      semester2Score,
+      averageScore,
+      status,
       id: Date.now(),
       verifiedAt: new Date().toISOString(),
     };
     saveMockData("hrVerifications", [...verifications, newVer]);
 
-    // Update request status
     if (data.requestId) {
       const requests = getMockData("educationRequests");
       const idx = requests.findIndex((r: any) => r.id == data.requestId);
       if (idx !== -1) {
-        requests[idx].status = "COMMITTEE_REVIEW";
+        requests[idx].status =
+          status === "VERIFIED" ? "HR_VERIFIED" : "REJECTED";
+        requests[idx].updatedAt = new Date().toISOString();
         saveMockData("educationRequests", requests);
       }
     }
+
     return { data: newVer };
   },
   getAll: async (page = 0, size = 10) => {
@@ -489,8 +515,41 @@ export const hrVerificationApi = {
     const verifications = getMockData("hrVerifications");
     const index = verifications.findIndex((v: any) => v.id == id);
     if (index !== -1) {
-      verifications[index] = { ...verifications[index], ...data };
+      const semester1Score = Number(
+        data.semester1Score ?? verifications[index].semester1Score,
+      );
+      const semester2Score = Number(
+        data.semester2Score ?? verifications[index].semester2Score,
+      );
+
+      if (Number.isNaN(semester1Score) || Number.isNaN(semester2Score)) {
+        throw new Error("Semester scores are required");
+      }
+
+      const averageScore = (semester1Score + semester2Score) / 2;
+      const status = data.status || verifications[index].status || "VERIFIED";
+
+      verifications[index] = {
+        ...verifications[index],
+        ...data,
+        semester1Score,
+        semester2Score,
+        averageScore,
+        status,
+      };
       saveMockData("hrVerifications", verifications);
+
+      const requests = getMockData("educationRequests");
+      const requestIndex = requests.findIndex(
+        (r: any) => r.id == verifications[index].requestId,
+      );
+      if (requestIndex !== -1) {
+        requests[requestIndex].status =
+          status === "VERIFIED" ? "HR_VERIFIED" : "REJECTED";
+        requests[requestIndex].updatedAt = new Date().toISOString();
+        saveMockData("educationRequests", requests);
+      }
+
       return { data: verifications[index] };
     }
     throw new Error("Not found");
@@ -502,6 +561,82 @@ export const hrVerificationApi = {
     );
     saveMockData("hrVerifications", verifications);
     return { data: { success: true } };
+  },
+};
+
+export const cdcScoringApi = {
+  score: async (data: any) => {
+    await delay(500);
+    const scorings = getMockData("cdcScorings");
+
+    const experienceScore = Number(data.experienceScore);
+    const performanceScore = Number(data.performanceScore);
+    const disciplineScore = Number(data.disciplineScore);
+
+    if (
+      [experienceScore, performanceScore, disciplineScore].some(
+        (s) => Number.isNaN(s) || s < 0 || s > 100,
+      )
+    ) {
+      throw new Error("All scores must be numbers between 0 and 100");
+    }
+
+    // Weighted formula: Experience 30% + Performance 50% + Discipline 20%
+    const totalScore =
+      Math.round(
+        (experienceScore * 0.3 + performanceScore * 0.5 + disciplineScore * 0.2) * 100,
+      ) / 100;
+
+    const user = typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("user") || "{}")
+      : {};
+
+    const newScoring = {
+      ...data,
+      experienceScore,
+      performanceScore,
+      disciplineScore,
+      totalScore,
+      id: Date.now(),
+      gradedBy: user.fullName || user.email || "CDC Officer",
+      createdAt: new Date().toISOString(),
+    };
+    saveMockData("cdcScorings", [...scorings, newScoring]);
+
+    // Advance request status to SCORED
+    if (data.requestId) {
+      const requests = getMockData("educationRequests");
+      const idx = requests.findIndex((r: any) => r.id == data.requestId);
+      if (idx !== -1) {
+        requests[idx].status = "SCORED";
+        requests[idx].updatedAt = new Date().toISOString();
+        saveMockData("educationRequests", requests);
+      }
+    }
+
+    return { data: newScoring };
+  },
+
+  getAll: async (page = 0, size = 10) => {
+    await delay(300);
+    const scorings = getMockData("cdcScorings");
+    return {
+      data: {
+        content: scorings,
+        totalElements: scorings.length,
+        totalPages: Math.ceil(scorings.length / size) || 1,
+        size,
+        number: page,
+      },
+    };
+  },
+
+  getByRequestId: async (requestId: number) => {
+    await delay(300);
+    const scorings = getMockData("cdcScorings").filter(
+      (s: any) => s.requestId == requestId,
+    );
+    return { data: scorings[0] || null };
   },
 };
 

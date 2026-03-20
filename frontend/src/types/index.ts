@@ -53,9 +53,10 @@ export interface EducationRequest {
 export interface HRVerification {
   id: number;
   requestId: number;
-  workExperience: number;
-  performanceScore: number;
-  disciplineRecord: boolean;
+  semester1Score: number;
+  semester2Score: number;
+  averageScore: number;
+  status: "VERIFIED" | "REJECTED";
   verifiedBy: string;
   verifiedAt: string;
 }
@@ -67,6 +68,17 @@ export interface CommitteeDecision {
   comment: string;
   decidedBy: string;
   decisionDate: string;
+}
+
+export interface CDCScoring {
+  id: number;
+  requestId: number;
+  experienceScore: number;
+  performanceScore: number;
+  disciplineScore: number;
+  totalScore: number;
+  gradedBy: string;
+  createdAt: string;
 }
 
 export interface Contract {

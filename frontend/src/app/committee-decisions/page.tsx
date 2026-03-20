@@ -3,16 +3,15 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { committeeDecisionApi, educationRequestApi } from "@/lib/api";
-import { CommitteeDecision, EducationRequest } from "@/types";
-import { Users, Plus, Edit, Trash2 } from "lucide-react";
+import { committeeDecisionApi, educationRequestApi, cdcScoringApi } from "@/lib/api";
+import { CommitteeDecision, EducationRequest, CDCScoring } from "@/types";
+import { Users, Plus, Edit, Trash2, BarChart3 } from "lucide-react";
 
 export default function CommitteeDecisionsPage() {
   const { t } = useLanguage();
   const [decisions, setDecisions] = useState<CommitteeDecision[]>([]);
-  const [committeeReviewRequests, setCommitteeReviewRequests] = useState<
-    EducationRequest[]
-  >([]);
+  const [scoredRequests, setScoredRequests] = useState<EducationRequest[]>([]);
+  const [selectedScoring, setSelectedScoring] = useState<CDCScoring | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
@@ -30,12 +29,26 @@ export default function CommitteeDecisionsPage() {
     try {
       const [decRes, reqRes] = await Promise.all([
         committeeDecisionApi.getAll(0, 20),
-        educationRequestApi.getByStatus("COMMITTEE_REVIEW", 0, 50),
+        educationRequestApi.getByStatus("SCORED", 0, 50),
       ]);
       setDecisions(decRes.data.content || []);
-      setCommitteeReviewRequests(reqRes.data.content || []);
+      setScoredRequests(reqRes.data.content || []);
     } catch {
       // API not available
+    }
+  };
+
+  const handleRequestChange = async (requestId: string) => {
+    setForm({ ...form, requestId });
+    if (requestId) {
+      try {
+          const res = await cdcScoringApi.getByRequestId(Number(requestId));
+          setSelectedScoring(res.data);
+      } catch {
+          setSelectedScoring(null);
+      }
+    } else {
+        setSelectedScoring(null);
     }
   };
 
@@ -57,6 +70,7 @@ export default function CommitteeDecisionsPage() {
       setShowForm(false);
       setEditId(null);
       setForm({ requestId: "", decision: "APPROVED", comment: "" });
+      setSelectedScoring(null);
       loadData();
     } catch {
       alert("Failed to save decision");
@@ -65,7 +79,7 @@ export default function CommitteeDecisionsPage() {
     }
   };
 
-  const handleEdit = (d: CommitteeDecision) => {
+  const handleEdit = async (d: CommitteeDecision) => {
     setForm({
       requestId: String(d.requestId),
       decision: d.decision || "APPROVED",
@@ -73,6 +87,13 @@ export default function CommitteeDecisionsPage() {
     });
     setEditId(d.id);
     setShowForm(true);
+    // Load scoring for edit
+    try {
+        const res = await cdcScoringApi.getByRequestId(d.requestId);
+        setSelectedScoring(res.data);
+    } catch {
+        setSelectedScoring(null);
+    }
   };
 
   const handleDelete = async (id: number) => {
@@ -100,6 +121,7 @@ export default function CommitteeDecisionsPage() {
             onClick={() => {
               setEditId(null);
               setForm({ requestId: "", decision: "APPROVED", comment: "" });
+              setSelectedScoring(null);
               setShowForm(!showForm);
             }}
             className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition-colors"
@@ -125,13 +147,11 @@ export default function CommitteeDecisionsPage() {
                 <select
                   required
                   value={form.requestId}
-                  onChange={(e) =>
-                    setForm({ ...form, requestId: e.target.value })
-                  }
+                  onChange={(e) => handleRequestChange(e.target.value)}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
                 >
                   <option value="">--</option>
-                  {committeeReviewRequests.map((r) => (
+                  {scoredRequests.map((r) => (
                     <option key={r.id} value={r.id}>
                       #{r.id} - {r.employeeName} - {r.educationType} (
                       {r.educationLevel})
@@ -154,6 +174,33 @@ export default function CommitteeDecisionsPage() {
                   <option value="REJECTED">{t("reject")}</option>
                 </select>
               </div>
+
+              {selectedScoring && (
+                <div className="md:col-span-2 rounded-lg bg-blue-50 p-4 border border-blue-100">
+                    <div className="flex items-center gap-2 mb-3 text-blue-800">
+                        <BarChart3 className="h-4 w-4" />
+                        <h3 className="text-sm font-bold uppercase tracking-wider">{t("cdcScoring")}</h3>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div>
+                            <p className="text-[10px] uppercase text-blue-600 font-bold">{t("experienceScore")}</p>
+                            <p className="text-lg font-bold text-gray-900">{selectedScoring.experienceScore}</p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase text-blue-600 font-bold">{t("performanceScore")}</p>
+                            <p className="text-lg font-bold text-gray-900">{selectedScoring.performanceScore}</p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase text-blue-600 font-bold">{t("disciplineScore")}</p>
+                            <p className="text-lg font-bold text-gray-900">{selectedScoring.disciplineScore}</p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase text-blue-600 font-bold italic">{t("totalScore")}</p>
+                            <p className="text-2xl font-black text-blue-700">{selectedScoring.totalScore}%</p>
+                        </div>
+                    </div>
+                </div>
+              )}
               <div className="md:col-span-2">
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   {t("comment")}

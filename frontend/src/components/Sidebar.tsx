@@ -24,6 +24,7 @@ interface NavItem {
     | "navOpportunities"
     | "navRequests"
     | "navVerifications"
+    | "navCdcScoring"
     | "navDecisions"
     | "navContracts"
     | "navGuarantors"
@@ -78,6 +79,12 @@ const navItems: NavItem[] = [
     labelKey: "navDecisions",
     icon: <Users className="h-5 w-5" />,
     roles: ["COMMITTEE_MEMBER", "ADMIN"],
+  },
+  {
+    href: "/cdc-scoring",
+    labelKey: "navCdcScoring",
+    icon: <BarChart3 className="h-5 w-5" />,
+    roles: ["CYBER_DEVELOPMENT_CENTER", "ADMIN"],
   },
   {
     href: "/contracts",

@@ -50,8 +50,8 @@ CREATE TABLE IF NOT EXISTS education_requests (
 CREATE TABLE IF NOT EXISTS hr_verifications (
     id SERIAL PRIMARY KEY,
     request_id INT NOT NULL UNIQUE REFERENCES education_requests(id),
-    semester1_score NUMERIC(5, 2) NOT NULL,
-    semester2_score NUMERIC(5, 2) NOT NULL,
+    semester_1_score NUMERIC(5, 2) NOT NULL,
+    semester_2_score NUMERIC(5, 2) NOT NULL,
     average_score NUMERIC(5, 2) NOT NULL,
     status VARCHAR(20) NOT NULL,
     verified_by VARCHAR(100),

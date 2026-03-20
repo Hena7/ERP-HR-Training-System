@@ -42,8 +42,8 @@ public class CommitteeDecisionService {
         EducationRequest request = requestRepository.findById(dto.getRequestId())
                 .orElseThrow(() -> new ResourceNotFoundException("Education request not found with id: " + dto.getRequestId()));
 
-        if (request.getStatus() != RequestStatus.HR_VERIFIED) {
-            throw new BadRequestException("Request must be in HR_VERIFIED status before committee decision");
+        if (request.getStatus() != RequestStatus.SCORED) {
+            throw new BadRequestException("Request must be in SCORED status before committee decision. CDC must first assign a score.");
         }
 
         if (decisionRepository.existsByRequestId(dto.getRequestId())) {

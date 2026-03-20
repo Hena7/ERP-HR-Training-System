@@ -36,7 +36,7 @@ public class EducationMapper {
                 .semester1Score(entity.getSemester1Score())
                 .semester2Score(entity.getSemester2Score())
                 .averageScore(entity.getAverageScore())
-                .status(entity.getStatus())
+                .status(entity.getStatus() != null ? entity.getStatus().name() : null)
                 .verifiedBy(entity.getVerifiedBy())
                 .verifiedAt(entity.getVerifiedAt())
                 .build();
@@ -50,6 +50,19 @@ public class EducationMapper {
                 .comment(entity.getComment())
                 .decidedBy(entity.getDecidedBy())
                 .decisionDate(entity.getDecisionDate())
+                .build();
+    }
+
+    public CDCScoringResponse toCDCScoringResponse(CDCScoring entity) {
+        return CDCScoringResponse.builder()
+                .id(entity.getId())
+                .requestId(entity.getRequest().getId())
+                .experienceScore(entity.getExperienceScore())
+                .performanceScore(entity.getPerformanceScore())
+                .disciplineScore(entity.getDisciplineScore())
+                .totalScore(entity.getTotalScore())
+                .gradedBy(entity.getGradedBy())
+                .createdAt(entity.getCreatedAt())
                 .build();
     }
 
