@@ -57,6 +57,15 @@ export const educationRequestApi = {
     api.get(`/api/education-requests/status/${status}?page=${page}&size=${size}`),
   update: (id: number, data: Record<string, unknown>) =>
     api.put(`/api/education-requests/${id}`, data),
+  createBulk: (data: Record<string, unknown>) =>
+    api.post("/api/education-requests/bulk", data),
+};
+
+// Employee API
+export const employeeApi = {
+  getByDepartment: (department: string) =>
+    api.get(`/api/employees/department/${department}`),
+  getById: (id: number) => api.get(`/api/employees/${id}`),
 };
 
 // HR Verification API
@@ -314,6 +323,25 @@ export const educationRequestApi = {
     saveMockData("educationRequests", [...requests, newReq]);
     return { data: newReq };
   },
+  createBulk: async (data: any) => {
+    await delay(800);
+    const requests = getMockData("educationRequests");
+    const newRequests = data.employeeIds.map((empId: number, index: number) => ({
+      ...data,
+      id: Date.now() + index,
+      employeeId: empId,
+      status: "PENDING_DEPARTMENT_SUBMISSION",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      // Mock UI fields (using names provided or generic ones)
+      employeeName: data.employeeNames?.[index] || `Employee ${empId}`,
+      employeePhone: data.employeePhones?.[index] || "-",
+      employeeDepartment: data.employeeDepartment || "-",
+    }));
+
+    saveMockData("educationRequests", [...requests, ...newRequests]);
+    return { data: newRequests };
+  },
   getById: async (id: number) => {
     await delay(300);
     const requests = getMockData("educationRequests");
@@ -439,6 +467,70 @@ export const educationRequestApi = {
     );
     saveMockData("educationRequests", requests);
     return { data: { success: true } };
+  },
+};
+
+export const employeeApi = {
+  getByDepartment: async (department: string) => {
+    await delay(300);
+    let employees = getMockData("employees");
+    if (employees.length === 0) {
+      employees = [
+        { id: 101, employeeId: "EMP001", fullName: "Abebe Kebede", department: "Software engineering", phone: "0911000001", workExperience: 5, performanceScore: 85, currentEducationLevel: "BSc" },
+        { id: 102, employeeId: "EMP002", fullName: "Sara Tesfaye", department: "Software engineering", phone: "0911000002", workExperience: 3, performanceScore: 92, currentEducationLevel: "BSc" },
+        { id: 103, employeeId: "EMP003", fullName: "Mulugeta Dawit", department: "Software engineering", phone: "0911000003", workExperience: 8, performanceScore: 78, currentEducationLevel: "MSc" },
+        { id: 104, employeeId: "EMP004", fullName: "Hanna Solomon", department: "Human Resource", phone: "0911000004", workExperience: 4, performanceScore: 88, currentEducationLevel: "BA" },
+      ];
+      saveMockData("employees", employees);
+    }
+    return { data: employees.filter((e: any) => e.department.toLowerCase() === department.toLowerCase()) };
+  },
+  getAll: async (page = 0, size = 10) => {
+    await delay(300);
+    const employees = getMockData("employees");
+    return {
+      data: {
+        content: employees,
+        totalElements: employees.length,
+        totalPages: Math.ceil(employees.length / size) || 1,
+        size,
+        number: page,
+      },
+    };
+  },
+  create: async (data: any) => {
+    await delay(500);
+    const employees = getMockData("employees");
+    const newEmp = {
+      ...data,
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+    };
+    employees.push(newEmp);
+    saveMockData("employees", employees);
+    return { data: newEmp };
+  },
+  update: async (id: number, data: any) => {
+    await delay(500);
+    const employees = getMockData("employees");
+    const index = employees.findIndex((e: any) => e.id == id);
+    if (index !== -1) {
+      employees[index] = { ...employees[index], ...data };
+      saveMockData("employees", employees);
+      return { data: employees[index] };
+    }
+    throw new Error("Employee not found");
+  },
+  delete: async (id: number) => {
+    await delay(300);
+    const employees = getMockData("employees").filter((e: any) => e.id != id);
+    saveMockData("employees", employees);
+    return { data: { success: true } };
+  },
+  getById: async (id: number) => {
+    await delay(200);
+    const employees = getMockData("employees");
+    return { data: employees.find((e: any) => e.id == id) || null };
   },
 };
 

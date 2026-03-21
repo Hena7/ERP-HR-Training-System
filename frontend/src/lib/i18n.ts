@@ -25,6 +25,11 @@ export const translations = {
     switchLang: "Amharic",
     welcome: "Welcome",
     years: "Years",
+    selectEmployees: "Select Employees",
+    university: "University",
+    studyMode: "Study Mode",
+    onJob: "On-Job",
+    offJob: "Off-Job",
 
     // Auth
     email: "Email",
@@ -48,6 +53,9 @@ export const translations = {
     department: "Department",
     position: "Position",
     role: "Role",
+    employeeList: "Employee List",
+    addEmployee: "Add Employee",
+    editEmployee: "Edit Employee",
 
     // Education Opportunities
     educationOpportunities: "Education Opportunities",
@@ -186,6 +194,7 @@ export const translations = {
     navRequests: "Education Requests",
     navVerifications: "HR Verifications",
     navCdcScoring: "CDC Scoring",
+    navEmployees: "Employees",
     navDecisions: "Committee Decisions",
     navContracts: "Contracts",
     navGuarantors: "Guarantors",
@@ -218,6 +227,11 @@ export const translations = {
     switchLang: "English",
     welcome: "እንኳን ደህና መጡ",
     years: "ዓመታት",
+    selectEmployees: "ሰራተኞችን ይምረጡ",
+    university: "ዩኒቨርሲቲ",
+    studyMode: "የትምህርት ሁኔታ",
+    onJob: "በሥራ ላይ",
+    offJob: "ከሥራ ውጭ",
 
     // Auth
     email: "ኢሜይል",
@@ -232,15 +246,18 @@ export const translations = {
     // Employee
     employeeId: "የሰራተኛ መታወቂያ",
     firstName: "ስም",
-    lastName: "የአባት ስም",
+    lastName: "የአያት ስም",
     fullName: "ሙሉ ስም",
     gender: "ጾታ",
     male: "ወንድ",
     female: "ሴት",
     phone: "ስልክ",
     department: "የስራ ክፍል",
-    position: "የስራ ቦታ",
+    position: "የስራ መደብ",
     role: "ሚና",
+    employeeList: "የሰራተኞች ዝርዝር",
+    addEmployee: "ሰራተኛ ጨምር",
+    editEmployee: "ሰራተኛ አርም",
 
     // Education Opportunities
     educationOpportunities: "የትምህርት ፍላጎት (እድሎች)",
@@ -379,6 +396,7 @@ export const translations = {
     navRequests: "የትምህርት ጥያቄዎች",
     navVerifications: "የHR ማረጋገጫዎች",
     navCdcScoring: "CDC ውጤት አሰጣጥ",
+    navEmployees: "ሰራተኞች",
     navDecisions: "የኮሚቴ ውሳኔዎች",
     navContracts: "ውሎች",
     navGuarantors: "ዋሶች",

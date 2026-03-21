@@ -1,5 +1,6 @@
 package com.insa.education.controller;
 
+import com.insa.education.dto.request.BulkEducationRequestDto;
 import com.insa.education.dto.request.EducationRequestDto;
 import com.insa.education.dto.response.EducationRequestResponse;
 import com.insa.education.enums.RequestStatus;
@@ -12,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/education-requests")
@@ -29,6 +32,12 @@ public class EducationRequestController {
     @PreAuthorize("hasAnyRole('DEPARTMENT_HEAD', 'ADMIN')")
     public ResponseEntity<EducationRequestResponse> create(@Valid @RequestBody EducationRequestDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(requestService.create(dto));
+    }
+
+    @PostMapping("/bulk")
+    @PreAuthorize("hasAnyRole('DEPARTMENT_HEAD', 'ADMIN')")
+    public ResponseEntity<List<EducationRequestResponse>> createBulk(@Valid @RequestBody BulkEducationRequestDto dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(requestService.createBulk(dto));
     }
 
     @GetMapping("/{id}")

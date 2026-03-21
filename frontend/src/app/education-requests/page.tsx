@@ -4,8 +4,9 @@ import { useState, useEffect, useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { educationRequestApi, educationOpportunityApi } from "@/lib/api";
-import { EducationRequest, EducationOpportunity } from "@/types";
+import { educationRequestApi, educationOpportunityApi, employeeApi } from "@/lib/api";
+import { EducationRequest, EducationOpportunity, Employee } from "@/types";
+import { Search, X, Check } from "lucide-react";
 import StatusBadge from "@/components/StatusBadge";
 import {
   Plus,
@@ -41,6 +42,9 @@ export default function EducationRequestsPage() {
   const [loading, setLoading] = useState(false);
   const [busyId, setBusyId] = useState<number | null>(null);
   const [editId, setEditId] = useState<number | null>(null);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [form, setForm] = useState({
     employeeId: "",
@@ -70,13 +74,21 @@ export default function EducationRequestsPage() {
     if (user && (isDepartmentHead || isAdmin)) {
       setForm((prev) => ({
         ...prev,
-        employeeId: String(user.employeeId || user.id || ""),
-        fullName: user.fullName || "",
-        phone: (user as any).phone || "",
         department: (user as any).department || "",
       }));
+      loadEmployees((user as any).department);
     }
   }, [user, isDepartmentHead, isAdmin]);
+
+  const loadEmployees = async (dept?: string) => {
+    if (!dept) return;
+    try {
+      const res = await employeeApi.getByDepartment(dept);
+      setEmployees(res.data || []);
+    } catch {
+      // silent
+    }
+  };
 
   const loadRequests = async () => {
     try {
@@ -114,7 +126,46 @@ export default function EducationRequestsPage() {
     });
     setEditId(null);
     setShowForm(false);
+    setSelectedEmployees([]);
   };
+
+  const toggleEmployeeSelection = (emp: Employee) => {
+    setSelectedEmployees((prev) => {
+      const isSelected = prev.some((e) => e.id === emp.id);
+      if (isSelected) {
+        return prev.filter((e) => e.id !== emp.id);
+      } else {
+        return [...prev, emp];
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (selectedEmployees.length === 1 && !editId) {
+      const emp = selectedEmployees[0];
+      setForm((prev) => ({
+        ...prev,
+        employeeId: String(emp.id),
+        fullName: `${emp.firstName} ${emp.lastName}`,
+        phone: emp.phone || "",
+        department: emp.department || "",
+        workExperience: String(emp.workExperience ?? ""),
+        performanceScore: String(emp.performanceScore ?? ""),
+        currentEducationLevel: emp.currentEducationLevel || "",
+      }));
+    } else if (selectedEmployees.length === 0 && !editId) {
+        setForm(prev => ({
+            ...prev,
+            employeeId: "",
+            fullName: "",
+            phone: "",
+            department: (user as any)?.department || "",
+            workExperience: "",
+            performanceScore: "",
+            currentEducationLevel: "",
+        }));
+    }
+  }, [selectedEmployees, editId, user]);
 
   const visibleOpportunities = useMemo(() => {
     if (!isDepartmentHead) {
@@ -150,26 +201,57 @@ export default function EducationRequestsPage() {
       if (!selectedOpportunity)
         throw new Error("Please select an education opportunity.");
 
-      const payload = {
-        employeeId: Number(form.employeeId),
-        opportunityId: Number(form.opportunityId),
-        currentEducationLevel: form.currentEducationLevel,
-        workExperience: Number(form.workExperience),
-        performanceScore: Number(form.performanceScore),
-        description: form.description,
-
-        // compatibility fields for mock data rendering
-        employeeName: form.fullName,
-        employeePhone: form.phone,
-        employeeDepartment: form.department,
-        educationType: selectedOpportunity.educationType,
-        educationLevel: selectedOpportunity.educationLevel,
-        institution: selectedOpportunity.institution,
-      };
-
       if (editId) {
+        const payload = {
+            employeeId: Number(form.employeeId),
+            opportunityId: Number(form.opportunityId),
+            currentEducationLevel: form.currentEducationLevel,
+            workExperience: Number(form.workExperience),
+            performanceScore: Number(form.performanceScore),
+            description: form.description,
+    
+            // compatibility fields for mock data rendering
+            employeeName: form.fullName,
+            employeePhone: form.phone,
+            employeeDepartment: form.department,
+            educationType: selectedOpportunity.educationType,
+            educationLevel: selectedOpportunity.educationLevel,
+            institution: selectedOpportunity.institution,
+          };
         await educationRequestApi.update(editId, payload);
+      } else if (selectedEmployees.length > 1) {
+        const payload = {
+          opportunityId: Number(form.opportunityId),
+          employeeIds: selectedEmployees.map((e) => e.id),
+          employeeNames: selectedEmployees.map((e) => `${e.firstName} ${e.lastName}`),
+          employeePhones: selectedEmployees.map((e) => e.phone),
+          employeeDepartment: form.department,
+          currentEducationLevel: form.currentEducationLevel,
+          workExperience: Number(form.workExperience),
+          performanceScore: Number(form.performanceScore),
+          description: form.description,
+          educationType: selectedOpportunity.educationType,
+          educationLevel: selectedOpportunity.educationLevel,
+          institution: selectedOpportunity.institution,
+        };
+        await (educationRequestApi as any).createBulk(payload);
       } else {
+        const payload = {
+            employeeId: Number(form.employeeId),
+            opportunityId: Number(form.opportunityId),
+            currentEducationLevel: form.currentEducationLevel,
+            workExperience: Number(form.workExperience),
+            performanceScore: Number(form.performanceScore),
+            description: form.description,
+    
+            // compatibility fields for mock data rendering
+            employeeName: form.fullName,
+            employeePhone: form.phone,
+            employeeDepartment: form.department,
+            educationType: selectedOpportunity.educationType,
+            educationLevel: selectedOpportunity.educationLevel,
+            institution: selectedOpportunity.institution,
+          };
         await educationRequestApi.create(payload);
       }
 
@@ -313,6 +395,90 @@ export default function EducationRequestsPage() {
                 </select>
               </div>
 
+              <div className="md:col-span-2">
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  {t("selectEmployees")}
+                </label>
+                <div className="relative">
+                  <div className="flex flex-wrap gap-2 rounded-lg border border-gray-300 p-2 min-h-[42px] focus-within:border-blue-500">
+                    {selectedEmployees.map((emp) => (
+                      <span
+                        key={emp.id}
+                        className="flex items-center gap-1 rounded bg-blue-100 px-2 py-1 text-xs text-blue-700"
+                      >
+                        {`${emp.firstName} ${emp.lastName}`}
+                        <X
+                          className="h-3 w-3 cursor-pointer hover:text-blue-900"
+                          onClick={() => toggleEmployeeSelection(emp)}
+                        />
+                      </span>
+                    ))}
+                    <input
+                      type="text"
+                      placeholder={selectedEmployees.length > 0 ? "" : "Search employees..."}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="flex-1 border-none bg-transparent p-0 text-sm focus:ring-0"
+                    />
+                  </div>
+
+                  {searchTerm && (
+                    <div className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-lg border bg-white shadow-lg">
+                      {employees
+                        .filter(
+                          (e) =>
+                            `${e.firstName} ${e.lastName}`
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) &&
+                            !selectedEmployees.some((se) => se.id === e.id),
+                        )
+                        .map((emp) => (
+                          <div
+                            key={emp.id}
+                            className="flex cursor-pointer items-center justify-between px-3 py-2 text-sm hover:bg-gray-100"
+                            onClick={() => {
+                              toggleEmployeeSelection(emp);
+                              setSearchTerm("");
+                            }}
+                          >
+                            <span>
+                              {`${emp.firstName} ${emp.lastName}`}
+                            </span>
+                            <span className="text-[10px] text-gray-400">
+                              {emp.employeeId}
+                            </span>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Quick Selection List */}
+                {employees.length > 0 && !searchTerm && (
+                  <div className="mt-3 rounded-lg border border-gray-100 bg-gray-50/50 p-3">
+                    <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                      Suggested Employees in {form.department}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {employees
+                        .filter(e => !selectedEmployees.some(se => se.id === e.id))
+                        .slice(0, 10)
+                        .map(emp => (
+                          <button
+                            key={emp.id}
+                            type="button"
+                            onClick={() => toggleEmployeeSelection(emp)}
+                            className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-700 hover:border-blue-400 hover:bg-blue-50 transition-colors"
+                          >
+                            <Plus className="h-3 w-3 text-blue-500" />
+                            {`${emp.firstName} ${emp.lastName}`}
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   {t("employeeId")}
@@ -320,11 +486,12 @@ export default function EducationRequestsPage() {
                 <input
                   type="number"
                   required
+                  readOnly={selectedEmployees.length > 0}
                   value={form.employeeId}
                   onChange={(e) =>
                     setForm({ ...form, employeeId: e.target.value })
                   }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 focus:border-blue-500 focus:outline-none"
                 />
               </div>
 
@@ -335,11 +502,12 @@ export default function EducationRequestsPage() {
                 <input
                   type="text"
                   required
+                  readOnly={selectedEmployees.length > 0}
                   value={form.fullName}
                   onChange={(e) =>
                     setForm({ ...form, fullName: e.target.value })
                   }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 focus:border-blue-500 focus:outline-none"
                 />
               </div>
 
@@ -350,9 +518,10 @@ export default function EducationRequestsPage() {
                 <input
                   type="text"
                   required
+                  readOnly={selectedEmployees.length > 0}
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 focus:border-blue-500 focus:outline-none"
                 />
               </div>
 
@@ -363,11 +532,9 @@ export default function EducationRequestsPage() {
                 <input
                   type="text"
                   required
+                  readOnly
                   value={form.department}
-                  onChange={(e) =>
-                    setForm({ ...form, department: e.target.value })
-                  }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 focus:outline-none"
                 />
               </div>
 

@@ -31,6 +31,7 @@ interface NavItem {
     | "navReports"
     | "navCompletions"
     | "navObligations"
+    | "navEmployees"
     | "navUsers";
   icon: React.ReactNode;
   roles: string[];
@@ -125,6 +126,12 @@ const navItems: NavItem[] = [
     labelKey: "navObligations",
     icon: <Clock className="h-5 w-5" />,
     roles: ["HR_OFFICER", "CYBER_DEVELOPMENT_CENTER", "ADMIN"],
+  },
+  {
+    href: "/employees",
+    labelKey: "navEmployees",
+    icon: <Users className="h-5 w-5" />,
+    roles: ["ADMIN", "DEPARTMENT_HEAD", "HR_OFFICER"],
   },
   {
     href: "/users",

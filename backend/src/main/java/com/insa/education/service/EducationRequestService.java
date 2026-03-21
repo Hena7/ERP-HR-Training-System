@@ -1,5 +1,6 @@
 package com.insa.education.service;
 
+import com.insa.education.dto.request.BulkEducationRequestDto;
 import com.insa.education.dto.request.EducationRequestDto;
 import com.insa.education.dto.response.EducationRequestResponse;
 import com.insa.education.entity.EducationOpportunity;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EducationRequestService {
@@ -72,6 +74,38 @@ public class EducationRequestService {
         log.info("Education request created: id={}, employee={}, by={}", saved.getId(), employee.getEmployeeId(), currentUsername());
 
         return mapper.toEducationRequestResponse(saved);
+    }
+
+    /**
+     * Bulk creation of education requests for multiple employees.
+     */
+    @Transactional
+    public List<EducationRequestResponse> createBulk(BulkEducationRequestDto dto) {
+        EducationOpportunity opportunity = opportunityRepository.findById(dto.getOpportunityId())
+                .orElseThrow(() -> new ResourceNotFoundException("Opportunity not found with id: " + dto.getOpportunityId()));
+
+        return dto.getEmployeeIds().stream().map(employeeId -> {
+            Employee employee = employeeRepository.findById(employeeId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + employeeId));
+
+            validateOpportunityAccess(employee, opportunity);
+
+            EducationRequest request = EducationRequest.builder()
+                    .employee(employee)
+                    .opportunity(opportunity)
+                    .currentEducationLevel(dto.getCurrentEducationLevel())
+                    .workExperience(dto.getWorkExperience())
+                    .performanceScore(dto.getPerformanceScore())
+                    .description(dto.getDescription())
+                    .status(RequestStatus.PENDING_DEPARTMENT_SUBMISSION)
+                    .build();
+
+            EducationRequest saved = requestRepository.save(request);
+            log.info("Education request created in bulk: id={}, employee={}, opportunity={}, by={}",
+                    saved.getId(), employee.getEmployeeId(), opportunity.getId(), currentUsername());
+
+            return mapper.toEducationRequestResponse(saved);
+        }).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)

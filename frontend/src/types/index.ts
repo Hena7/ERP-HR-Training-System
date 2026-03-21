@@ -9,6 +9,9 @@ export interface Employee {
   department: string;
   position: string;
   role: string;
+  currentEducationLevel?: string;
+  workExperience?: number;
+  performanceScore?: number;
   createdAt: string;
 }
 
