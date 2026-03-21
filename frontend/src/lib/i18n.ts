@@ -81,10 +81,10 @@ export const translations = {
     myRequests: "My Requests",
 
     // Status
-    PENDING_DEPARTMENT_SUBMISSION: "Pending Department Submission",
-    SUBMITTED_TO_CENTER: "Submitted to Center",
-    CENTER_REVIEWED: "Center Reviewed",
-    FORWARDED_TO_HR: "Forwarded to HR",
+    DRAFT: "Draft",
+    SUBMITTED: "Submitted",
+    CDC_APPROVED: "CDC Approved",
+    RETURNED_TO_DEPT: "Returned for Correction",
     PENDING: "Pending",
     HR_VERIFIED: "HR Verified",
     SCORED: "Scored by CDC",
@@ -130,6 +130,8 @@ export const translations = {
     approve: "Approve",
     reject: "Reject",
     decidedBy: "Decided By",
+    committeeDecisionsHistory: "Committee Decisions History",
+    pendingDecisions: "Requests Pending Decision",
 
     // Contract
     contracts: "Education Contracts",
@@ -283,10 +285,10 @@ export const translations = {
     myRequests: "የእኔ ጥያቄዎች",
 
     // Status
-    PENDING_DEPARTMENT_SUBMISSION: "የክፍል ኃላፊ ማስገባት በመጠባበቅ ላይ",
-    SUBMITTED_TO_CENTER: "ወደ ማዕከል ተልኳል",
-    CENTER_REVIEWED: "በማዕከል ተገምግሟል",
-    FORWARDED_TO_HR: "ወደ HR ተላልፏል",
+    DRAFT: "ረቂቅ",
+    SUBMITTED: "ገብቷል",
+    CDC_APPROVED: "በCDC ጸድቋል",
+    RETURNED_TO_DEPT: "ለማስተካከያ ተመልሷል",
     PENDING: "በመጠባበቅ ላይ",
     HR_VERIFIED: "በHR ተረጋግጧል",
     SCORED: "በCDC ተሰልቷል",
@@ -332,6 +334,8 @@ export const translations = {
     approve: "ፈቅድ",
     reject: "አትቀበል",
     decidedBy: "ውሳኔ ሰጪ",
+    committeeDecisionsHistory: "የኮሚቴ ውሳኔዎች ታሪክ",
+    pendingDecisions: "ውሳኔ የሚጠባበቁ ጥያቄዎች",
 
     // Contract
     contracts: "የትምህርት ውሎች",

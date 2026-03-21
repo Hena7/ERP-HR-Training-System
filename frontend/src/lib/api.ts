@@ -310,7 +310,7 @@ export const educationRequestApi = {
     const newReq = {
       ...data,
       id: Date.now(),
-      status: "PENDING_DEPARTMENT_SUBMISSION",
+      status: "DRAFT",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       employeeName:
@@ -330,7 +330,7 @@ export const educationRequestApi = {
       ...data,
       id: Date.now() + index,
       employeeId: empId,
-      status: "PENDING_DEPARTMENT_SUBMISSION",
+      status: "DRAFT",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       // Mock UI fields (using names provided or generic ones)
@@ -411,14 +411,14 @@ export const educationRequestApi = {
     const requests = getMockData("educationRequests");
     const index = requests.findIndex((r: any) => r.id == id);
     if (index === -1) throw new Error("Not found");
-    if (requests[index].status !== "PENDING_DEPARTMENT_SUBMISSION") {
+    if (requests[index].status !== "DRAFT" && requests[index].status !== "RETURNED_TO_DEPT") {
       throw new Error(
-        "Request must be in PENDING_DEPARTMENT_SUBMISSION status to submit to center",
+        "Request must be in DRAFT or RETURNED_TO_DEPT status to submit",
       );
     }
     requests[index] = {
       ...requests[index],
-      status: "SUBMITTED_TO_CENTER",
+      status: "SUBMITTED",
       updatedAt: new Date().toISOString(),
     };
     saveMockData("educationRequests", requests);
@@ -429,14 +429,27 @@ export const educationRequestApi = {
     const requests = getMockData("educationRequests");
     const index = requests.findIndex((r: any) => r.id == id);
     if (index === -1) throw new Error("Not found");
-    if (requests[index].status !== "SUBMITTED_TO_CENTER") {
+    if (requests[index].status !== "SUBMITTED") {
       throw new Error(
-        "Request must be in SUBMITTED_TO_CENTER status for center review",
+        "Request must be in SUBMITTED status for CDC review",
       );
     }
     requests[index] = {
       ...requests[index],
-      status: "CENTER_REVIEWED",
+      status: "CDC_APPROVED",
+      updatedAt: new Date().toISOString(),
+    };
+    saveMockData("educationRequests", requests);
+    return { data: requests[index] };
+  },
+  returnToDept: async (id: number) => {
+    await delay(300);
+    const requests = getMockData("educationRequests");
+    const index = requests.findIndex((r: any) => r.id == id);
+    if (index === -1) throw new Error("Not found");
+    requests[index] = {
+      ...requests[index],
+      status: "RETURNED_TO_DEPT",
       updatedAt: new Date().toISOString(),
     };
     saveMockData("educationRequests", requests);
@@ -447,9 +460,9 @@ export const educationRequestApi = {
     const requests = getMockData("educationRequests");
     const index = requests.findIndex((r: any) => r.id == id);
     if (index === -1) throw new Error("Not found");
-    if (requests[index].status !== "CENTER_REVIEWED") {
+    if (requests[index].status !== "CDC_APPROVED") {
       throw new Error(
-        "Request must be in CENTER_REVIEWED status to forward to HR",
+        "Request must be in CDC_APPROVED status to forward to HR",
       );
     }
     requests[index] = {
@@ -573,8 +586,13 @@ export const hrVerificationApi = {
       const requests = getMockData("educationRequests");
       const idx = requests.findIndex((r: any) => r.id == data.requestId);
       if (idx !== -1) {
-        requests[idx].status =
-          status === "VERIFIED" ? "HR_VERIFIED" : "REJECTED";
+        if (status === "VERIFIED") {
+          requests[idx].status = "HR_VERIFIED";
+        } else if (status === "RETURNED_TO_DEPT") {
+          requests[idx].status = "RETURNED_TO_DEPT";
+        } else {
+          requests[idx].status = "REJECTED";
+        }
         requests[idx].updatedAt = new Date().toISOString();
         saveMockData("educationRequests", requests);
       }
@@ -636,8 +654,13 @@ export const hrVerificationApi = {
         (r: any) => r.id == verifications[index].requestId,
       );
       if (requestIndex !== -1) {
-        requests[requestIndex].status =
-          status === "VERIFIED" ? "HR_VERIFIED" : "REJECTED";
+        if (status === "VERIFIED") {
+          requests[requestIndex].status = "HR_VERIFIED";
+        } else if (status === "RETURNED_TO_DEPT") {
+          requests[requestIndex].status = "RETURNED_TO_DEPT";
+        } else {
+          requests[requestIndex].status = "REJECTED";
+        }
         requests[requestIndex].updatedAt = new Date().toISOString();
         saveMockData("educationRequests", requests);
       }

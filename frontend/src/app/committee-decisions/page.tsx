@@ -5,7 +5,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { committeeDecisionApi, educationRequestApi, cdcScoringApi } from "@/lib/api";
 import { CommitteeDecision, EducationRequest, CDCScoring } from "@/types";
-import { Users, Plus, Edit, Trash2, BarChart3 } from "lucide-react";
+import { Users, Plus, Edit, Trash2, BarChart3, ClipboardList } from "lucide-react";
 
 export default function CommitteeDecisionsPage() {
   const { t } = useLanguage();
@@ -104,6 +104,22 @@ export default function CommitteeDecisionsPage() {
       } catch {
         alert("Failed to delete decision");
       }
+    }
+  };
+
+  const handleQuickAction = async (requestId: number, decision: "APPROVED" | "REJECTED") => {
+    setLoading(true);
+    try {
+      await committeeDecisionApi.decide({
+        requestId,
+        decision,
+        comment: `Quick ${decision.toLowerCase()} via committee dashboard.`,
+      });
+      loadData();
+    } catch {
+      alert("Failed to save decision");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -237,7 +253,72 @@ export default function CommitteeDecisionsPage() {
           </div>
         )}
 
-        <div className="rounded-xl border bg-white shadow-sm">
+        <div className="rounded-xl border bg-white p-6 shadow-sm">
+          <h2 className="mb-4 text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <ClipboardList className="h-5 w-5 text-amber-500" />
+            {t("pendingDecisions")}
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="border-b bg-gray-50 text-xs uppercase text-gray-500">
+                <tr>
+                  <th className="px-4 py-3">ID</th>
+                  <th className="px-4 py-3">Employee</th>
+                  <th className="px-4 py-3">Education</th>
+                  <th className="px-4 py-3">Department</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {scoredRequests.length > 0 ? (
+                  scoredRequests.map((r) => (
+                    <tr key={r.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3">#{r.id}</td>
+                      <td className="px-4 py-3 font-medium text-gray-900">
+                        {r.employeeName}
+                      </td>
+                      <td className="px-4 py-3">
+                        {r.educationType} ({r.educationLevel})
+                      </td>
+                      <td className="px-4 py-3">{r.employeeDepartment}</td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => handleQuickAction(r.id, "APPROVED")}
+                            disabled={loading}
+                            className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 transition-colors disabled:opacity-50"
+                          >
+                            {t("approve")}
+                          </button>
+                          <button
+                            onClick={() => handleQuickAction(r.id, "REJECTED")}
+                            disabled={loading}
+                            className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 transition-colors disabled:opacity-50"
+                          >
+                            {t("reject")}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                      No scored requests pending decision.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
+          <div className="border-b px-6 py-4 bg-gray-50">
+            <h2 className="text-lg font-semibold text-gray-900">
+              {t("committeeDecisionsHistory") || "Decision History"}
+            </h2>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="border-b bg-gray-50 text-xs uppercase text-gray-500">

@@ -16,12 +16,13 @@ import {
   Send,
   CheckCircle2,
   Forward,
+  RotateCcw,
 } from "lucide-react";
 
 type WorkflowStatus =
-  | "PENDING_DEPARTMENT_SUBMISSION"
-  | "SUBMITTED_TO_CENTER"
-  | "CENTER_REVIEWED"
+  | "DRAFT"
+  | "SUBMITTED"
+  | "CDC_APPROVED"
   | "FORWARDED_TO_HR"
   | "COMMITTEE_REVIEW"
   | "APPROVED"
@@ -54,7 +55,6 @@ export default function EducationRequestsPage() {
     opportunityId: "",
     currentEducationLevel: "",
     workExperience: "",
-    performanceScore: "",
     description: "",
   });
 
@@ -66,6 +66,10 @@ export default function EducationRequestsPage() {
     .toString()
     .trim()
     .toLowerCase();
+
+  const canEditRequest = (status: string) => {
+    return status === "DRAFT" || status === "RETURNED_TO_DEPT";
+  };
 
   useEffect(() => {
     loadRequests();
@@ -121,7 +125,6 @@ export default function EducationRequestsPage() {
       opportunityId: "",
       currentEducationLevel: "",
       workExperience: "",
-      performanceScore: "",
       description: "",
     });
     setEditId(null);
@@ -150,7 +153,6 @@ export default function EducationRequestsPage() {
         phone: emp.phone || "",
         department: emp.department || "",
         workExperience: String(emp.workExperience ?? ""),
-        performanceScore: String(emp.performanceScore ?? ""),
         currentEducationLevel: emp.currentEducationLevel || "",
       }));
     } else if (selectedEmployees.length === 0 && !editId) {
@@ -161,7 +163,6 @@ export default function EducationRequestsPage() {
             phone: "",
             department: (user as any)?.department || "",
             workExperience: "",
-            performanceScore: "",
             currentEducationLevel: "",
         }));
     }
@@ -207,7 +208,6 @@ export default function EducationRequestsPage() {
             opportunityId: Number(form.opportunityId),
             currentEducationLevel: form.currentEducationLevel,
             workExperience: Number(form.workExperience),
-            performanceScore: Number(form.performanceScore),
             description: form.description,
     
             // compatibility fields for mock data rendering
@@ -228,7 +228,6 @@ export default function EducationRequestsPage() {
           employeeDepartment: form.department,
           currentEducationLevel: form.currentEducationLevel,
           workExperience: Number(form.workExperience),
-          performanceScore: Number(form.performanceScore),
           description: form.description,
           educationType: selectedOpportunity.educationType,
           educationLevel: selectedOpportunity.educationLevel,
@@ -241,7 +240,6 @@ export default function EducationRequestsPage() {
             opportunityId: Number(form.opportunityId),
             currentEducationLevel: form.currentEducationLevel,
             workExperience: Number(form.workExperience),
-            performanceScore: Number(form.performanceScore),
             description: form.description,
     
             // compatibility fields for mock data rendering
@@ -274,7 +272,6 @@ export default function EducationRequestsPage() {
       opportunityId: String(req.opportunityId || ""),
       currentEducationLevel: req.currentEducationLevel || "",
       workExperience: String(req.workExperience ?? ""),
-      performanceScore: String(req.performanceScore ?? ""),
       description: req.description || "",
     });
     setShowForm(true);
@@ -293,7 +290,7 @@ export default function EducationRequestsPage() {
   const submitToCenter = async (id: number) => {
     setBusyId(id);
     try {
-      await educationRequestApi.update(id, { status: "SUBMITTED_TO_CENTER" });
+      await educationRequestApi.update(id, { status: "SUBMITTED" });
       await loadRequests();
     } catch {
       alert("Failed to submit to center.");
@@ -305,7 +302,7 @@ export default function EducationRequestsPage() {
   const centerReview = async (id: number) => {
     setBusyId(id);
     try {
-      await educationRequestApi.update(id, { status: "CENTER_REVIEWED" });
+      await educationRequestApi.centerReview(id);
       await loadRequests();
     } catch {
       alert("Failed to mark center review.");
@@ -314,10 +311,23 @@ export default function EducationRequestsPage() {
     }
   };
 
+  const handleReturnToDept = async (id: number) => {
+    if (!confirm("Are you sure you want to return this request for correction?")) return;
+    setBusyId(id);
+    try {
+      await (educationRequestApi as any).returnToDept(id);
+      await loadRequests();
+    } catch {
+      alert("Failed to return request");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   const forwardToHr = async (id: number) => {
     setBusyId(id);
     try {
-      await educationRequestApi.update(id, { status: "FORWARDED_TO_HR" });
+      await educationRequestApi.forwardToHr(id);
       await loadRequests();
     } catch {
       alert("Failed to forward to HR.");
@@ -327,15 +337,6 @@ export default function EducationRequestsPage() {
   };
 
   const canCreate = isDepartmentHead || isAdmin;
-  const canEditRequest = (status: WorkflowStatus) =>
-    ![
-      "FORWARDED_TO_HR",
-      "COMMITTEE_REVIEW",
-      "APPROVED",
-      "REJECTED",
-      "CONTRACT_CREATED",
-      "HR_VERIFIED",
-    ].includes(status);
 
   return (
     <DashboardLayout>
@@ -569,21 +570,7 @@ export default function EducationRequestsPage() {
                 />
               </div>
 
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  {t("averagePerformanceScore")}
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  required
-                  value={form.performanceScore}
-                  onChange={(e) =>
-                    setForm({ ...form, performanceScore: e.target.value })
-                  }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
-                />
-              </div>
+
 
               <div className="md:col-span-2">
                 <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -638,14 +625,14 @@ export default function EducationRequestsPage() {
                 {requests.length > 0 ? (
                   requests.map((req) => {
                     const status = (req.status ||
-                      "PENDING_DEPARTMENT_SUBMISSION") as WorkflowStatus;
+                      "DRAFT") as WorkflowStatus;
                     const canSubmit =
                       (isDepartmentHead || isAdmin) &&
-                      status === "PENDING_DEPARTMENT_SUBMISSION";
+                      status === "DRAFT";
                     const canCenterReview =
-                      (isCenter || isAdmin) && status === "SUBMITTED_TO_CENTER";
+                      (isCenter || isAdmin) && status === "SUBMITTED";
                     const canForward =
-                      (isCenter || isAdmin) && status === "CENTER_REVIEWED";
+                      (isCenter || isAdmin) && status === "CDC_APPROVED";
                     const canEdit =
                       (isDepartmentHead || isAdmin) && canEditRequest(status);
 
@@ -680,15 +667,26 @@ export default function EducationRequestsPage() {
                             )}
 
                             {canCenterReview && (
-                              <button
-                                onClick={() => centerReview(req.id)}
-                                disabled={busyId === req.id}
-                                className="inline-flex items-center gap-1 rounded-md bg-cyan-600 px-2 py-1 text-[11px] text-white hover:bg-cyan-700 disabled:opacity-50"
-                                title="Center Review"
-                              >
-                                <CheckCircle2 className="h-3 w-3" />
-                                Review
-                              </button>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={() => centerReview(req.id)}
+                                  disabled={busyId === req.id}
+                                  className="inline-flex items-center gap-1 rounded-md bg-cyan-600 px-2 py-1 text-[11px] text-white hover:bg-cyan-700 disabled:opacity-50"
+                                  title="Approve"
+                                >
+                                  <CheckCircle2 className="h-3 w-3" />
+                                  Approve
+                                </button>
+                                <button
+                                  onClick={() => handleReturnToDept(req.id)}
+                                  disabled={busyId === req.id}
+                                  className="inline-flex items-center gap-1 rounded-md bg-amber-600 px-2 py-1 text-[11px] text-white hover:bg-amber-700 disabled:opacity-50"
+                                  title="Return for Correction"
+                                >
+                                  <RotateCcw className="h-3 w-3" />
+                                  Return
+                                </button>
+                              </div>
                             )}
 
                             {canForward && (

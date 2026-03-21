@@ -94,8 +94,8 @@ export default function EducationOpportunitiesPage() {
   const fetchDepartments = async () => {
     try {
       const response = await userApi.getAll();
-      const users = response.data || [];
-      const departments = Array.from(
+      const users = (response.data as any[]) || [];
+      const departments: string[] = Array.from(
         new Set(
           users
             .map((item: { department?: string }) =>

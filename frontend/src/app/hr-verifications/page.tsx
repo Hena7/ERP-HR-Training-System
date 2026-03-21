@@ -5,9 +5,9 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { educationRequestApi, hrVerificationApi } from "@/lib/api";
 import { EducationRequest, HRVerification } from "@/types";
-import { CheckCircle2, ClipboardCheck, XCircle } from "lucide-react";
+import { CheckCircle2, ClipboardCheck, XCircle, RotateCcw } from "lucide-react";
 
-type VerificationStatus = "VERIFIED" | "REJECTED";
+type VerificationStatus = "VERIFIED" | "REJECTED" | "RETURNED_TO_DEPT";
 
 interface VerificationFormState {
   requestId: number | null;
@@ -38,7 +38,7 @@ export default function HRVerificationsPage() {
   const loadData = async () => {
     try {
       const [requestRes, verificationRes] = await Promise.all([
-        educationRequestApi.getByStatus("FORWARDED_TO_HR", 0, 100),
+        educationRequestApi.getByStatus("CDC_APPROVED", 0, 100),
         hrVerificationApi.getAll(0, 100),
       ]);
 
@@ -133,14 +133,18 @@ export default function HRVerificationsPage() {
     const color =
       status === "VERIFIED"
         ? "bg-green-100 text-green-800"
-        : "bg-red-100 text-red-800";
+        : status === "RETURNED_TO_DEPT"
+          ? "bg-amber-100 text-amber-800"
+          : "bg-red-100 text-red-800";
 
     const label =
       status === "VERIFIED"
         ? t("VERIFIED")
         : status === "REJECTED"
           ? t("REJECTED_HR")
-          : "-";
+          : status === "RETURNED_TO_DEPT"
+            ? t("RETURNED_TO_DEPT")
+            : "-";
 
     return (
       <span
@@ -347,6 +351,18 @@ export default function HRVerificationsPage() {
                   {loading && submittingStatus === "REJECTED"
                     ? t("loading")
                     : t("REJECTED_HR")}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => handleSubmit(e, "RETURNED_TO_DEPT")}
+                  disabled={loading}
+                  className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  {loading && submittingStatus === "RETURNED_TO_DEPT"
+                    ? t("loading")
+                    : t("RETURNED_TO_DEPT")}
                 </button>
 
                 <button
