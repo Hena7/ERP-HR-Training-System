@@ -376,10 +376,15 @@ export const educationRequestApi = {
       },
     };
   },
-  getByStatus: async (status: string, page = 0, size = 10) => {
+  getByStatus: async (
+    status: string | string[],
+    page = 0,
+    size = 10,
+  ) => {
     await delay(300);
-    const requests = getMockData("educationRequests").filter(
-      (r: any) => r.status === status,
+    const statuses = Array.isArray(status) ? status : [status];
+    const requests = getMockData("educationRequests").filter((r: any) =>
+      statuses.includes(r.status),
     );
     return {
       data: {

@@ -631,8 +631,6 @@ export default function EducationRequestsPage() {
                       status === "DRAFT";
                     const canCenterReview =
                       (isCenter || isAdmin) && status === "SUBMITTED";
-                    const canForward =
-                      (isCenter || isAdmin) && status === "CDC_APPROVED";
                     const canEdit =
                       (isDepartmentHead || isAdmin) && canEditRequest(status);
 
@@ -689,17 +687,7 @@ export default function EducationRequestsPage() {
                               </div>
                             )}
 
-                            {canForward && (
-                              <button
-                                onClick={() => forwardToHr(req.id)}
-                                disabled={busyId === req.id}
-                                className="inline-flex items-center gap-1 rounded-md bg-sky-600 px-2 py-1 text-[11px] text-white hover:bg-sky-700 disabled:opacity-50"
-                                title="Forward to HR"
-                              >
-                                <Forward className="h-3 w-3" />
-                                Forward
-                              </button>
-                            )}
+
 
                             {canEdit && (
                               <button
