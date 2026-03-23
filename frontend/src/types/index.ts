@@ -61,7 +61,7 @@ export interface HRVerification {
   averageScore: number;
   hasDiscipline: boolean;
   disciplineDescription?: string;
-  status: "VERIFIED" | "REJECTED" | "RETURNED_TO_DEPT";
+  status: "VERIFIED" | "REJECTED";
   verifiedBy: string;
   verifiedAt: string;
 }

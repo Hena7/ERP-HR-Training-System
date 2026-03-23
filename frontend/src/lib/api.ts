@@ -416,9 +416,9 @@ export const educationRequestApi = {
     const requests = getMockData("educationRequests");
     const index = requests.findIndex((r: any) => r.id == id);
     if (index === -1) throw new Error("Not found");
-    if (requests[index].status !== "DRAFT" && requests[index].status !== "RETURNED_TO_DEPT") {
+    if (requests[index].status !== "DRAFT") {
       throw new Error(
-        "Request must be in DRAFT or RETURNED_TO_DEPT status to submit",
+        "Request must be in DRAFT status to submit",
       );
     }
     requests[index] = {
@@ -447,19 +447,7 @@ export const educationRequestApi = {
     saveMockData("educationRequests", requests);
     return { data: requests[index] };
   },
-  returnToDept: async (id: number) => {
-    await delay(300);
-    const requests = getMockData("educationRequests");
-    const index = requests.findIndex((r: any) => r.id == id);
-    if (index === -1) throw new Error("Not found");
-    requests[index] = {
-      ...requests[index],
-      status: "RETURNED_TO_DEPT",
-      updatedAt: new Date().toISOString(),
-    };
-    saveMockData("educationRequests", requests);
-    return { data: requests[index] };
-  },
+
   forwardToHr: async (id: number) => {
     await delay(300);
     const requests = getMockData("educationRequests");
@@ -595,8 +583,6 @@ export const hrVerificationApi = {
       if (idx !== -1) {
         if (status === "VERIFIED") {
           requests[idx].status = "HR_VERIFIED";
-        } else if (status === "RETURNED_TO_DEPT") {
-          requests[idx].status = "RETURNED_TO_DEPT";
         } else {
           requests[idx].status = "REJECTED";
         }

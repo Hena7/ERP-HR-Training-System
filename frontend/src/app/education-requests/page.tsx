@@ -16,7 +16,6 @@ import {
   Send,
   CheckCircle2,
   Forward,
-  RotateCcw,
 } from "lucide-react";
 
 type WorkflowStatus =
@@ -68,7 +67,7 @@ export default function EducationRequestsPage() {
     .toLowerCase();
 
   const canEditRequest = (status: string) => {
-    return status === "DRAFT" || status === "RETURNED_TO_DEPT";
+    return status === "DRAFT";
   };
 
   useEffect(() => {

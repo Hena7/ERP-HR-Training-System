@@ -86,7 +86,7 @@ export const translations = {
     DRAFT: "Draft",
     SUBMITTED: "Submitted",
     CDC_APPROVED: "CDC Approved",
-    RETURNED_TO_DEPT: "Returned for Correction",
+
     PENDING: "Pending",
     HR_VERIFIED: "HR Verified",
     SCORED: "Scored by CDC",
@@ -293,7 +293,7 @@ export const translations = {
     DRAFT: "ረቂቅ",
     SUBMITTED: "ገብቷል",
     CDC_APPROVED: "በCDC ጸድቋል",
-    RETURNED_TO_DEPT: "ለማስተካከያ ተመልሷል",
+
     PENDING: "በመጠባበቅ ላይ",
     HR_VERIFIED: "በHR ተረጋግጧል",
     SCORED: "በCDC ተሰልቷል",

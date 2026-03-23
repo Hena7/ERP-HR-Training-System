@@ -7,7 +7,7 @@ const statusColors: Record<string, string> = {
   SUBMITTED: "bg-indigo-100 text-indigo-800",
   CDC_APPROVED: "bg-cyan-100 text-cyan-800",
   FORWARDED_TO_HR: "bg-sky-100 text-sky-800",
-  RETURNED_TO_DEPT: "bg-amber-100 text-amber-800",
+
   PENDING: "bg-yellow-100 text-yellow-800",
   HR_VERIFIED: "bg-blue-100 text-blue-800",
   SCORED: "bg-blue-100 text-blue-800",
@@ -21,7 +21,7 @@ const fallbackLabels: Record<string, string> = {
   DRAFT: "Draft",
   SUBMITTED: "Submitted",
   CDC_APPROVED: "CDC Approved",
-  RETURNED_TO_DEPT: "Returned for Correction",
+
 };
 
 export default function StatusBadge({ status }: { status: string }) {
