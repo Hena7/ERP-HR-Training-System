@@ -581,6 +581,8 @@ export const hrVerificationApi = {
       semester1Score,
       semester2Score,
       averageScore,
+      hasDiscipline: !!data.hasDiscipline,
+      disciplineDescription: data.disciplineDescription || "",
       status,
       id: Date.now(),
       verifiedAt: new Date().toISOString(),

@@ -30,6 +30,8 @@ export const translations = {
     studyMode: "Study Mode",
     onJob: "On-Job",
     offJob: "Off-Job",
+    yes: "Yes",
+    no: "No",
 
     // Auth
     email: "Email",
@@ -102,6 +104,7 @@ export const translations = {
     semester2Score: "Performance Score (Semester 2)",
     averageScore: "Average Score",
     disciplineRecord: "Discipline Record",
+    disciplineDescription: "Discipline Description",
     hasDisciplineRecord: "Has Discipline Record",
     noDisciplineRecord: "No Discipline Record",
     verifiedBy: "Verified By",
@@ -234,6 +237,8 @@ export const translations = {
     studyMode: "የትምህርት ሁኔታ",
     onJob: "በሥራ ላይ",
     offJob: "ከሥራ ውጭ",
+    yes: "አዎ",
+    no: "አይ",
 
     // Auth
     email: "ኢሜይል",
@@ -306,6 +311,7 @@ export const translations = {
     semester2Score: "የአፈጻጸም ውጤት (2ኛ ሰሚስተር)",
     averageScore: "አማካይ ውጤት",
     disciplineRecord: "የዲሲፕሊን መዝገብ",
+    disciplineDescription: "የዲሲፕሊን መግለጫ",
     hasDisciplineRecord: "የዲሲፕሊን መዝገብ አለ",
     noDisciplineRecord: "የዲሲፕሊን መዝገብ የለም",
     verifiedBy: "ያረጋገጠ",

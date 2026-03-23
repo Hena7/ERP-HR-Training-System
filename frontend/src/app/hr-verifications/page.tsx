@@ -13,12 +13,16 @@ interface VerificationFormState {
   requestId: number | null;
   semester1Score: string;
   semester2Score: string;
+  hasDiscipline: boolean;
+  disciplineDescription: string;
 }
 
 const initialForm: VerificationFormState = {
   requestId: null,
   semester1Score: "",
   semester2Score: "",
+  hasDiscipline: false,
+  disciplineDescription: "",
 };
 
 export default function HRVerificationsPage() {
@@ -75,6 +79,8 @@ export default function HRVerificationsPage() {
       requestId,
       semester1Score: "",
       semester2Score: "",
+      hasDiscipline: false,
+      disciplineDescription: "",
     });
   };
 
@@ -116,6 +122,8 @@ export default function HRVerificationsPage() {
         semester1Score,
         semester2Score,
         averageScore: Number(averageScore),
+        hasDiscipline: form.hasDiscipline,
+        disciplineDescription: form.disciplineDescription,
         status,
       });
 
@@ -328,6 +336,62 @@ export default function HRVerificationsPage() {
                 </div>
               </div>
 
+              <div className="space-y-4 rounded-lg border bg-gray-50 p-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-gray-900">
+                    {t("disciplineRecord")}
+                  </h3>
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 text-sm text-gray-700">
+                      <input
+                        type="checkbox"
+                        checked={form.hasDiscipline}
+                        onChange={() =>
+                          setForm((prev) => ({
+                            ...prev,
+                            hasDiscipline: true,
+                          }))
+                        }
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      {t("yes")}
+                    </label>
+                    <label className="flex items-center gap-2 text-sm text-gray-700">
+                      <input
+                        type="checkbox"
+                        checked={!form.hasDiscipline}
+                        onChange={() =>
+                          setForm((prev) => ({
+                            ...prev,
+                            hasDiscipline: false,
+                          }))
+                        }
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      {t("no")}
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    {t("disciplineDescription")}
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={form.disciplineDescription}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        disciplineDescription: e.target.value,
+                      }))
+                    }
+                    placeholder="Enter details if there is a disciplinary record..."
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
               <div className="flex flex-wrap gap-3">
                 <button
                   type="button"
@@ -398,6 +462,7 @@ export default function HRVerificationsPage() {
                   <th className="px-4 py-3">{t("semester1Score")}</th>
                   <th className="px-4 py-3">{t("semester2Score")}</th>
                   <th className="px-4 py-3">{t("averageScore")}</th>
+                  <th className="px-4 py-3">{t("disciplineRecord")}</th>
                   <th className="px-4 py-3">{t("status")}</th>
                   <th className="px-4 py-3">{t("verifiedBy")}</th>
                   <th className="px-4 py-3">{t("verifiedAt")}</th>
@@ -416,6 +481,16 @@ export default function HRVerificationsPage() {
                         {verification.semester2Score}
                       </td>
                       <td className="px-4 py-3">{verification.averageScore}</td>
+                      <td className="px-4 py-3 text-xs">
+                        <div className="flex flex-col gap-0.5">
+                          <span className={`inline-flex w-fit rounded-full px-2 py-0.5 text-[10px] font-medium ${verification.hasDiscipline ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
+                            {verification.hasDiscipline ? t("yes") : t("no")}
+                          </span>
+                          {verification.disciplineDescription && (
+                            <p className="max-w-[120px] truncate text-[9px] text-gray-400" title={verification.disciplineDescription}>{verification.disciplineDescription}</p>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-4 py-3">
                         {renderVerificationStatus(verification.status)}
                       </td>
@@ -426,7 +501,7 @@ export default function HRVerificationsPage() {
                 ) : (
                   <tr>
                     <td
-                      colSpan={8}
+                      colSpan={9}
                       className="px-4 py-8 text-center text-gray-500"
                     >
                       {t("noData")}
