@@ -5,7 +5,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { committeeDecisionApi, educationRequestApi, cdcScoringApi } from "@/lib/api";
 import { CommitteeDecision, EducationRequest, CDCScoring } from "@/types";
-import { Users, Plus, Edit, Trash2, BarChart3, ClipboardList } from "lucide-react";
+import { Users, Edit, Trash2, BarChart3, ClipboardList } from "lucide-react";
 
 export default function CommitteeDecisionsPage() {
   const { t } = useLanguage();
@@ -107,19 +107,22 @@ export default function CommitteeDecisionsPage() {
     }
   };
 
-  const handleQuickAction = async (requestId: number, decision: "APPROVED" | "REJECTED") => {
-    setLoading(true);
+  const handleReview = async (request: EducationRequest) => {
+    setForm({
+      requestId: String(request.id),
+      decision: "APPROVED",
+      comment: "",
+    });
+    setEditId(null);
+    setShowForm(true);
+    
     try {
-      await committeeDecisionApi.decide({
-        requestId,
-        decision,
-        comment: `Quick ${decision.toLowerCase()} via committee dashboard.`,
-      });
-      loadData();
+      const res = await cdcScoringApi.getByRequestId(request.id);
+      setSelectedScoring(res.data);
+      // Auto-scroll to form
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
-      alert("Failed to save decision");
-    } finally {
-      setLoading(false);
+      setSelectedScoring(null);
     }
   };
 
@@ -133,24 +136,13 @@ export default function CommitteeDecisionsPage() {
               {t("committeeDecisions")}
             </h1>
           </div>
-          <button
-            onClick={() => {
-              setEditId(null);
-              setForm({ requestId: "", decision: "APPROVED", comment: "" });
-              setSelectedScoring(null);
-              setShowForm(!showForm);
-            }}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            {t("committeeDecision")}
-          </button>
         </div>
 
         {showForm && (
-          <div className="rounded-xl border bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold">
-              {editId ? t("edit") || "Edit Decision" : t("committeeDecision")}
+          <div id="decision-form" className="rounded-xl border-2 border-blue-500 bg-white p-6 shadow-md">
+            <h2 className="mb-4 text-lg font-bold text-blue-900 flex items-center gap-2">
+              <ClipboardList className="h-5 w-5" />
+              {editId ? t("edit") || "Edit Decision" : "Review Participation & Decide"}
             </h2>
             <form
               onSubmit={handleSubmit}
@@ -162,17 +154,22 @@ export default function CommitteeDecisionsPage() {
                 </label>
                 <select
                   required
+                  disabled={!editId}
                   value={form.requestId}
                   onChange={(e) => handleRequestChange(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 bg-gray-50 focus:border-blue-500 focus:outline-none"
                 >
                   <option value="">--</option>
                   {scoredRequests.map((r) => (
                     <option key={r.id} value={r.id}>
-                      #{r.id} - {r.employeeName} - {r.educationType} (
-                      {r.educationLevel})
+                      #{r.id} - {r.employeeName}
                     </option>
                   ))}
+                  {editId && (
+                    <option value={form.requestId}>
+                      Current Request #{form.requestId}
+                    </option>
+                  )}
                 </select>
               </div>
               <div>
@@ -282,22 +279,14 @@ export default function CommitteeDecisionsPage() {
                       </td>
                       <td className="px-4 py-3">{r.employeeDepartment}</td>
                       <td className="px-4 py-3 text-right">
-                        <div className="flex justify-end gap-2">
-                          <button
-                            onClick={() => handleQuickAction(r.id, "APPROVED")}
-                            disabled={loading}
-                            className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 transition-colors disabled:opacity-50"
-                          >
-                            {t("approve")}
-                          </button>
-                          <button
-                            onClick={() => handleQuickAction(r.id, "REJECTED")}
-                            disabled={loading}
-                            className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 transition-colors disabled:opacity-50"
-                          >
-                            {t("reject")}
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => handleReview(r)}
+                          disabled={loading}
+                          className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-1 ml-auto"
+                        >
+                          <Edit className="h-3 w-3" />
+                          Review
+                        </button>
                       </td>
                     </tr>
                   ))
