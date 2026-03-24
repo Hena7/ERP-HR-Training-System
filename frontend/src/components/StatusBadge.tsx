@@ -15,6 +15,9 @@ const statusColors: Record<string, string> = {
   APPROVED: "bg-green-100 text-green-800",
   REJECTED: "bg-red-100 text-red-800",
   CONTRACT_CREATED: "bg-teal-100 text-teal-800",
+  OPEN: "bg-emerald-100 text-emerald-800",
+  CLOSED: "bg-stone-100 text-stone-800",
+  EXPIRED: "bg-rose-100 text-rose-800",
 };
 
 const fallbackLabels: Record<string, string> = {

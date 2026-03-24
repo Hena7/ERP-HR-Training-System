@@ -68,6 +68,11 @@ export const translations = {
     institution: "Institution",
     addOpportunity: "Add Opportunity",
     editOpportunity: "Edit Opportunity",
+    opportunityStatus: "Opportunity Status",
+    deadline: "Deadline",
+    OPEN: "Open",
+    CLOSED: "Closed",
+    EXPIRED: "Expired",
 
     // Education Request
     educationRequests: "Education Requests",
@@ -275,6 +280,11 @@ export const translations = {
     institution: "ትምህርት የሚሰጥበት ተቋም",
     addOpportunity: "እድል ጨምር",
     editOpportunity: "እድል አርትዕ",
+    opportunityStatus: "የትምህርት እድል ሁኔታ",
+    deadline: "የማመልከቻ ማብቂያ ቀን",
+    OPEN: "ክፍት",
+    CLOSED: "የተዘጋ",
+    EXPIRED: "ጊዜው ያለፈበት",
 
     // Education Request
     educationRequests: "የትምህርት ጥያቄዎች",

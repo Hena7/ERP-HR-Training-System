@@ -155,6 +155,8 @@ export interface EducationOpportunity {
   department: string;
   targetDepartments: string[];
   description: string;
+  status: "OPEN" | "CLOSED" | "EXPIRED";
+  deadline: string;
   createdAt: string;
   updatedAt: string;
 }

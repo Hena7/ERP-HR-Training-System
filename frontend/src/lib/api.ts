@@ -301,6 +301,17 @@ export const educationRequestApi = {
       throw new Error("Selected education opportunity was not found");
     }
 
+    const today = new Date().toISOString().split("T")[0];
+    const isExpired = opportunity.deadline && today > opportunity.deadline;
+
+    if (opportunity.status !== "OPEN" || isExpired) {
+      throw new Error(
+        opportunity.status === "CLOSED"
+          ? "This education opportunity is currently CLOSED for applications"
+          : "The application deadline for this opportunity has passed",
+      );
+    }
+
     if (!canApply) {
       throw new Error(
         "This education opportunity is not assigned to the employee's department",
@@ -1118,13 +1129,11 @@ export const educationOpportunityApi = {
           .filter(Boolean)
       : [];
 
-    if (normalizedTargets.length === 0) {
-      throw new Error("At least one target department is required");
-    }
-
     const newOpp = {
       id: opps.length > 0 ? Math.max(...opps.map((o: any) => o.id)) + 1 : 1,
       ...data,
+      status: data.status || "OPEN",
+      deadline: data.deadline || "",
       department: data.department || normalizedTargets[0],
       targetDepartments: normalizedTargets,
       createdAt: new Date().toISOString(),
@@ -1144,11 +1153,25 @@ export const educationOpportunityApi = {
   getAll: async (page = 0, size = 10) => {
     await delay(300);
     const opps = getMockData("educationOpportunities");
+    const user = typeof window !== "undefined" 
+      ? JSON.parse(localStorage.getItem("user") || "{}") 
+      : null;
+    
+    const isAdminOrCDC = user?.role === "ADMIN" || user?.role === "CYBER_DEVELOPMENT_CENTER";
+    const today = new Date().toISOString().split("T")[0];
+
+    const filteredOpps = isAdminOrCDC 
+      ? opps 
+      : opps.filter((o: any) => {
+          const isExpired = o.deadline && today > o.deadline;
+          return o.status === "OPEN" && !isExpired;
+        });
+
     return {
       data: {
-        content: opps,
-        totalElements: opps.length,
-        totalPages: Math.ceil(opps.length / size) || 1,
+        content: filteredOpps,
+        totalElements: filteredOpps.length,
+        totalPages: Math.ceil(filteredOpps.length / size) || 1,
         size,
         number: page,
       },

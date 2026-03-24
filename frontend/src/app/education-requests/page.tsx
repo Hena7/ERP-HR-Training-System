@@ -310,18 +310,7 @@ export default function EducationRequestsPage() {
     }
   };
 
-  const handleReturnToDept = async (id: number) => {
-    if (!confirm("Are you sure you want to return this request for correction?")) return;
-    setBusyId(id);
-    try {
-      await (educationRequestApi as any).returnToDept(id);
-      await loadRequests();
-    } catch {
-      alert("Failed to return request");
-    } finally {
-      setBusyId(null);
-    }
-  };
+
 
   const forwardToHr = async (id: number) => {
     setBusyId(id);
@@ -389,7 +378,7 @@ export default function EducationRequestsPage() {
                   {visibleOpportunities.map((opp) => (
                     <option key={opp.id} value={opp.id}>
                       {opp.educationType} ({opp.educationLevel}) -{" "}
-                      {opp.institution} [{opp.department}]
+                      {opp.institution} [Deadline: {opp.deadline || "N/A"}]
                     </option>
                   ))}
                 </select>
@@ -674,15 +663,7 @@ export default function EducationRequestsPage() {
                                   <CheckCircle2 className="h-3 w-3" />
                                   Approve
                                 </button>
-                                <button
-                                  onClick={() => handleReturnToDept(req.id)}
-                                  disabled={busyId === req.id}
-                                  className="inline-flex items-center gap-1 rounded-md bg-amber-600 px-2 py-1 text-[11px] text-white hover:bg-amber-700 disabled:opacity-50"
-                                  title="Return for Correction"
-                                >
-                                  <RotateCcw className="h-3 w-3" />
-                                  Return
-                                </button>
+
                               </div>
                             )}
 

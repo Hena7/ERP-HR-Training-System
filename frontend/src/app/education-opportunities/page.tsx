@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
+import StatusBadge from "@/components/StatusBadge";
 import { BookOpen, Plus, Search, Edit, Trash2, Users } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,6 +16,8 @@ type OpportunityFormData = {
   department: string;
   targetDepartments: string[];
   description: string;
+  status: "OPEN" | "CLOSED" | "EXPIRED";
+  deadline: string;
 };
 
 const emptyForm: OpportunityFormData = {
@@ -24,6 +27,8 @@ const emptyForm: OpportunityFormData = {
   department: "",
   targetDepartments: [],
   description: "",
+  status: "OPEN",
+  deadline: "",
 };
 
 function normalizeDepartment(value: string | undefined | null): string {
@@ -209,6 +214,8 @@ export default function EducationOpportunitiesPage() {
             ? [opp.department]
             : [],
       description: opp.description || "",
+      status: opp.status || "OPEN",
+      deadline: opp.deadline || "",
     });
     setShowForm(true);
   };
@@ -327,6 +334,43 @@ export default function EducationOpportunitiesPage() {
                 />
               </div>
 
+              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    {t("opportunityStatus")}
+                  </label>
+                  <select
+                    className="w-full rounded-lg border p-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    value={formData.status}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        status: e.target.value as any,
+                      })
+                    }
+                  >
+                    <option value="OPEN">{t("OPEN")}</option>
+                    <option value="CLOSED">{t("CLOSED")}</option>
+                    <option value="EXPIRED">{t("EXPIRED")}</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    {t("deadline")}
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    className="w-full rounded-lg border p-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    value={formData.deadline}
+                    onChange={(e) =>
+                      setFormData({ ...formData, deadline: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
               <div className="md:col-span-2">
                 <label className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
                   <Users className="h-4 w-4" />
@@ -422,6 +466,8 @@ export default function EducationOpportunitiesPage() {
                   <th className="p-4 font-medium">{t("educationLevel")}</th>
                   <th className="p-4 font-medium">{t("institution")}</th>
                   <th className="p-4 font-medium">Target Departments</th>
+                  <th className="p-4 font-medium">{t("deadline")}</th>
+                  <th className="p-4 font-medium">{t("status")}</th>
                   {isCenterUser && (
                     <th className="p-4 font-medium">{t("actions")}</th>
                   )}
@@ -456,6 +502,12 @@ export default function EducationOpportunitiesPage() {
                           ))}
                         </div>
                       </td>
+                      <td className="p-4 whitespace-nowrap">
+                        {opp.deadline || "-"}
+                      </td>
+                      <td className="p-4">
+                        <StatusBadge status={opp.status} />
+                      </td>
 
                       {isCenterUser && (
                         <td className="p-4">
@@ -484,7 +536,7 @@ export default function EducationOpportunitiesPage() {
                 {visibleOpportunities.length === 0 && (
                   <tr>
                     <td
-                      colSpan={isCenterUser ? 5 : 4}
+                      colSpan={isCenterUser ? 7 : 6}
                       className="p-8 text-center text-gray-500"
                     >
                       {t("noData")}
