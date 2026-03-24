@@ -5,6 +5,9 @@ import { Providers } from "@/components/Providers";
 export const metadata: Metadata = {
   title: "INSA Education Module",
   description: "Education Module for INSA HR Training ERP System",
+  icons: {
+    icon: "/INSA_LOGO.png",
+  },
 };
 
 export default function RootLayout({

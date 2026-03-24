@@ -152,9 +152,14 @@ export default function Sidebar() {
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-blue-900 text-white shadow-xl">
-      <div className="flex h-16 items-center justify-center border-b border-blue-800 px-4">
-        <GraduationCap className="mr-2 h-8 w-8 text-yellow-400" />
-        <span className="text-lg font-bold">{t("appName")}</span>
+      <div className="flex h-20 items-center gap-3 border-b border-blue-800 px-4">
+        <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg bg-white p-1">
+          <img src="/INSA_LOGO.png" alt="INSA Logo" className="h-full w-full object-contain" />
+        </div>
+        <div className="flex flex-col">
+          <span className="text-sm font-bold leading-tight">{t("appName")}</span>
+          <span className="text-[10px] text-blue-300 uppercase tracking-wider font-semibold">Security Administration</span>
+        </div>
       </div>
       <nav className="mt-4 space-y-1 px-3">
         {filteredItems.map((item) => {

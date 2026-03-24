@@ -41,8 +41,12 @@ export default function LoginPage() {
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
         <div className="mb-8 text-center">
           <div className="mb-4 flex justify-center">
-            <div className="rounded-full bg-blue-100 p-4">
-              <GraduationCap className="h-12 w-12 text-blue-600" />
+            <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-white p-2 shadow-inner border border-blue-100">
+              <img
+                src="/INSA_LOGO.png"
+                alt="INSA Logo"
+                className="h-full w-full object-contain"
+              />
             </div>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">

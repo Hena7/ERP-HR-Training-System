@@ -37,8 +37,9 @@ export default function Header() {
 
   return (
     <header className="fixed left-64 right-0 top-0 z-30 flex h-16 items-center justify-between border-b bg-white px-6 shadow-sm">
-      <div>
-        <h2 className="text-sm text-gray-500">{t("orgName")}</h2>
+      <div className="flex items-center gap-3">
+        <img src="/INSA_LOGO.png" alt="INSA" className="h-8 w-8 object-contain" />
+        <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide">{t("orgName")}</h2>
       </div>
       <div className="flex items-center gap-4">
         <LanguageToggle />

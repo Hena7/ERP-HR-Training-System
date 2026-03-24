@@ -77,7 +77,7 @@ export default function GuarantorsPage() {
         address: form.address,
         scannedDocument: form.scannedDocument,
       };
-      
+
       if (editId) {
         await guarantorApi.update(editId, payload);
       } else {
@@ -85,7 +85,14 @@ export default function GuarantorsPage() {
       }
       setShowForm(false);
       setEditId(null);
-      setForm({ contractId: "", fullName: "", nationalId: "", phone: "", address: "", scannedDocument: null });
+      setForm({
+        contractId: "",
+        fullName: "",
+        nationalId: "",
+        phone: "",
+        address: "",
+        scannedDocument: null,
+      });
       loadGuarantors(selectedContract);
     } catch {
       alert("Failed to save guarantor");
@@ -123,59 +130,135 @@ export default function GuarantorsPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Shield className="h-6 w-6 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-900">{t("guarantors")}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {t("guarantors")}
+            </h1>
           </div>
-          <button onClick={() => {
-            setEditId(null);
-            setForm({ contractId: "", fullName: "", nationalId: "", phone: "", address: "", scannedDocument: null });
-            setShowForm(!showForm);
-          }} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition-colors">
+          <button
+            onClick={() => {
+              setEditId(null);
+              setForm({
+                contractId: "",
+                fullName: "",
+                nationalId: "",
+                phone: "",
+                address: "",
+                scannedDocument: null,
+              });
+              setShowForm(!showForm);
+            }}
+            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition-colors"
+          >
             <Plus className="h-4 w-4" />
             {t("addGuarantor")}
           </button>
         </div>
 
         <div className="rounded-xl border bg-white p-4 shadow-sm">
-          <label className="mb-1 block text-sm font-medium text-gray-700">{t("contracts")}</label>
-          <select value={selectedContract} onChange={(e) => handleContractChange(e.target.value)} className="w-full max-w-md rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none">
+          <label className="mb-1 block text-sm font-medium text-gray-700">
+            {t("contracts")}
+          </label>
+          <select
+            value={selectedContract}
+            onChange={(e) => handleContractChange(e.target.value)}
+            className="w-full max-w-md rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+          >
             <option value="">-- {t("contracts")} --</option>
             {contracts.map((c) => (
-              <option key={c.id} value={c.id}>#{c.id} - {c.employeeName} - {c.university}</option>
+              <option key={c.id} value={c.id}>
+                #{c.id} - {c.employeeName} - {c.university}
+              </option>
             ))}
           </select>
         </div>
 
         {showForm && (
           <div className="rounded-xl border bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold">{editId ? t("edit") || "Edit Guarantor" : t("addGuarantor")}</h2>
+            <h2 className="mb-4 text-lg font-semibold">
+              {editId ? t("edit") || "Edit Guarantor" : t("addGuarantor")}
+            </h2>
             <p className="mb-3 text-sm text-gray-500">{t("maxGuarantors")}</p>
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <form
+              onSubmit={handleSubmit}
+              className="grid grid-cols-1 gap-4 md:grid-cols-2"
+            >
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">{t("contracts")}</label>
-                <select required value={form.contractId} onChange={(e) => setForm({ ...form, contractId: e.target.value })} className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none">
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  {t("contracts")}
+                </label>
+                <select
+                  required
+                  value={form.contractId}
+                  onChange={(e) =>
+                    setForm({ ...form, contractId: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                >
                   <option value="">--</option>
                   {contracts.map((c) => (
-                    <option key={c.id} value={c.id}>#{c.id} - {c.employeeName}</option>
+                    <option key={c.id} value={c.id}>
+                      #{c.id} - {c.employeeName}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">{t("fullName")}</label>
-                <input type="text" required value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none" />
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  {t("fullName")}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={form.fullName}
+                  onChange={(e) =>
+                    setForm({ ...form, fullName: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">{t("nationalId")}</label>
-                <input type="text" required value={form.nationalId} onChange={(e) => setForm({ ...form, nationalId: e.target.value })} className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none" />
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  {t("nationalId")}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={form.nationalId}
+                  onChange={(e) =>
+                    setForm({ ...form, nationalId: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">{t("phone")}</label>
-                <input type="text" required value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none" />
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  {t("phone")}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                />
               </div>
               <div className="md:col-span-2">
-                <textarea value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} rows={2} className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none" />
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  {t("address")}
+                </label>
+                <textarea
+                  value={form.address}
+                  onChange={(e) =>
+                    setForm({ ...form, address: e.target.value })
+                  }
+                  rows={2}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                />
               </div>
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-gray-700">{t("uploadDocument")}</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  {t("uploadDocument")}
+                </label>
                 <input
                   type="file"
                   accept="image/*,application/pdf"
@@ -183,15 +266,29 @@ export default function GuarantorsPage() {
                   className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 />
                 {form.scannedDocument && (
-                   <p className="mt-1 text-xs text-green-600">Document uploaded</p>
+                  <p className="mt-1 text-xs text-green-600">
+                    Document uploaded
+                  </p>
                 )}
               </div>
               <div className="flex gap-2 md:col-span-2">
-                <button type="submit" disabled={loading} className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors">{loading ? t("loading") : t("submit")}</button>
-                <button type="button" onClick={() => {
-                  setShowForm(false);
-                  setEditId(null);
-                }} className="rounded-lg border border-gray-300 px-6 py-2 text-gray-700 hover:bg-gray-50 transition-colors">{t("cancel")}</button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                >
+                  {loading ? t("loading") : t("submit")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowForm(false);
+                    setEditId(null);
+                  }}
+                  className="rounded-lg border border-gray-300 px-6 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  {t("cancel")}
+                </button>
               </div>
             </form>
           </div>
@@ -207,19 +304,22 @@ export default function GuarantorsPage() {
                   <th className="px-4 py-3">{t("nationalId")}</th>
                   <th className="px-4 py-3">{t("phone")}</th>
                   <th className="px-4 py-3">{t("address")}</th>
-                  <th className="px-4 py-3">{t("scannedDocument" as any) || "Doc"}</th>
+                  <th className="px-4 py-3">
+                    {t("scannedDocument" as any) || "Doc"}
+                  </th>
                   <th className="px-4 py-3 text-right">{t("actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {guarantors.length > 0 ? guarantors.map((g) => (
-                  <tr key={g.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">{g.id}</td>
-                    <td className="px-4 py-3 font-medium">{g.fullName}</td>
-                    <td className="px-4 py-3">{g.nationalId}</td>
-                    <td className="px-4 py-3">{g.phone}</td>
-                    <td className="px-4 py-3">{g.address}</td>
-                    <td className="px-4 py-3">
+                {guarantors.length > 0 ? (
+                  guarantors.map((g) => (
+                    <tr key={g.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3">{g.id}</td>
+                      <td className="px-4 py-3 font-medium">{g.fullName}</td>
+                      <td className="px-4 py-3">{g.nationalId}</td>
+                      <td className="px-4 py-3">{g.phone}</td>
+                      <td className="px-4 py-3">{g.address}</td>
+                      <td className="px-4 py-3">
                         {g.scannedDocument ? (
                           <button
                             onClick={() => setViewDoc(g.scannedDocument!)}
@@ -229,22 +329,38 @@ export default function GuarantorsPage() {
                             {t("viewDocument")}
                           </button>
                         ) : (
-                          <span className="text-gray-400 text-xs">{t("noDocument")}</span>
+                          <span className="text-gray-400 text-xs">
+                            {t("noDocument")}
+                          </span>
                         )}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex justify-end gap-2">
-                        <button onClick={() => handleEdit(g)} className="p-1 text-gray-500 hover:text-blue-600 transition-colors">
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button onClick={() => handleDelete(g.id)} className="p-1 text-gray-500 hover:text-red-600 transition-colors">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => handleEdit(g)}
+                            className="p-1 text-gray-500 hover:text-blue-600 transition-colors"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(g.id)}
+                            className="p-1 text-gray-500 hover:text-red-600 transition-colors"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="px-4 py-8 text-center text-gray-500"
+                    >
+                      {selectedContract ? t("noData") : t("contracts") + "..."}
                     </td>
                   </tr>
-                )) : (
-                   <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">{selectedContract ? t("noData") : t("contracts") + "..."}</td></tr>
                 )}
               </tbody>
             </table>
@@ -266,9 +382,17 @@ export default function GuarantorsPage() {
             </div>
             <div className="flex-1 overflow-auto p-4 bg-gray-100 flex items-center justify-center">
               {viewDoc?.startsWith("data:application/pdf") ? (
-                <embed src={viewDoc} className="w-full h-full" type="application/pdf" />
+                <embed
+                  src={viewDoc}
+                  className="w-full h-full"
+                  type="application/pdf"
+                />
               ) : (
-                <img src={viewDoc || ""} alt="Scanned Document" className="max-w-full max-h-full object-contain" />
+                <img
+                  src={viewDoc || ""}
+                  alt="Scanned Document"
+                  className="max-w-full max-h-full object-contain"
+                />
               )}
             </div>
           </div>
