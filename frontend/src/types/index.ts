@@ -49,6 +49,7 @@ export interface EducationRequest {
   employeeDepartment: string;
   description: string;
   status: string;
+  totalScore?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -99,6 +100,7 @@ export interface Contract {
   studyMode: string;
   estimatedCost: number;
   contractSignedDate: string;
+  scannedDocument?: string;
   createdAt: string;
 }
 
@@ -109,6 +111,7 @@ export interface Guarantor {
   nationalId: string;
   phone: string;
   address: string;
+  scannedDocument?: string;
   createdAt: string;
 }
 

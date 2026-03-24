@@ -11,6 +11,7 @@ export default function CommitteeDecisionsPage() {
   const { t } = useLanguage();
   const [decisions, setDecisions] = useState<CommitteeDecision[]>([]);
   const [scoredRequests, setScoredRequests] = useState<EducationRequest[]>([]);
+  const [allRequests, setAllRequests] = useState<Record<number, EducationRequest>>({});
   const [selectedScoring, setSelectedScoring] = useState<CDCScoring | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -27,12 +28,19 @@ export default function CommitteeDecisionsPage() {
 
   const loadData = async () => {
     try {
-      const [decRes, reqRes] = await Promise.all([
+      const [decRes, reqRes, allReqRes] = await Promise.all([
         committeeDecisionApi.getAll(0, 20),
         educationRequestApi.getByStatus("SCORED", 0, 50),
+        educationRequestApi.getAll(0, 500), // Get all to map scores in history
       ]);
       setDecisions(decRes.data.content || []);
       setScoredRequests(reqRes.data.content || []);
+      
+      const reqMap: Record<number, EducationRequest> = {};
+      (allReqRes.data.content || []).forEach((r: EducationRequest) => {
+        reqMap[r.id] = r;
+      });
+      setAllRequests(reqMap);
     } catch {
       // API not available
     }
@@ -263,6 +271,7 @@ export default function CommitteeDecisionsPage() {
                   <th className="px-4 py-3">Employee</th>
                   <th className="px-4 py-3">Education</th>
                   <th className="px-4 py-3">Department</th>
+                  <th className="px-4 py-3 font-bold text-blue-600">Total Score (%)</th>
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
@@ -278,6 +287,9 @@ export default function CommitteeDecisionsPage() {
                         {r.educationType} ({r.educationLevel})
                       </td>
                       <td className="px-4 py-3">{r.employeeDepartment}</td>
+                      <td className="px-4 py-3 font-bold text-blue-700">
+                        {r.totalScore ? `${r.totalScore}%` : "-"}
+                      </td>
                       <td className="px-4 py-3 text-right">
                         <button
                           onClick={() => handleReview(r)}
@@ -292,7 +304,7 @@ export default function CommitteeDecisionsPage() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
                       No scored requests pending decision.
                     </td>
                   </tr>
@@ -314,6 +326,7 @@ export default function CommitteeDecisionsPage() {
                 <tr>
                   <th className="px-4 py-3">ID</th>
                   <th className="px-4 py-3">{t("educationRequests")} ID</th>
+                  <th className="px-4 py-3 font-bold text-blue-600">Total Score (%)</th>
                   <th className="px-4 py-3">{t("decision")}</th>
                   <th className="px-4 py-3">{t("comment")}</th>
                   <th className="px-4 py-3">{t("decidedBy")}</th>
@@ -322,11 +335,16 @@ export default function CommitteeDecisionsPage() {
               </thead>
               <tbody className="divide-y">
                 {decisions.length > 0 ? (
-                  decisions.map((d) => (
-                    <tr key={d.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3">{d.id}</td>
-                      <td className="px-4 py-3">#{d.requestId}</td>
-                      <td className="px-4 py-3">
+                  decisions.map((d) => {
+                    const req = allRequests[d.requestId];
+                    return (
+                      <tr key={d.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3">{d.id}</td>
+                        <td className="px-4 py-3">#{d.requestId}</td>
+                        <td className="px-4 py-3 font-bold text-blue-700">
+                          {req?.totalScore ? `${req.totalScore}%` : "-"}
+                        </td>
+                        <td className="px-4 py-3">
                         <span
                           className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${d.decision === "APPROVED" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
                         >
@@ -354,11 +372,12 @@ export default function CommitteeDecisionsPage() {
                         </div>
                       </td>
                     </tr>
-                  ))
-                ) : (
+                  );
+                })
+              ) : (
                   <tr>
                     <td
-                      colSpan={6}
+                      colSpan={7}
                       className="px-4 py-8 text-center text-gray-500"
                     >
                       {t("noData")}

@@ -5,7 +5,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { contractApi, educationRequestApi } from "@/lib/api";
 import { Contract, EducationRequest } from "@/types";
-import { FileSignature, Plus, Edit, Trash2 } from "lucide-react";
+import { FileSignature, Plus, Edit, Trash2, Eye, X } from "lucide-react";
 
 export default function ContractsPage() {
   const { t } = useLanguage();
@@ -26,7 +26,9 @@ export default function ContractsPage() {
     studyMode: "ON_JOB",
     estimatedCost: "",
     contractSignedDate: "",
+    scannedDocument: "" as string | null,
   });
+  const [viewDoc, setViewDoc] = useState<string | null>(null);
   const [editId, setEditId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -54,9 +56,21 @@ export default function ContractsPage() {
         requestId,
         employeeId: String(req.employeeId),
         university: req.institution || "",
-        studyCountry: "",
-        studyMode: "ON_JOB",
+        estimatedCost: "",
+        contractSignedDate: "",
+        scannedDocument: null,
       });
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setForm({ ...form, scannedDocument: reader.result as string });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -75,6 +89,7 @@ export default function ContractsPage() {
         studyMode: form.studyMode,
         estimatedCost: Number(form.estimatedCost) || null,
         contractSignedDate: form.contractSignedDate || null,
+        scannedDocument: form.scannedDocument,
       };
 
       if (editId) {
@@ -95,6 +110,7 @@ export default function ContractsPage() {
         studyMode: "ON_JOB",
         estimatedCost: "",
         contractSignedDate: "",
+        scannedDocument: null,
       });
       loadData();
     } catch {
@@ -116,6 +132,7 @@ export default function ContractsPage() {
       studyMode: c.studyMode || "ON_JOB",
       estimatedCost: String(c.estimatedCost || ""),
       contractSignedDate: c.contractSignedDate || "",
+      scannedDocument: c.scannedDocument || null,
     });
     setEditId(c.id);
     setShowForm(true);
@@ -156,6 +173,7 @@ export default function ContractsPage() {
                 studyMode: "ON_JOB",
                 estimatedCost: "",
                 contractSignedDate: "",
+                scannedDocument: null,
               });
               setShowForm(!showForm);
             }}
@@ -304,6 +322,20 @@ export default function ContractsPage() {
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
                 />
               </div>
+              <div className="md:col-span-2">
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  {t("uploadDocument")}
+                </label>
+                <input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={handleFileChange}
+                  className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                />
+                {form.scannedDocument && (
+                  <p className="mt-1 text-xs text-green-600">Document uploaded</p>
+                )}
+              </div>
               <div className="flex gap-2 md:col-span-2">
                 <button
                   type="submit"
@@ -339,6 +371,7 @@ export default function ContractsPage() {
                   <th className="px-4 py-3">{t("studyCountry")}</th>
                   <th className="px-4 py-3">{t("durationYears")}</th>
                   <th className="px-4 py-3">{t("studyMode")}</th>
+                  <th className="px-4 py-3">{t("scannedDocument" as any) || "Doc"}</th>
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
@@ -356,6 +389,19 @@ export default function ContractsPage() {
                       <td className="px-4 py-3">{c.durationYears}</td>
                       <td className="px-4 py-3">
                         {c.studyMode === "ON_JOB" ? t("onJob") : t("offJob")}
+                      </td>
+                      <td className="px-4 py-3">
+                        {c.scannedDocument ? (
+                          <button
+                            onClick={() => setViewDoc(c.scannedDocument!)}
+                            className="text-blue-600 hover:underline flex items-center gap-1"
+                          >
+                            <Eye className="h-3 w-3" />
+                            {t("viewDocument")}
+                          </button>
+                        ) : (
+                          <span className="text-gray-400 text-xs">{t("noDocument")}</span>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-2">
@@ -378,7 +424,7 @@ export default function ContractsPage() {
                 ) : (
                   <tr>
                     <td
-                      colSpan={8}
+                      colSpan={9}
                       className="px-4 py-8 text-center text-gray-500"
                     >
                       {t("noData")}
@@ -390,6 +436,29 @@ export default function ContractsPage() {
           </div>
         </div>
       </div>
+
+      {viewDoc && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-white shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-bold">{t("viewDocument")}</h3>
+              <button
+                onClick={() => setViewDoc(null)}
+                className="rounded-full p-1 hover:bg-gray-100"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-auto p-4 bg-gray-100 flex items-center justify-center">
+              {viewDoc?.startsWith("data:application/pdf") ? (
+                <embed src={viewDoc} className="w-full h-full" type="application/pdf" />
+              ) : (
+                <img src={viewDoc || ""} alt="Scanned Document" className="max-w-full max-h-full object-contain" />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

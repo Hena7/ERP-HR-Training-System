@@ -164,6 +164,10 @@ export const translations = {
     nationalId: "National ID",
     address: "Address",
     maxGuarantors: "Maximum 2 guarantors per contract",
+    uploadDocument: "Upload Scanned Document (Signature)",
+    viewDocument: "View Document",
+    scannedDocument: "Scanned Document",
+    noDocument: "No Document Uploaded",
 
     // Progress Report
     progressReports: "Progress Reports",
@@ -382,6 +386,10 @@ export const translations = {
     nationalId: "ብሔራዊ መታወቂያ",
     address: "አድራሻ",
     maxGuarantors: "በአንድ ውል ቢበዛ 2 ዋሶች",
+    uploadDocument: "የተቃኘ ሰነድ (ፊርማ) ስቀል",
+    viewDocument: "ሰነዱን ተመልከት",
+    scannedDocument: "የተቃኘ ሰነድ",
+    noDocument: "ምንም ሰነድ አልተሰቀለም",
 
     // Progress Report
     progressReports: "የሂደት ሪፖርቶች",

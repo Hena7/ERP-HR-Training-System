@@ -5,7 +5,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { guarantorApi, contractApi } from "@/lib/api";
 import { Guarantor, Contract } from "@/types";
-import { Shield, Plus, Trash2, Edit } from "lucide-react";
+import { Shield, Plus, Trash2, Edit, Eye, X } from "lucide-react";
 
 export default function GuarantorsPage() {
   const { t } = useLanguage();
@@ -20,7 +20,9 @@ export default function GuarantorsPage() {
     nationalId: "",
     phone: "",
     address: "",
+    scannedDocument: "" as string | null,
   });
+  const [viewDoc, setViewDoc] = useState<string | null>(null);
   const [editId, setEditId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -48,7 +50,19 @@ export default function GuarantorsPage() {
 
   const handleContractChange = (contractId: string) => {
     setSelectedContract(contractId);
+    setForm({ ...form, contractId });
     loadGuarantors(contractId);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setForm({ ...form, scannedDocument: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,6 +75,7 @@ export default function GuarantorsPage() {
         nationalId: form.nationalId,
         phone: form.phone,
         address: form.address,
+        scannedDocument: form.scannedDocument,
       };
       
       if (editId) {
@@ -70,7 +85,7 @@ export default function GuarantorsPage() {
       }
       setShowForm(false);
       setEditId(null);
-      setForm({ contractId: "", fullName: "", nationalId: "", phone: "", address: "" });
+      setForm({ contractId: "", fullName: "", nationalId: "", phone: "", address: "", scannedDocument: null });
       loadGuarantors(selectedContract);
     } catch {
       alert("Failed to save guarantor");
@@ -86,6 +101,7 @@ export default function GuarantorsPage() {
       nationalId: g.nationalId || "",
       phone: g.phone || "",
       address: g.address || "",
+      scannedDocument: g.scannedDocument || null,
     });
     setEditId(g.id);
     setShowForm(true);
@@ -111,7 +127,7 @@ export default function GuarantorsPage() {
           </div>
           <button onClick={() => {
             setEditId(null);
-            setForm({ contractId: "", fullName: "", nationalId: "", phone: "", address: "" });
+            setForm({ contractId: "", fullName: "", nationalId: "", phone: "", address: "", scannedDocument: null });
             setShowForm(!showForm);
           }} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition-colors">
             <Plus className="h-4 w-4" />
@@ -156,8 +172,19 @@ export default function GuarantorsPage() {
                 <input type="text" required value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none" />
               </div>
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-gray-700">{t("address")}</label>
                 <textarea value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} rows={2} className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none" />
+              </div>
+              <div className="md:col-span-2">
+                <label className="mb-1 block text-sm font-medium text-gray-700">{t("uploadDocument")}</label>
+                <input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={handleFileChange}
+                  className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                />
+                {form.scannedDocument && (
+                   <p className="mt-1 text-xs text-green-600">Document uploaded</p>
+                )}
               </div>
               <div className="flex gap-2 md:col-span-2">
                 <button type="submit" disabled={loading} className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors">{loading ? t("loading") : t("submit")}</button>
@@ -180,6 +207,7 @@ export default function GuarantorsPage() {
                   <th className="px-4 py-3">{t("nationalId")}</th>
                   <th className="px-4 py-3">{t("phone")}</th>
                   <th className="px-4 py-3">{t("address")}</th>
+                  <th className="px-4 py-3">{t("scannedDocument" as any) || "Doc"}</th>
                   <th className="px-4 py-3 text-right">{t("actions")}</th>
                 </tr>
               </thead>
@@ -191,6 +219,19 @@ export default function GuarantorsPage() {
                     <td className="px-4 py-3">{g.nationalId}</td>
                     <td className="px-4 py-3">{g.phone}</td>
                     <td className="px-4 py-3">{g.address}</td>
+                    <td className="px-4 py-3">
+                        {g.scannedDocument ? (
+                          <button
+                            onClick={() => setViewDoc(g.scannedDocument!)}
+                            className="text-blue-600 hover:underline flex items-center gap-1"
+                          >
+                            <Eye className="h-3 w-3" />
+                            {t("viewDocument")}
+                          </button>
+                        ) : (
+                          <span className="text-gray-400 text-xs">{t("noDocument")}</span>
+                        )}
+                    </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-2">
                         <button onClick={() => handleEdit(g)} className="p-1 text-gray-500 hover:text-blue-600 transition-colors">
@@ -203,13 +244,36 @@ export default function GuarantorsPage() {
                     </td>
                   </tr>
                 )) : (
-                  <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-500">{selectedContract ? t("noData") : t("contracts") + "..."}</td></tr>
+                   <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">{selectedContract ? t("noData") : t("contracts") + "..."}</td></tr>
                 )}
               </tbody>
             </table>
           </div>
         </div>
       </div>
+
+      {viewDoc && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-white shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-bold">{t("viewDocument")}</h3>
+              <button
+                onClick={() => setViewDoc(null)}
+                className="rounded-full p-1 hover:bg-gray-100"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-auto p-4 bg-gray-100 flex items-center justify-center">
+              {viewDoc?.startsWith("data:application/pdf") ? (
+                <embed src={viewDoc} className="w-full h-full" type="application/pdf" />
+              ) : (
+                <img src={viewDoc || ""} alt="Scanned Document" className="max-w-full max-h-full object-contain" />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

@@ -753,12 +753,13 @@ export const cdcScoringApi = {
     };
     saveMockData("cdcScorings", [...scorings, newScoring]);
 
-    // Advance request status to SCORED
+    // Advance request status to SCORED and save totalScore
     if (data.requestId) {
       const requests = getMockData("educationRequests");
       const idx = requests.findIndex((r: any) => r.id == data.requestId);
       if (idx !== -1) {
         requests[idx].status = "SCORED";
+        requests[idx].totalScore = totalScore;
         requests[idx].updatedAt = new Date().toISOString();
         saveMockData("educationRequests", requests);
       }
@@ -861,6 +862,7 @@ export const contractApi = {
     const newContract = {
       ...data,
       id: Date.now(),
+      scannedDocument: data.scannedDocument || null,
       createdAt: new Date().toISOString(),
     };
     saveMockData("contracts", [...contracts, newContract]);
@@ -935,6 +937,7 @@ export const guarantorApi = {
     const newGuar = {
       ...data,
       id: Date.now(),
+      scannedDocument: data.scannedDocument || null,
       createdAt: new Date().toISOString(),
     };
     saveMockData("guarantors", [...guarantors, newGuar]);
