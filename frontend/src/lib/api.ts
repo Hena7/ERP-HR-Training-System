@@ -684,8 +684,37 @@ export const hrVerificationApi = {
 };
 
 export const cdcScoringApi = {
+  getScoringConfig: async () => {
+    await delay(300);
+    const config = typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("scoringConfig") || JSON.stringify({
+          experienceWeight: 0.3,
+          performanceWeight: 0.5,
+          disciplineWeight: 0.2,
+        }))
+      : {
+          experienceWeight: 0.3,
+          performanceWeight: 0.5,
+          disciplineWeight: 0.2,
+        };
+    return { data: config };
+  },
+  updateScoringConfig: async (config: any) => {
+    await delay(500);
+    if (typeof window !== "undefined") {
+      const sum = Number(config.experienceWeight) + Number(config.performanceWeight) + Number(config.disciplineWeight);
+      if (Math.abs(sum - 1) > 0.001) {
+        throw new Error("Weights must sum to 1.0 (100%)");
+      }
+      localStorage.setItem("scoringConfig", JSON.stringify(config));
+    }
+    return { data: config };
+  },
   score: async (data: any) => {
     await delay(500);
+    const configResponse = await cdcScoringApi.getScoringConfig();
+    const config = configResponse.data;
+    
     const scorings = getMockData("cdcScorings");
 
     const experienceScore = Number(data.experienceScore);
@@ -700,10 +729,12 @@ export const cdcScoringApi = {
       throw new Error("All scores must be numbers between 0 and 100");
     }
 
-    // Weighted formula: Experience 30% + Performance 50% + Discipline 20%
+    // Weighted formula: Dynamic weights from config
     const totalScore =
       Math.round(
-        (experienceScore * 0.3 + performanceScore * 0.5 + disciplineScore * 0.2) * 100,
+        (experienceScore * config.experienceWeight + 
+         performanceScore * config.performanceWeight + 
+         disciplineScore * config.disciplineWeight) * 100,
       ) / 100;
 
     const user = typeof window !== "undefined"

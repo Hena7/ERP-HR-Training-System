@@ -5,7 +5,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { educationRequestApi, hrVerificationApi, cdcScoringApi } from "@/lib/api";
 import { EducationRequest, HRVerification, CDCScoring } from "@/types";
-import { BarChart3, CheckCircle2, ClipboardList, Info } from "lucide-react";
+import { BarChart3, CheckCircle2, ClipboardList, Info, Settings, X } from "lucide-react";
 
 interface ScoringFormState {
   requestId: number | null;
@@ -29,6 +29,17 @@ export default function CDCScoringPage() {
   const [scorings, setScorings] = useState<CDCScoring[]>([]);
   const [form, setForm] = useState<ScoringFormState>(initialForm);
   const [loading, setLoading] = useState(false);
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
+  const [config, setConfig] = useState({
+    experienceWeight: 0.3,
+    performanceWeight: 0.5,
+    disciplineWeight: 0.2,
+  });
+  const [configForm, setConfigForm] = useState({
+    experienceWeight: "0.3",
+    performanceWeight: "0.5",
+    disciplineWeight: "0.2",
+  });
 
   useEffect(() => {
     void loadData();
@@ -50,6 +61,14 @@ export default function CDCScoringPage() {
         verMap[v.requestId] = v;
       });
       setHrVerifications(verMap);
+
+      const configRes = await cdcScoringApi.getScoringConfig();
+      setConfig(configRes.data);
+      setConfigForm({
+        experienceWeight: configRes.data.experienceWeight.toString(),
+        performanceWeight: configRes.data.performanceWeight.toString(),
+        disciplineWeight: configRes.data.disciplineWeight.toString(),
+      });
     } catch {
       // Offline resilient
     }
@@ -69,9 +88,8 @@ export default function CDCScoringPage() {
       return "";
     }
 
-    // Weights: Exp 30%, Perf 50%, Disc 20%
-    return (exp * 0.3 + perf * 0.5 + disc * 0.2).toFixed(2);
-  }, [form.experienceScore, form.performanceScore, form.disciplineScore]);
+    return (exp * config.experienceWeight + perf * config.performanceWeight + disc * config.disciplineWeight).toFixed(2);
+  }, [form.experienceScore, form.performanceScore, form.disciplineScore, config]);
 
   const resetForm = () => {
     setForm(initialForm);
@@ -122,6 +140,25 @@ export default function CDCScoringPage() {
     }
   };
 
+  const handleUpdateConfig = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const newConfig = {
+        experienceWeight: Number(configForm.experienceWeight),
+        performanceWeight: Number(configForm.performanceWeight),
+        disciplineWeight: Number(configForm.disciplineWeight),
+      };
+      await cdcScoringApi.updateScoringConfig(newConfig);
+      setConfig(newConfig);
+      setIsConfigOpen(false);
+    } catch (err: any) {
+      alert(err.message || "Failed to update configuration");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -130,9 +167,18 @@ export default function CDCScoringPage() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{t("cdcScoring")}</h1>
             <p className="text-sm text-gray-500">
-              {t("scoringWeights")}
+              {t("experienceWeight")}: {config.experienceWeight * 100}% · 
+              {t("performanceWeight")}: {config.performanceWeight * 100}% · 
+              {t("disciplineWeight")}: {config.disciplineWeight * 100}%
             </p>
           </div>
+          <button
+            onClick={() => setIsConfigOpen(true)}
+            className="ml-auto inline-flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm"
+          >
+            <Settings className="h-4 w-4" />
+            {t("scoringConfig")}
+          </button>
         </div>
 
         <div className="rounded-xl border bg-white p-6 shadow-sm">
@@ -349,6 +395,97 @@ export default function CDCScoringPage() {
           </div>
         </div>
       </div>
+
+      {isConfigOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="mb-6 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-gray-900">{t("scoringConfig")}</h3>
+              <button 
+                onClick={() => setIsConfigOpen(false)}
+                className="rounded-full p-1 hover:bg-gray-100"
+              >
+                <X className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateConfig} className="space-y-4">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  {t("experienceWeight")} (0.0 - 1.0)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="1"
+                  required
+                  value={configForm.experienceWeight}
+                  onChange={(e) => setConfigForm({ ...configForm, experienceWeight: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  {t("performanceWeight")} (0.0 - 1.0)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="1"
+                  required
+                  value={configForm.performanceWeight}
+                  onChange={(e) => setConfigForm({ ...configForm, performanceWeight: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  {t("disciplineWeight")} (0.0 - 1.0)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="1"
+                  required
+                  value={configForm.disciplineWeight}
+                  onChange={(e) => setConfigForm({ ...configForm, disciplineWeight: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="rounded-lg bg-blue-50 p-3">
+                <p className="text-xs text-blue-700">
+                  <Info className="mr-1 inline h-3 w-3" />
+                  {t("weightSumError")}
+                </p>
+                <p className="mt-1 text-sm font-bold text-blue-900">
+                  Total: {(Number(configForm.experienceWeight) + Number(configForm.performanceWeight) + Number(configForm.disciplineWeight)).toFixed(2)}
+                </p>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsConfigOpen(false)}
+                  className="flex-1 rounded-lg border py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  {t("cancel")}
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 rounded-lg bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {loading ? t("loading") : t("updateWeights")}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }
