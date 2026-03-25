@@ -72,13 +72,13 @@ const adminNavItems: NavItem[] = [
 // ─── Education Nav ─────────────────────────────────────────────────────────
 const eduNavItems: NavItem[] = [
   {
-    href: "/education-opportunities",
+    href: "/education/education-opportunities",
     labelKey: "navOpportunities",
     icon: <BookOpen className="h-5 w-5" />,
     roles: ["CYBER_DEVELOPMENT_CENTER", "ADMIN", "DEPARTMENT_HEAD"],
   },
   {
-    href: "/education-requests",
+    href: "/education/education-requests",
     labelKey: "navRequests",
     icon: <FileText className="h-5 w-5" />,
     roles: [
@@ -89,37 +89,37 @@ const eduNavItems: NavItem[] = [
     ],
   },
   {
-    href: "/hr-verifications",
+    href: "/education/hr-verifications",
     labelKey: "navVerifications",
     icon: <ClipboardCheck className="h-5 w-5" />,
     roles: ["HR_OFFICER", "ADMIN"],
   },
   {
-    href: "/cdc-scoring",
+    href: "/education/cdc-scoring",
     labelKey: "navCdcScoring",
     icon: <BarChart3 className="h-5 w-5" />,
     roles: ["CYBER_DEVELOPMENT_CENTER", "ADMIN"],
   },
   {
-    href: "/committee-decisions",
+    href: "/education/committee-decisions",
     labelKey: "navDecisions",
     icon: <Users className="h-5 w-5" />,
     roles: ["COMMITTEE_MEMBER", "ADMIN"],
   },
   {
-    href: "/contracts",
+    href: "/education/contracts",
     labelKey: "navContracts",
     icon: <FileSignature className="h-5 w-5" />,
     roles: ["CYBER_DEVELOPMENT_CENTER", "HR_OFFICER", "ADMIN"],
   },
   {
-    href: "/guarantors",
+    href: "/education/guarantors",
     labelKey: "navGuarantors",
     icon: <Shield className="h-5 w-5" />,
     roles: ["DEPARTMENT_HEAD", "HR_OFFICER", "ADMIN"],
   },
   {
-    href: "/progress-reports",
+    href: "/education/progress-reports",
     labelKey: "navReports",
     icon: <BarChart3 className="h-5 w-5" />,
     roles: [
@@ -130,7 +130,7 @@ const eduNavItems: NavItem[] = [
     ],
   },
   {
-    href: "/completions",
+    href: "/education/completions",
     labelKey: "navCompletions",
     icon: <GraduationCap className="h-5 w-5" />,
     roles: [
@@ -141,7 +141,7 @@ const eduNavItems: NavItem[] = [
     ],
   },
   {
-    href: "/service-obligations",
+    href: "/education/service-obligations",
     labelKey: "navObligations",
     icon: <Clock className="h-5 w-5" />,
     roles: ["HR_OFFICER", "CYBER_DEVELOPMENT_CENTER", "ADMIN"],
