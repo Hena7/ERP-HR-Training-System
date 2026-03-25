@@ -27,7 +27,7 @@ export default function TrainingRequestFormPage() {
   const [error, setError] = useState("");
 
   const [form, setForm] = useState({
-    department: (user as any)?.department || "",
+    department: user?.department || "",
     sector: "",
     trainingTitle: "",
     estimatedCost: "",
@@ -55,12 +55,12 @@ export default function TrainingRequestFormPage() {
         ...form,
         estimatedCost: parseFloat(form.estimatedCost),
         numTrainees: parseInt(form.numTrainees),
-        requesterName: (user as any)?.fullName || user?.username,
+        requesterName: user?.fullName || user?.email,
         requesterId: user?.id,
       });
       setSuccess(true);
       setForm({
-        department: (user as any)?.department || "",
+        department: user?.department || "",
         sector: "",
         trainingTitle: "",
         estimatedCost: "",
