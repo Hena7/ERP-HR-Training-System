@@ -248,6 +248,7 @@ export default function EducationOpportunitiesPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
+              <BookOpen className="mr-2 inline-block h-8 w-8 text-blue-600" />
               {t("educationOpportunities")}
             </h1>
             <p className="mt-1 text-sm text-gray-500">

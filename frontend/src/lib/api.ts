@@ -263,47 +263,20 @@ export const educationRequestApi = {
   create: async (data: any) => {
     await delay(500);
     const requests = getMockData("educationRequests");
-    const users = getMockData("users");
+    const employees = getMockData("employees");
     const opportunities = getMockData("educationOpportunities");
-    const employee = users.find(
-      (u: any) => u.id == data.employeeId || u.id == data.id,
-    );
-    const opportunity = opportunities.find(
-      (o: any) => o.id == data.opportunityId,
-    );
-
-    const employeeDepartment = (
-      employee?.department ||
-      data.employeeDepartment ||
-      ""
-    )
-      .toString()
-      .trim()
-      .toLowerCase();
-
-    const targetDepartments = Array.isArray(opportunity?.targetDepartments)
-      ? opportunity.targetDepartments
-          .map((d: any) => d?.toString().trim().toLowerCase())
-          .filter(Boolean)
-      : [];
-
-    const legacyDepartment = (opportunity?.department || "")
-      .toString()
-      .trim()
-      .toLowerCase();
-
-    const canApply =
-      !!employeeDepartment &&
-      (targetDepartments.includes(employeeDepartment) ||
-        (!!legacyDepartment && legacyDepartment === employeeDepartment));
+    
+    // Find employee (used for validation and metadata)
+    const employee = employees.find((e: any) => e.id == data.employeeId);
+    const opportunity = opportunities.find((o: any) => o.id == data.opportunityId);
 
     if (!opportunity) {
       throw new Error("Selected education opportunity was not found");
     }
 
+    // Status and Deadline Validation
     const today = new Date().toISOString().split("T")[0];
     const isExpired = opportunity.deadline && today > opportunity.deadline;
-
     if (opportunity.status !== "OPEN" || isExpired) {
       throw new Error(
         opportunity.status === "CLOSED"
@@ -312,39 +285,77 @@ export const educationRequestApi = {
       );
     }
 
-    if (!canApply) {
-      throw new Error(
-        "This education opportunity is not assigned to the employee's department",
-      );
+    // Department Validation
+    if (employee) {
+      const empDept = (employee.department || "").toString().trim().toLowerCase();
+      const targets = (opportunity.targetDepartments || [])
+        .map((d: any) => d?.toString().trim().toLowerCase())
+        .filter(Boolean);
+      const legacyDept = (opportunity.department || "").toString().trim().toLowerCase();
+      
+      const canApply = targets.includes(empDept) || (!!legacyDept && legacyDept === empDept);
+      
+      if (!canApply && targets.length > 0) {
+        throw new Error("This education opportunity is not assigned to the employee's department");
+      }
     }
 
     const newReq = {
       ...data,
       id: Date.now(),
-      status: "DRAFT",
+      status: data.status || "DRAFT",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      employeeName:
-        data.employeeName ||
-        (employee ? employee.fullName : "Unknown Employee"),
+      employeeName: data.employeeName || (employee ? employee.fullName : "Unknown Employee"),
       employeePhone: data.employeePhone || (employee ? employee.phone : "-"),
-      employeeDepartment:
-        data.employeeDepartment || (employee ? employee.department : "-"),
+      employeeDepartment: data.employeeDepartment || (employee ? employee.department : "-"),
     };
+    
     saveMockData("educationRequests", [...requests, newReq]);
     return { data: newReq };
   },
+
   createBulk: async (data: any) => {
     await delay(800);
     const requests = getMockData("educationRequests");
-    const newRequests = data.employeeIds.map((empId: number, index: number) => ({
+    
+    // Enhanced support for the new candidates array provided by the bulk form
+    if (data.candidates && Array.isArray(data.candidates)) {
+      const newRequests = data.candidates.map((cand: any, index: number) => ({
+        ...data,
+        id: Date.now() + index,
+        employeeId: cand.employeeId || Number(cand.candidateId) || index,
+        employeeName: cand.name || cand.employeeName,
+        employeePhone: cand.phone || "-",
+        employeeDepartment: cand.dept || data.requesterDepartment || "-",
+        
+        // Candidate specific fields from the bulk form
+        award: cand.award,
+        institution: cand.institution || data.institution,
+        duration: cand.duration,
+        programTime: cand.program,
+        location: cand.location,
+        
+        status: "SUBMITTED",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }));
+      
+      // Clean up the candidates array from individual record persistence
+      newRequests.forEach((nr: any) => delete nr.candidates);
+
+      saveMockData("educationRequests", [...requests, ...newRequests]);
+      return { data: newRequests };
+    }
+
+    // Legacy support for employeeIds array (if any part of the app still uses it)
+    const newRequests = (data.employeeIds || []).map((empId: number, index: number) => ({
       ...data,
       id: Date.now() + index,
       employeeId: empId,
       status: "DRAFT",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      // Mock UI fields (using names provided or generic ones)
       employeeName: data.employeeNames?.[index] || `Employee ${empId}`,
       employeePhone: data.employeePhones?.[index] || "-",
       employeeDepartment: data.employeeDepartment || "-",

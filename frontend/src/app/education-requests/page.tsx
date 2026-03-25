@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { educationRequestApi, educationOpportunityApi, employeeApi } from "@/lib/api";
-import { EducationRequest, EducationOpportunity, Employee } from "@/types";
-import { Search, X, Check } from "lucide-react";
-import StatusBadge from "@/components/StatusBadge";
+import {
+  educationRequestApi,
+  employeeApi,
+  educationOpportunityApi,
+} from "@/lib/api";
+import { EducationRequest, Employee, EducationOpportunity } from "@/types";
 import {
   Plus,
   FileText,
@@ -15,90 +17,85 @@ import {
   Trash2,
   Send,
   CheckCircle2,
-  Forward,
+  User,
+  GraduationCap,
+  Users,
+  Search,
+  Target,
+  Calendar,
+  Clock,
+  UserPlus,
 } from "lucide-react";
+import StatusBadge from "@/components/StatusBadge";
 
-type WorkflowStatus =
-  | "DRAFT"
-  | "SUBMITTED"
-  | "CDC_APPROVED"
-  | "FORWARDED_TO_HR"
-  | "COMMITTEE_REVIEW"
-  | "APPROVED"
-  | "REJECTED"
-  | "CONTRACT_CREATED"
-  | "PENDING"
-  | "HR_VERIFIED";
+interface Candidate {
+  id: number | string; // string for manual entries
+  name: string;
+  candidateId: string;
+  dept: string;
+  award: string;
+  institution: string;
+  duration: number;
+  program: string;
+  location: string;
+  phone?: string;
+  isManual?: boolean;
+}
 
 export default function EducationRequestsPage() {
   const { t } = useLanguage();
   const { user } = useAuth();
 
   const [requests, setRequests] = useState<EducationRequest[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [opportunities, setOpportunities] = useState<EducationOpportunity[]>(
     [],
   );
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [busyId, setBusyId] = useState<number | null>(null);
-  const [editId, setEditId] = useState<number | null>(null);
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
 
-  const [form, setForm] = useState({
-    employeeId: "",
-    fullName: "",
-    phone: "",
-    department: "",
+  // Bulk State
+  const [batchEducation, setBatchEducation] = useState({
     opportunityId: "",
-    currentEducationLevel: "",
-    workExperience: "",
-    description: "",
+    educationCategory: "Technical",
+    educationLevel: "BSc",
+    fieldOfStudy: "",
+    institution: "",
+    budgetYear: new Date().getFullYear(),
+    estimatedCost: 0,
+    numCandidates: 1,
+    remark: "",
   });
+
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [showCandidateModal, setShowCandidateModal] = useState(false);
+  const [showEducationModal, setShowEducationModal] = useState(false);
+
+  // Edit State for candidate modal
+  const [currentCandidate, setCurrentCandidate] = useState<Partial<Candidate>>(
+    {},
+  );
+  const [searchTerm, setSearchTerm] = useState("");
 
   const isDepartmentHead = user?.role === "DEPARTMENT_HEAD";
   const isCenter = user?.role === "CYBER_DEVELOPMENT_CENTER";
   const isAdmin = user?.role === "ADMIN";
 
-  const normalizedUserDepartment = ((user as any)?.department || "")
-    .toString()
-    .trim()
-    .toLowerCase();
-
-  const canEditRequest = (status: string) => {
-    return status === "DRAFT";
-  };
-
   useEffect(() => {
     loadRequests();
     loadOpportunities();
-
-    if (user && (isDepartmentHead || isAdmin)) {
-      setForm((prev) => ({
-        ...prev,
-        department: (user as any).department || "",
-      }));
-      loadEmployees((user as any).department);
+    if (user?.department) {
+      loadEmployees(user.department);
     }
-  }, [user, isDepartmentHead, isAdmin]);
-
-  const loadEmployees = async (dept?: string) => {
-    if (!dept) return;
-    try {
-      const res = await employeeApi.getByDepartment(dept);
-      setEmployees(res.data || []);
-    } catch {
-      // silent
-    }
-  };
+  }, [user]);
 
   const loadRequests = async () => {
     try {
       const res = await educationRequestApi.getAll(0, 100);
       setRequests(res.data.content || []);
-    } catch {
-      // silent on mock/offline errors
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -106,245 +103,182 @@ export default function EducationRequestsPage() {
     try {
       const res = await educationOpportunityApi.getAll(0, 100);
       setOpportunities(res.data.content || []);
-    } catch {
-      // silent on mock/offline errors
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  const resetForm = () => {
-    setForm({
-      employeeId:
-        isDepartmentHead || isAdmin
-          ? String(user?.employeeId || user?.id || "")
-          : "",
-      fullName: isDepartmentHead || isAdmin ? user?.fullName || "" : "",
-      phone: isDepartmentHead || isAdmin ? (user as any)?.phone || "" : "",
-      department:
-        isDepartmentHead || isAdmin ? (user as any)?.department || "" : "",
-      opportunityId: "",
-      currentEducationLevel: "",
-      workExperience: "",
-      description: "",
-    });
-    setEditId(null);
-    setShowForm(false);
-    setSelectedEmployees([]);
-  };
-
-  const toggleEmployeeSelection = (emp: Employee) => {
-    setSelectedEmployees((prev) => {
-      const isSelected = prev.some((e) => e.id === emp.id);
-      if (isSelected) {
-        return prev.filter((e) => e.id !== emp.id);
-      } else {
-        return [...prev, emp];
-      }
-    });
-  };
-
-  useEffect(() => {
-    if (selectedEmployees.length === 1 && !editId) {
-      const emp = selectedEmployees[0];
-      setForm((prev) => ({
-        ...prev,
-        employeeId: String(emp.id),
-        fullName: `${emp.firstName} ${emp.lastName}`,
-        phone: emp.phone || "",
-        department: emp.department || "",
-        workExperience: String(emp.workExperience ?? ""),
-        currentEducationLevel: emp.currentEducationLevel || "",
-      }));
-    } else if (selectedEmployees.length === 0 && !editId) {
-        setForm(prev => ({
-            ...prev,
-            employeeId: "",
-            fullName: "",
-            phone: "",
-            department: (user as any)?.department || "",
-            workExperience: "",
-            currentEducationLevel: "",
-        }));
-    }
-  }, [selectedEmployees, editId, user]);
-
-  const visibleOpportunities = useMemo(() => {
-    if (!isDepartmentHead) {
-      return opportunities;
-    }
-
-    return opportunities.filter((opportunity) => {
-      const targets = (opportunity.targetDepartments || []).map((department) =>
-        department.trim().toLowerCase(),
-      );
-
-      if (targets.length > 0) {
-        return targets.includes(normalizedUserDepartment);
-      }
-
-      return (
-        opportunity.department?.trim().toLowerCase() ===
-        normalizedUserDepartment
-      );
-    });
-  }, [isDepartmentHead, normalizedUserDepartment, opportunities]);
-
-  const selectedOpportunity = useMemo(
-    () => visibleOpportunities.find((o) => o.id === Number(form.opportunityId)),
-    [visibleOpportunities, form.opportunityId],
-  );
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
+  const loadEmployees = async (dept: string) => {
     try {
-      if (!selectedOpportunity)
-        throw new Error("Please select an education opportunity.");
+      const res = await employeeApi.getByDepartment(dept);
+      setEmployees(res.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-      if (editId) {
-        const payload = {
-            employeeId: Number(form.employeeId),
-            opportunityId: Number(form.opportunityId),
-            currentEducationLevel: form.currentEducationLevel,
-            workExperience: Number(form.workExperience),
-            description: form.description,
-    
-            // compatibility fields for mock data rendering
-            employeeName: form.fullName,
-            employeePhone: form.phone,
-            employeeDepartment: form.department,
-            educationType: selectedOpportunity.educationType,
-            educationLevel: selectedOpportunity.educationLevel,
-            institution: selectedOpportunity.institution,
-          };
-        await educationRequestApi.update(editId, payload);
-      } else if (selectedEmployees.length > 1) {
-        const payload = {
-          opportunityId: Number(form.opportunityId),
-          employeeIds: selectedEmployees.map((e) => e.id),
-          employeeNames: selectedEmployees.map((e) => `${e.firstName} ${e.lastName}`),
-          employeePhones: selectedEmployees.map((e) => e.phone),
-          employeeDepartment: form.department,
-          currentEducationLevel: form.currentEducationLevel,
-          workExperience: Number(form.workExperience),
-          description: form.description,
-          educationType: selectedOpportunity.educationType,
-          educationLevel: selectedOpportunity.educationLevel,
-          institution: selectedOpportunity.institution,
-        };
-        await (educationRequestApi as any).createBulk(payload);
-      } else {
-        const payload = {
-            employeeId: Number(form.employeeId),
-            opportunityId: Number(form.opportunityId),
-            currentEducationLevel: form.currentEducationLevel,
-            workExperience: Number(form.workExperience),
-            description: form.description,
-    
-            // compatibility fields for mock data rendering
-            employeeName: form.fullName,
-            employeePhone: form.phone,
-            employeeDepartment: form.department,
-            educationType: selectedOpportunity.educationType,
-            educationLevel: selectedOpportunity.educationLevel,
-            institution: selectedOpportunity.institution,
-          };
-        await educationRequestApi.create(payload);
+  const handleAddCandidate = (emp: Employee) => {
+    const exists = candidates.find((c) => c.candidateId === emp.employeeId);
+    if (exists) {
+      alert("Employee already in candidate list");
+      return;
+    }
+
+    setCurrentCandidate({
+      id: emp.id,
+      name: `${emp.firstName} ${emp.lastName}`,
+      candidateId: emp.employeeId,
+      dept: emp.department,
+      phone: emp.phone,
+      institution: batchEducation.institution,
+      award: "",
+      duration: 1,
+      program: "Regular",
+      location: "Local",
+      isManual: false,
+    });
+    setSearchTerm("");
+    setShowCandidateModal(true);
+  };
+
+  const handleManualAdd = () => {
+    setCurrentCandidate({
+      id: `manual-${Date.now()}`,
+      name: "",
+      candidateId: "",
+      dept: (user as any)?.department || "",
+      phone: "",
+      institution: batchEducation.institution,
+      award: "",
+      duration: 1,
+      program: "Regular",
+      location: "Local",
+      isManual: true,
+    });
+    setSearchTerm("");
+    setShowCandidateModal(true);
+  };
+
+  const saveCandidate = () => {
+    if (!currentCandidate.candidateId || !currentCandidate.name) {
+      alert("Employee ID and Full Name are required.");
+      return;
+    }
+
+    setCandidates((prev) => {
+      const idx = prev.findIndex((c) => c.id === currentCandidate.id);
+      if (idx !== -1) {
+        const updated = [...prev];
+        updated[idx] = currentCandidate as Candidate;
+        return updated;
       }
+      return [...prev, currentCandidate as Candidate];
+    });
+    setShowCandidateModal(false);
+    setCurrentCandidate({});
+  };
 
-      await loadRequests();
-      resetForm();
+  const removeCandidate = (id: number | string) => {
+    setCandidates((prev) => prev.filter((c) => c.id !== id));
+  };
+
+  const handleSubmitBatch = async () => {
+    if (candidates.length === 0) {
+      alert("Please add at least one candidate.");
+      return;
+    }
+    if (!batchEducation.fieldOfStudy) {
+      alert("Please set education details.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const payload = {
+        ...batchEducation,
+        requesterName: user?.fullName,
+        requesterId: user?.id,
+        requesterDepartment: (user as any)?.department,
+        candidates: candidates.map((c) => ({
+          ...c,
+          employeeId: typeof c.id === "number" ? c.id : null,
+          employeeName: c.name,
+          employeePhone: c.phone || "-",
+          employeeDepartment: c.dept,
+          candidateId: c.candidateId,
+        })),
+        createdAt: new Date().toISOString(),
+      };
+
+      await educationRequestApi.createBulk(payload);
+      alert("Batch request submitted successfully!");
+      setCandidates([]);
+      setBatchEducation({
+        opportunityId: "",
+        educationCategory: "Technical",
+        educationLevel: "BSc",
+        fieldOfStudy: "",
+        institution: "",
+        budgetYear: new Date().getFullYear(),
+        estimatedCost: 0,
+        numCandidates: 1,
+        remark: "",
+      });
+      setShowForm(false);
+      loadRequests();
     } catch (err: any) {
-      alert(err?.message || "Failed to save request");
+      alert(err?.message || "Failed to submit batch request");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleEdit = (req: EducationRequest) => {
-    setEditId(req.id);
-    setForm({
-      employeeId: String(req.employeeId || ""),
-      fullName: req.employeeName || "",
-      phone: req.employeePhone || "",
-      department: req.employeeDepartment || "",
-      opportunityId: String(req.opportunityId || ""),
-      currentEducationLevel: req.currentEducationLevel || "",
-      workExperience: String(req.workExperience ?? ""),
-      description: req.description || "",
-    });
-    setShowForm(true);
-  };
-
-  const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this request?")) return;
-    try {
-      await educationRequestApi.delete(id);
-      await loadRequests();
-    } catch {
-      alert("Failed to delete request");
     }
   };
 
   const submitToCenter = async (id: number) => {
     setBusyId(id);
     try {
-      await educationRequestApi.update(id, { status: "SUBMITTED" });
-      await loadRequests();
-    } catch {
-      alert("Failed to submit to center.");
+      await educationRequestApi.submitToCenter(id);
+      loadRequests();
+    } catch (err: any) {
+      alert(err?.message || "Failed to submit to center");
     } finally {
       setBusyId(null);
     }
   };
 
-  const centerReview = async (id: number) => {
+  const approveRequest = async (id: number) => {
     setBusyId(id);
     try {
       await educationRequestApi.centerReview(id);
-      await loadRequests();
-    } catch {
-      alert("Failed to mark center review.");
+      loadRequests();
+    } catch (err: any) {
+      alert(err?.message || "Failed to approve");
     } finally {
       setBusyId(null);
     }
   };
-
-
-
-  const forwardToHr = async (id: number) => {
-    setBusyId(id);
-    try {
-      await educationRequestApi.forwardToHr(id);
-      await loadRequests();
-    } catch {
-      alert("Failed to forward to HR.");
-    } finally {
-      setBusyId(null);
-    }
-  };
-
-  const canCreate = isDepartmentHead || isAdmin;
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="mx-auto max-w-6xl space-y-6 pb-20">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <FileText className="h-6 w-6 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-900">
-              {t("educationRequests")}
-            </h1>
+            <div className="rounded-xl bg-blue-600 p-2 text-white shadow-lg shadow-blue-200">
+              <FileText className="h-6 w-6" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {t("educationRequests")}
+              </h1>
+              <p className="text-sm text-gray-500 font-medium">
+                Manage departmental education batch requests
+              </p>
+            </div>
           </div>
 
-          {canCreate && (
+          {(isDepartmentHead || isAdmin) && !showForm && (
             <button
-              onClick={() => {
-                setEditId(null);
-                setShowForm((v) => !v);
-                if (showForm) resetForm();
-              }}
-              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700"
+              onClick={() => setShowForm(true)}
+              className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 hover:-translate-y-0.5"
             >
               <Plus className="h-4 w-4" />
               {t("newRequest")}
@@ -352,354 +286,426 @@ export default function EducationRequestsPage() {
           )}
         </div>
 
-        {showForm && canCreate && (
-          <div className="rounded-xl border bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold">
-              {editId ? t("editRequest") : t("submitRequest")}
-            </h2>
+        {showForm && (
+          <div className="animate-in fade-in slide-in-from-top-4 duration-300 space-y-6">
+            {/* Requester Info */}
+            <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+              <div className="mb-6 flex items-center gap-3 border-b border-gray-100 pb-4">
+                <div className="rounded-lg bg-blue-50 p-2">
+                  <User className="h-5 w-5 text-blue-600" />
+                </div>
+                <h2 className="text-lg font-bold text-gray-800">
+                  {t("requesterInfo")}
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                    {t("fullName")}
+                  </label>
+                  <div className="rounded-lg border border-gray-100 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900">
+                    {user?.fullName}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                    {t("department")}
+                  </label>
+                  <div className="rounded-lg border border-gray-100 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900">
+                    {(user as any)?.department || "N/A"}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                    {t("position")}
+                  </label>
+                  <div className="rounded-lg border border-gray-100 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900">
+                    {(user as any)?.position || "Department Head"}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                    {t("employeeId")}
+                  </label>
+                  <div className="rounded-lg border border-gray-100 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900">
+                    {user?.employeeId || user?.id}
+                  </div>
+                </div>
+              </div>
+            </div>
 
-            <form
-              onSubmit={handleSubmit}
-              className="grid grid-cols-1 gap-4 md:grid-cols-2"
-            >
-              <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  {t("educationOpportunity")}
-                </label>
-                <select
-                  required
-                  value={form.opportunityId}
-                  onChange={(e) =>
-                    setForm({ ...form, opportunityId: e.target.value })
-                  }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+            {/* Education Goal */}
+            <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+              <div className="mb-6 flex items-center justify-between border-b border-gray-100 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-lg bg-indigo-50 p-2">
+                    <GraduationCap className="h-5 w-5 text-indigo-600" />
+                  </div>
+                  <h2 className="text-lg font-bold text-gray-800">
+                    {t("educationDetail")}
+                  </h2>
+                </div>
+                <button
+                  onClick={() => setShowEducationModal(true)}
+                  className="flex items-center gap-1.5 rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-1.5 text-xs font-bold text-indigo-700 transition-colors hover:bg-indigo-100"
                 >
-                  <option value="">-- Select Opportunity --</option>
-                  {visibleOpportunities.map((opp) => (
-                    <option key={opp.id} value={opp.id}>
-                      {opp.educationType} ({opp.educationLevel}) -{" "}
-                      {opp.institution} [Deadline: {opp.deadline || "N/A"}]
-                    </option>
-                  ))}
-                </select>
+                  <Edit className="h-3.5 w-3.5" />
+                  {batchEducation.fieldOfStudy ? t("edit") : t("save")}
+                </button>
               </div>
 
-              <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  {t("selectEmployees")}
-                </label>
-                <div className="relative">
-                  <div className="flex flex-wrap gap-2 rounded-lg border border-gray-300 p-2 min-h-[42px] focus-within:border-blue-500">
-                    {selectedEmployees.map((emp) => (
-                      <span
-                        key={emp.id}
-                        className="flex items-center gap-1 rounded bg-blue-100 px-2 py-1 text-xs text-blue-700"
-                      >
-                        {`${emp.firstName} ${emp.lastName}`}
-                        <X
-                          className="h-3 w-3 cursor-pointer hover:text-blue-900"
-                          onClick={() => toggleEmployeeSelection(emp)}
-                        />
-                      </span>
-                    ))}
+              {batchEducation.fieldOfStudy ? (
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+                  <div className="flex items-start gap-4 rounded-xl border border-gray-100 p-4">
+                    <div className="rounded-lg bg-gray-50 p-3 text-gray-400">
+                      <Target className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                        {t("educationCategory")}
+                      </p>
+                      <p className="mt-1 text-base font-bold text-gray-900">
+                        {batchEducation.educationCategory}
+                      </p>
+                      <p className="text-xs font-medium text-gray-500">
+                        {batchEducation.fieldOfStudy} (
+                        {batchEducation.educationLevel})
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 rounded-xl border border-gray-100 p-4">
+                    <div className="rounded-lg bg-gray-50 p-3 text-gray-400">
+                      <Calendar className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                        {t("budgetYear")}
+                      </p>
+                      <p className="mt-1 text-base font-bold text-gray-900">
+                        {batchEducation.budgetYear}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 rounded-xl border border-gray-100 p-4">
+                    <div className="rounded-lg bg-gray-50 p-3 text-gray-400">
+                      <Users className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                        {t("numCandidates")}
+                      </p>
+                      <p className="mt-1 text-base font-bold text-gray-900">
+                        {candidates.length}{" "}
+                        <span className="text-gray-300">/</span>{" "}
+                        {batchEducation.numCandidates}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-100 py-12 text-center">
+                  <div className="mb-4 rounded-full bg-gray-50 p-4">
+                    <GraduationCap className="h-10 w-10 text-gray-300" />
+                  </div>
+                  <p className="text-sm font-medium text-gray-500">
+                    No education goal defined yet.
+                  </p>
+                  <button
+                    onClick={() => setShowEducationModal(true)}
+                    className="mt-4 rounded-lg bg-gray-900 px-6 py-2 text-sm font-bold text-white transition-transform hover:scale-105"
+                  >
+                    + Define Education Goal
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Candidates List */}
+            <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+              <div className="mb-8 flex flex-col gap-4 border-b border-gray-100 pb-6 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-lg bg-emerald-50 p-2">
+                    <Users className="h-5 w-5 text-emerald-600" />
+                  </div>
+                  <h2 className="text-lg font-bold text-gray-800">
+                    {t("candidatesList")}
+                  </h2>
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="relative group">
+                    <Search className="absolute left-3.5 top-3 h-4 w-4 text-gray-400 transition-colors group-focus-within:text-blue-500" />
                     <input
                       type="text"
-                      placeholder={selectedEmployees.length > 0 ? "" : "Search employees..."}
+                      placeholder="Search employee..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="flex-1 border-none bg-transparent p-0 text-sm focus:ring-0"
+                      className="w-64 rounded-xl border-gray-200 bg-gray-50 pl-11 py-2.5 text-sm transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 placeholder:text-gray-400"
                     />
-                  </div>
 
-                  {searchTerm && (
-                    <div className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-lg border bg-white shadow-lg">
-                      {employees
-                        .filter(
-                          (e) =>
+                    {searchTerm && (
+                      <div className="absolute right-0 z-20 mt-2 w-80 origin-top-right rounded-2xl border border-gray-100 bg-white p-2 shadow-2xl ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-200">
+                        <div className="max-h-64 overflow-y-auto">
+                          {employees
+                            .filter(
+                              (e) =>
+                                `${e.firstName} ${e.lastName}`
+                                  .toLowerCase()
+                                  .includes(searchTerm.toLowerCase()) ||
+                                e.employeeId.includes(searchTerm),
+                            )
+                            .map((emp) => (
+                              <button
+                                key={emp.id}
+                                onClick={() => handleAddCandidate(emp)}
+                                className="group flex w-full items-center gap-4 rounded-xl p-3 text-left transition-all hover:bg-blue-50"
+                              >
+                                <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-xs font-black shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                  {emp.firstName[0]}
+                                  {emp.lastName[0]}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <p className="truncate text-sm font-bold text-gray-900 group-hover:text-blue-800">
+                                    {emp.firstName} {emp.lastName}
+                                  </p>
+                                  <p className="text-[10px] font-medium text-gray-500 uppercase tracking-tight">
+                                    {emp.employeeId} • {emp.position}
+                                  </p>
+                                </div>
+                                <Plus className="h-5 w-5 text-gray-300 group-hover:text-blue-500" />
+                              </button>
+                            ))}
+                          {employees.filter((e) =>
                             `${e.firstName} ${e.lastName}`
                               .toLowerCase()
-                              .includes(searchTerm.toLowerCase()) &&
-                            !selectedEmployees.some((se) => se.id === e.id),
-                        )
-                        .map((emp) => (
-                          <div
-                            key={emp.id}
-                            className="flex cursor-pointer items-center justify-between px-3 py-2 text-sm hover:bg-gray-100"
-                            onClick={() => {
-                              toggleEmployeeSelection(emp);
-                              setSearchTerm("");
-                            }}
-                          >
-                            <span>
-                              {`${emp.firstName} ${emp.lastName}`}
-                            </span>
-                            <span className="text-[10px] text-gray-400">
-                              {emp.employeeId}
+                              .includes(searchTerm.toLowerCase()),
+                          ).length === 0 && (
+                            <div className="py-8 text-center">
+                              <p className="text-xs font-semibold text-gray-400">
+                                No employees found in database.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="h-10 w-[1px] bg-gray-100 hidden md:block"></div>
+
+                  <button
+                    onClick={handleManualAdd}
+                    className="flex items-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-600 transition-all hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50/50"
+                  >
+                    <UserPlus className="h-4 w-4" />+ Manual Add
+                  </button>
+                </div>
+              </div>
+
+              <div className="overflow-hidden rounded-xl border border-gray-100 shadow-sm">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-gray-50/80 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100">
+                    <tr>
+                      <th className="px-6 py-4">ID / Emp ID</th>
+                      <th className="px-6 py-4">Name</th>
+                      <th className="px-6 py-4">Award</th>
+                      <th className="px-6 py-4">Duration</th>
+                      <th className="px-6 py-4">Program</th>
+                      <th className="px-6 py-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50 text-xs">
+                    {candidates.map((c) => (
+                      <tr
+                        key={c.id}
+                        className="group hover:bg-gray-50/30 transition-colors"
+                      >
+                        <td className="px-6 py-4">
+                          <span className="font-mono text-xs font-bold text-gray-900">
+                            {c.candidateId || "NEW"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className={`h-1.5 w-1.5 rounded-full ${c.isManual ? "bg-amber-400" : "bg-blue-400"}`}
+                            ></div>
+                            <span className="font-bold text-gray-900">
+                              {c.name}
                             </span>
                           </div>
-                        ))}
-                    </div>
-                  )}
-                </div>
-                
-                {/* Quick Selection List */}
-                {employees.length > 0 && !searchTerm && (
-                  <div className="mt-3 rounded-lg border border-gray-100 bg-gray-50/50 p-3">
-                    <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                      Suggested Employees in {form.department}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {employees
-                        .filter(e => !selectedEmployees.some(se => se.id === e.id))
-                        .slice(0, 10)
-                        .map(emp => (
-                          <button
-                            key={emp.id}
-                            type="button"
-                            onClick={() => toggleEmployeeSelection(emp)}
-                            className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-700 hover:border-blue-400 hover:bg-blue-50 transition-colors"
-                          >
-                            <Plus className="h-3 w-3 text-blue-500" />
-                            {`${emp.firstName} ${emp.lastName}`}
-                          </button>
-                        ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  {t("employeeId")}
-                </label>
-                <input
-                  type="number"
-                  required
-                  readOnly={selectedEmployees.length > 0}
-                  value={form.employeeId}
-                  onChange={(e) =>
-                    setForm({ ...form, employeeId: e.target.value })
-                  }
-                  className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  {t("fullName")}
-                </label>
-                <input
-                  type="text"
-                  required
-                  readOnly={selectedEmployees.length > 0}
-                  value={form.fullName}
-                  onChange={(e) =>
-                    setForm({ ...form, fullName: e.target.value })
-                  }
-                  className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  {t("phone")}
-                </label>
-                <input
-                  type="text"
-                  required
-                  readOnly={selectedEmployees.length > 0}
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  {t("department")}
-                </label>
-                <input
-                  type="text"
-                  required
-                  readOnly
-                  value={form.department}
-                  className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  {t("currentEducationLevel")}
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={form.currentEducationLevel}
-                  onChange={(e) =>
-                    setForm({ ...form, currentEducationLevel: e.target.value })
-                  }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  {t("workExperience")}
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  required
-                  value={form.workExperience}
-                  onChange={(e) =>
-                    setForm({ ...form, workExperience: e.target.value })
-                  }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-
-
-
-              <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  {t("description")}
-                </label>
-                <textarea
-                  rows={3}
-                  value={form.description}
-                  onChange={(e) =>
-                    setForm({ ...form, description: e.target.value })
-                  }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-
-              <div className="flex gap-2 md:col-span-2">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="rounded-lg bg-blue-600 px-6 py-2 text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
-                >
-                  {loading ? t("loading") : t("submit")}
-                </button>
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="rounded-lg border border-gray-300 px-6 py-2 text-gray-700 transition-colors hover:bg-gray-50"
-                >
-                  {t("cancel")}
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-
-        <div className="rounded-xl border bg-white shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b bg-gray-50 text-[10px] uppercase text-gray-500">
-                <tr>
-                  <th className="px-3 py-3">ID</th>
-                  <th className="px-3 py-3">{t("fullName")}</th>
-                  <th className="px-3 py-3">{t("selectedEducationType")}</th>
-                  <th className="px-3 py-3">{t("selectedEducationLevel")}</th>
-                  <th className="px-3 py-3">{t("department")}</th>
-                  <th className="px-3 py-3">{t("requestStatus")}</th>
-                  <th className="px-3 py-3 text-right">{t("actions")}</th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y text-xs">
-                {requests.length > 0 ? (
-                  requests.map((req) => {
-                    const status = (req.status ||
-                      "DRAFT") as WorkflowStatus;
-                    const canSubmit =
-                      (isDepartmentHead || isAdmin) &&
-                      status === "DRAFT";
-                    const canCenterReview =
-                      (isCenter || isAdmin) && status === "SUBMITTED";
-                    const canEdit =
-                      (isDepartmentHead || isAdmin) && canEditRequest(status);
-
-                    return (
-                      <tr key={req.id} className="hover:bg-gray-50">
-                        <td className="px-3 py-3 whitespace-nowrap">
-                          {req.id}
                         </td>
-                        <td className="px-3 py-3 font-medium whitespace-nowrap">
-                          {req.employeeName}
+                        <td className="px-6 py-4 font-medium text-gray-600">
+                          {c.award || "-"}
                         </td>
-                        <td className="px-3 py-3">{req.educationType}</td>
-                        <td className="px-3 py-3">{req.educationLevel}</td>
-                        <td className="px-3 py-3 whitespace-nowrap">
-                          {req.employeeDepartment}
+                        <td className="px-6 py-4">
+                          <div className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 border border-gray-100 px-2.5 py-1 text-gray-700 font-bold">
+                            <Clock className="h-3 w-3 text-gray-400" />
+                            {c.duration} {t("years")}
+                          </div>
                         </td>
-                        <td className="px-3 py-3">
-                          <StatusBadge status={status} />
+                        <td className="px-6 py-4">
+                          <span className="inline-flex items-center rounded-lg bg-blue-50 px-2.5 py-1 text-[10px] font-black text-blue-700 uppercase tracking-tighter border border-blue-100">
+                            {c.program}
+                          </span>
                         </td>
-                        <td className="px-3 py-3 text-right">
-                          <div className="flex flex-wrap justify-end gap-1">
-                            {canSubmit && (
-                              <button
-                                onClick={() => submitToCenter(req.id)}
-                                disabled={busyId === req.id}
-                                className="inline-flex items-center gap-1 rounded-md bg-indigo-600 px-2 py-1 text-[11px] text-white hover:bg-indigo-700 disabled:opacity-50"
-                                title="Submit to Center"
-                              >
-                                <Send className="h-3 w-3" />
-                                Submit
-                              </button>
-                            )}
-
-                            {canCenterReview && (
-                              <div className="flex gap-1">
-                                <button
-                                  onClick={() => centerReview(req.id)}
-                                  disabled={busyId === req.id}
-                                  className="inline-flex items-center gap-1 rounded-md bg-cyan-600 px-2 py-1 text-[11px] text-white hover:bg-cyan-700 disabled:opacity-50"
-                                  title="Approve"
-                                >
-                                  <CheckCircle2 className="h-3 w-3" />
-                                  Approve
-                                </button>
-
-                              </div>
-                            )}
-
-
-
-                            {canEdit && (
-                              <button
-                                onClick={() => handleEdit(req)}
-                                className="rounded p-1 text-gray-500 hover:text-blue-600"
-                                title={t("edit")}
-                              >
-                                <Edit className="h-3.5 w-3.5" />
-                              </button>
-                            )}
-
-                            {(isDepartmentHead || isAdmin) && canEdit && (
-                              <button
-                                onClick={() => handleDelete(req.id)}
-                                className="rounded p-1 text-gray-500 hover:text-red-600"
-                                title={t("delete")}
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </button>
-                            )}
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => {
+                                setCurrentCandidate(c);
+                                setShowCandidateModal(true);
+                              }}
+                              className="rounded-lg p-2 text-gray-400 hover:bg-blue-500 hover:text-white hover:shadow-lg hover:shadow-blue-200 transition-all"
+                            >
+                              <Edit className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => removeCandidate(c.id)}
+                              className="rounded-lg p-2 text-gray-400 hover:bg-red-500 hover:text-white hover:shadow-lg hover:shadow-red-200 transition-all"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
                           </div>
                         </td>
                       </tr>
-                    );
-                  })
-                ) : (
+                    ))}
+                    {candidates.length === 0 && (
+                      <tr>
+                        <td colSpan={6} className="py-24 text-center">
+                          <div className="flex flex-col items-center">
+                            <div className="mb-4 rounded-full bg-gray-50 p-4">
+                              <Users className="h-10 w-10 text-gray-200" />
+                            </div>
+                            <p className="text-sm font-bold text-gray-400 italic">
+                              No candidates added yet.
+                            </p>
+                            <p className="mt-1 text-xs text-gray-400">
+                              Use search or manual add to populate your request
+                              batch.
+                            </p>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="mt-10 flex items-center justify-end gap-4 border-t border-gray-100 pt-8">
+                <button
+                  onClick={() => setShowForm(false)}
+                  className="px-6 py-2.5 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors"
+                >
+                  {t("cancel")}
+                </button>
+                <button
+                  onClick={handleSubmitBatch}
+                  disabled={loading || candidates.length === 0}
+                  className="flex items-center gap-2.5 rounded-xl bg-indigo-600 px-10 py-3 text-sm font-black text-white shadow-xl shadow-indigo-100 transition-all hover:bg-indigo-700 hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
+                >
+                  {loading ? (
+                    t("loading")
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4" /> {t("submit")}
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* History Table */}
+
+        <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+          <div className="border-b border-gray-100 px-8 py-5 flex items-center justify-between bg-gray-50/50">
+            <h2 className="text-lg font-bold text-gray-800">Process History</h2>
+            <div className="flex items-center gap-2">
+              <div className="flex rounded-lg border border-gray-200 bg-white p-1">
+                <button className="rounded-md bg-gray-100 px-3 py-1 text-xs font-bold text-gray-900">
+                  All
+                </button>
+                <button className="rounded-md px-3 py-1 text-xs font-bold text-gray-500 hover:text-gray-700 hover:bg-gray-50">
+                  Draft
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-white text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100">
+                <tr>
+                  <th className="px-8 py-5"># ID</th>
+                  <th className="px-8 py-5">{t("fullName")}</th>
+                  <th className="px-8 py-5">Goal / Field</th>
+                  <th className="px-8 py-5">Year</th>
+                  <th className="px-8 py-5">{t("status")}</th>
+                  <th className="px-8 py-5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50 text-[13px]">
+                {requests.map((req) => (
+                  <tr
+                    key={req.id}
+                    className="hover:bg-gray-50/80 transition-all"
+                  >
+                    <td className="px-8 py-5 font-mono text-[11px] font-bold text-gray-300">
+                      REQ-{req.id}
+                    </td>
+                    <td className="px-8 py-5 text-gray-900">
+                      <div className="flex flex-col">
+                        <span className="font-black">{req.employeeName}</span>
+                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-tight">
+                          {req.candidateId || req.employeeId}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-8 py-5">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-gray-800">
+                          {req.fieldOfStudy}
+                        </span>
+                        <span className="text-xs font-medium text-gray-500 uppercase tracking-tighter">
+                          {req.educationLevel} • {req.institution}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-8 py-5 text-gray-600 font-bold">
+                      {req.budgetYear || "-"}
+                    </td>
+                    <td className="px-8 py-5">
+                      <StatusBadge status={req.status as any} />
+                    </td>
+                    <td className="px-8 py-5 text-right">
+                      <div className="flex justify-end gap-3">
+                        {req.status === "SUBMITTED" &&
+                          (isCenter || isAdmin) && (
+                            <button
+                              onClick={() => approveRequest(req.id)}
+                              disabled={busyId === req.id}
+                              className="inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-700 hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
+                            >
+                              <CheckCircle2 className="h-3.5 w-3.5" />
+                              Approve
+                            </button>
+                          )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {requests.length === 0 && (
                   <tr>
-                    <td
-                      colSpan={7}
-                      className="px-4 py-8 text-center text-gray-500"
-                    >
-                      {t("noData")}
+                    <td colSpan={6} className="py-24 text-center">
+                      <div className="flex flex-col items-center opacity-40">
+                        <FileText className="h-12 w-12 text-gray-300 mb-4" />
+                        <p className="text-base font-bold text-gray-900">
+                          No submissions found
+                        </p>
+                        <p className="text-xs font-medium">
+                          Any requests you make will appear here.
+                        </p>
+                      </div>
                     </td>
                   </tr>
                 )}
@@ -708,6 +714,358 @@ export default function EducationRequestsPage() {
           </div>
         </div>
       </div>
+
+      {/* Education Detail Modal */}
+      {showEducationModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="w-full max-w-xl rounded-3xl bg-white p-10 shadow-2xl animate-in zoom-in-95 duration-200">
+            <h3 className="mb-8 text-2xl font-black text-gray-900 flex items-center gap-3">
+              <div className="rounded-xl bg-indigo-600 p-2 text-white">
+                <GraduationCap className="h-6 w-6" />
+              </div>
+              {t("educationDetail")}
+            </h3>
+
+            <div className="grid grid-cols-2 gap-6">
+              <div className="col-span-2 space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                  {t("educationOpportunity")}
+                </label>
+                <select
+                  value={batchEducation.opportunityId}
+                  onChange={(e) => {
+                    const opp = opportunities.find(
+                      (o) => o.id === Number(e.target.value),
+                    );
+                    setBatchEducation({
+                      ...batchEducation,
+                      opportunityId: e.target.value,
+                      educationCategory: "Technical",
+                      educationLevel: opp?.educationLevel || "BSc",
+                      fieldOfStudy: opp?.educationType || "",
+                      institution: opp?.institution || "",
+                    });
+                  }}
+                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                >
+                  <option value="">Manual Entry / Other</option>
+                  {opportunities.map((opp) => (
+                    <option key={opp.id} value={opp.id}>
+                      {opp.educationType} ({opp.educationLevel}) @{" "}
+                      {opp.institution}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                  {t("educationCategory")}
+                </label>
+                <select
+                  value={batchEducation.educationCategory}
+                  onChange={(e) =>
+                    setBatchEducation({
+                      ...batchEducation,
+                      educationCategory: e.target.value,
+                    })
+                  }
+                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                >
+                  <option value="Technical">Technical</option>
+                  <option value="Management">Management</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                  {t("educationLevel")}
+                </label>
+                <select
+                  value={batchEducation.educationLevel}
+                  onChange={(e) =>
+                    setBatchEducation({
+                      ...batchEducation,
+                      educationLevel: e.target.value,
+                    })
+                  }
+                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                >
+                  <option value="Diploma">Diploma</option>
+                  <option value="BSc">BSc</option>
+                  <option value="MSc">MSc</option>
+                  <option value="PhD">PhD</option>
+                </select>
+              </div>
+
+              <div className="col-span-2 space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                  {t("fieldOfStudy")}
+                </label>
+                <input
+                  type="text"
+                  value={batchEducation.fieldOfStudy}
+                  onChange={(e) =>
+                    setBatchEducation({
+                      ...batchEducation,
+                      fieldOfStudy: e.target.value,
+                    })
+                  }
+                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                  placeholder="e.g. Cyber Security"
+                />
+              </div>
+
+              <div className="col-span-2 space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                  {t("institution")}
+                </label>
+                <input
+                  type="text"
+                  value={batchEducation.institution}
+                  onChange={(e) =>
+                    setBatchEducation({
+                      ...batchEducation,
+                      institution: e.target.value,
+                    })
+                  }
+                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                  {t("budgetYear")}
+                </label>
+                <input
+                  type="number"
+                  value={batchEducation.budgetYear}
+                  onChange={(e) =>
+                    setBatchEducation({
+                      ...batchEducation,
+                      budgetYear: Number(e.target.value),
+                    })
+                  }
+                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                  {t("numCandidates")}
+                </label>
+                <input
+                  type="number"
+                  value={batchEducation.numCandidates}
+                  onChange={(e) =>
+                    setBatchEducation({
+                      ...batchEducation,
+                      numCandidates: Number(e.target.value),
+                    })
+                  }
+                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                />
+              </div>
+
+              <div className="col-span-2 space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                  {t("description")}
+                </label>
+                <textarea
+                  value={batchEducation.remark}
+                  onChange={(e) =>
+                    setBatchEducation({
+                      ...batchEducation,
+                      remark: e.target.value,
+                    })
+                  }
+                  rows={2}
+                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                />
+              </div>
+            </div>
+
+            <div className="mt-10 flex justify-end gap-4">
+              <button
+                onClick={() => setShowEducationModal(false)}
+                className="px-8 py-2.5 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors"
+              >
+                {t("cancel")}
+              </button>
+              <button
+                onClick={() => setShowEducationModal(false)}
+                className="rounded-xl bg-indigo-600 px-10 py-3 text-sm font-black text-white shadow-xl shadow-indigo-100 transition-all hover:bg-indigo-700 hover:scale-[1.02]"
+              >
+                {t("save")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Candidate Modal */}
+      {showCandidateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="w-full max-w-xl rounded-3xl bg-white p-10 shadow-2xl animate-in zoom-in-95 duration-200">
+            <h3 className="mb-8 text-2xl font-black text-gray-900 border-b border-gray-100 pb-6 flex items-center gap-3">
+              <div className="rounded-xl bg-emerald-600 p-2 text-white">
+                <UserPlus className="h-6 w-6" />
+              </div>
+              {currentCandidate.isManual
+                ? "Manual Candidate Entry"
+                : t("addCandidate")}
+            </h3>
+
+            <div className="grid grid-cols-2 gap-6">
+              <div className="col-span-2 space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                  Employee ID / ID Card Number
+                </label>
+                <input
+                  type="text"
+                  required
+                  readOnly={!currentCandidate.isManual}
+                  value={currentCandidate.candidateId}
+                  onChange={(e) =>
+                    setCurrentCandidate({
+                      ...currentCandidate,
+                      candidateId: e.target.value,
+                    })
+                  }
+                  className={`w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 ${!currentCandidate.isManual ? "opacity-70" : ""}`}
+                  placeholder="e.g. EMP123"
+                />
+              </div>
+
+              <div className="col-span-2 space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  readOnly={!currentCandidate.isManual}
+                  value={currentCandidate.name}
+                  onChange={(e) =>
+                    setCurrentCandidate({
+                      ...currentCandidate,
+                      name: e.target.value,
+                    })
+                  }
+                  className={`w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 ${!currentCandidate.isManual ? "opacity-70" : ""}`}
+                  placeholder="e.g. John Doe"
+                />
+              </div>
+
+              <div className="col-span-2 space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                  Award / Degree Point
+                </label>
+                <input
+                  type="text"
+                  value={currentCandidate.award}
+                  onChange={(e) =>
+                    setCurrentCandidate({
+                      ...currentCandidate,
+                      award: e.target.value,
+                    })
+                  }
+                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                  placeholder="e.g. Master of Science"
+                />
+              </div>
+
+              <div className="col-span-2 space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                  Target Institution (If specific)
+                </label>
+                <input
+                  type="text"
+                  value={currentCandidate.institution}
+                  onChange={(e) =>
+                    setCurrentCandidate({
+                      ...currentCandidate,
+                      institution: e.target.value,
+                    })
+                  }
+                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                  Duration (Years)
+                </label>
+                <input
+                  type="number"
+                  value={currentCandidate.duration}
+                  onChange={(e) =>
+                    setCurrentCandidate({
+                      ...currentCandidate,
+                      duration: Number(e.target.value),
+                    })
+                  }
+                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                  Program Time
+                </label>
+                <select
+                  value={currentCandidate.program}
+                  onChange={(e) =>
+                    setCurrentCandidate({
+                      ...currentCandidate,
+                      program: e.target.value,
+                    })
+                  }
+                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                >
+                  <option value="Regular">Regular</option>
+                  <option value="Extension">Extension</option>
+                  <option value="Distance">Distance</option>
+                </select>
+              </div>
+
+              <div className="col-span-2 space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                  Location
+                </label>
+                <select
+                  value={currentCandidate.location}
+                  onChange={(e) =>
+                    setCurrentCandidate({
+                      ...currentCandidate,
+                      location: e.target.value,
+                    })
+                  }
+                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                >
+                  <option value="Local">Local</option>
+                  <option value="Abroad">Abroad</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="mt-10 flex justify-end gap-4">
+              <button
+                onClick={() => setShowCandidateModal(false)}
+                className="px-8 py-2.5 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors"
+              >
+                {t("cancel")}
+              </button>
+              <button
+                onClick={saveCandidate}
+                className="rounded-xl bg-emerald-600 px-10 py-3 text-sm font-black text-white shadow-xl shadow-emerald-100 transition-all hover:bg-emerald-700 hover:scale-[1.02]"
+              >
+                {t("save")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

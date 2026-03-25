@@ -49,7 +49,15 @@ export interface EducationRequest {
   employeeDepartment: string;
   description: string;
   status: string;
+  category?: string;
+  budgetYear?: number;
+  award?: string;
+  duration?: number;
+  programTime?: string;
+  location?: string;
   totalScore?: number;
+  fieldOfStudy?: string;
+  candidateId?: string;
   createdAt: string;
   updatedAt: string;
 }
