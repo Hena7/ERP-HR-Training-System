@@ -115,6 +115,17 @@ export interface Guarantor {
   createdAt: string;
 }
 
+export interface Witness {
+  id: number;
+  contractId: number;
+  fullName: string;
+  nationalId: string;
+  phone: string;
+  address: string;
+  scannedDocument?: string;
+  createdAt: string;
+}
+
 export interface ProgressReport {
   id: number;
   contractId: number;

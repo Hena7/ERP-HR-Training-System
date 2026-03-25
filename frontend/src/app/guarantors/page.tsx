@@ -3,13 +3,15 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { guarantorApi, contractApi } from "@/lib/api";
-import { Guarantor, Contract } from "@/types";
-import { Shield, Plus, Trash2, Edit, Eye, X } from "lucide-react";
+import { guarantorApi, witnessApi, contractApi } from "@/lib/api";
+import { Guarantor, Witness, Contract } from "@/types";
+import { Shield, Plus, Trash2, Edit, Eye, X, Users } from "lucide-react";
 
 export default function GuarantorsPage() {
   const { t } = useLanguage();
+  const [activeTab, setActiveTab] = useState<"guarantors" | "witnesses">("guarantors");
   const [guarantors, setGuarantors] = useState<Guarantor[]>([]);
+  const [witnesses, setWitnesses] = useState<Witness[]>([]);
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -38,20 +40,23 @@ export default function GuarantorsPage() {
     }
   };
 
-  const loadGuarantors = async (contractId: string) => {
+  const loadItems = async (contractId: string) => {
     if (!contractId) return;
     try {
-      const res = await guarantorApi.getByContract(Number(contractId));
-      setGuarantors(res.data || []);
+      const gRes = await guarantorApi.getByContract(Number(contractId));
+      setGuarantors(gRes.data || []);
+      const wRes = await witnessApi.getByContract(Number(contractId));
+      setWitnesses(wRes.data || []);
     } catch {
       setGuarantors([]);
+      setWitnesses([]);
     }
   };
 
   const handleContractChange = (contractId: string) => {
     setSelectedContract(contractId);
     setForm({ ...form, contractId });
-    loadGuarantors(contractId);
+    loadItems(contractId);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,23 +84,31 @@ export default function GuarantorsPage() {
       };
 
       if (editId) {
-        await guarantorApi.update(editId, payload);
+        if (activeTab === "guarantors") {
+          await guarantorApi.update(editId, payload);
+        } else {
+          await witnessApi.update(editId, payload);
+        }
       } else {
-        await guarantorApi.create(payload);
+        if (activeTab === "guarantors") {
+          await guarantorApi.create(payload);
+        } else {
+          await witnessApi.create(payload);
+        }
       }
       setShowForm(false);
       setEditId(null);
       setForm({
-        contractId: "",
+        contractId: selectedContract,
         fullName: "",
         nationalId: "",
         phone: "",
         address: "",
         scannedDocument: null,
       });
-      loadGuarantors(selectedContract);
+      loadItems(selectedContract);
     } catch {
-      alert("Failed to save guarantor");
+      alert("Failed to save data");
     } finally {
       setLoading(false);
     }
@@ -117,10 +130,14 @@ export default function GuarantorsPage() {
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure?")) return;
     try {
-      await guarantorApi.delete(id);
-      loadGuarantors(selectedContract);
+      if (activeTab === "guarantors") {
+        await guarantorApi.delete(id);
+      } else {
+        await witnessApi.delete(id);
+      }
+      loadItems(selectedContract);
     } catch {
-      alert("Failed to delete guarantor");
+      alert("Failed to delete item");
     }
   };
 
@@ -131,26 +148,61 @@ export default function GuarantorsPage() {
           <div className="flex items-center gap-3">
             <Shield className="h-6 w-6 text-blue-600" />
             <h1 className="text-2xl font-bold text-gray-900">
-              {t("guarantors")}
+              {t("guarantors")} & {t("witnesses")}
             </h1>
           </div>
+          <div className="flex gap-2">
+            {!showForm && selectedContract && (
+              <button
+                onClick={() => {
+                  const currentCount = activeTab === "guarantors" ? guarantors.length : witnesses.length;
+                  const max = activeTab === "guarantors" ? 2 : 4;
+                  if (currentCount >= max) {
+                    alert(activeTab === "guarantors" ? t("maxGuarantors") : t("maxWitnesses"));
+                    return;
+                  }
+                  setEditId(null);
+                  setForm({
+                    contractId: selectedContract,
+                    fullName: "",
+                    nationalId: "",
+                    phone: "",
+                    address: "",
+                    scannedDocument: null,
+                  });
+                  setShowForm(true);
+                }}
+                className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition-colors"
+              >
+                <Plus className="h-4 w-4" />
+                {activeTab === "guarantors" ? t("addGuarantor") : t("addWitness")}
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="flex border-b border-gray-200">
           <button
-            onClick={() => {
-              setEditId(null);
-              setForm({
-                contractId: "",
-                fullName: "",
-                nationalId: "",
-                phone: "",
-                address: "",
-                scannedDocument: null,
-              });
-              setShowForm(!showForm);
-            }}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition-colors"
+            onClick={() => { setActiveTab("guarantors"); setShowForm(false); }}
+            className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
+              activeTab === "guarantors"
+                ? "border-blue-600 text-blue-600"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
           >
-            <Plus className="h-4 w-4" />
-            {t("addGuarantor")}
+            <Shield className="mr-2 inline-block h-4 w-4" />
+            {t("guarantors")} ({guarantors.length}/2)
+          </button>
+          <button
+            onClick={() => { setActiveTab("witnesses"); setShowForm(false); }}
+            className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
+              activeTab === "witnesses"
+                ? "border-blue-600 text-blue-600"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <Users className="mr-2 inline-block h-4 w-4" />
+            {t("witnesses")} ({witnesses.length}/4)
           </button>
         </div>
 
@@ -173,11 +225,16 @@ export default function GuarantorsPage() {
         </div>
 
         {showForm && (
-          <div className="rounded-xl border bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold">
-              {editId ? t("edit") || "Edit Guarantor" : t("addGuarantor")}
+          <div className="rounded-xl border border-blue-200 bg-blue-50/30 p-6 shadow-sm">
+            <h2 className="mb-4 text-lg font-semibold text-blue-900">
+              {editId 
+                ? (activeTab === "guarantors" ? t("edit") : t("edit")) 
+                : (activeTab === "guarantors" ? t("addGuarantor") : t("addWitness"))
+              }
             </h2>
-            <p className="mb-3 text-sm text-gray-500">{t("maxGuarantors")}</p>
+            <p className="mb-3 text-sm text-blue-600">
+              {activeTab === "guarantors" ? t("maxGuarantors") : t("maxWitnesses")}
+            </p>
             <form
               onSubmit={handleSubmit}
               className="grid grid-cols-1 gap-4 md:grid-cols-2"
@@ -311,18 +368,18 @@ export default function GuarantorsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {guarantors.length > 0 ? (
-                  guarantors.map((g) => (
-                    <tr key={g.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3">{g.id}</td>
-                      <td className="px-4 py-3 font-medium">{g.fullName}</td>
-                      <td className="px-4 py-3">{g.nationalId}</td>
-                      <td className="px-4 py-3">{g.phone}</td>
-                      <td className="px-4 py-3">{g.address}</td>
+                {(activeTab === "guarantors" ? guarantors : witnesses).length > 0 ? (
+                  (activeTab === "guarantors" ? guarantors : witnesses).map((item: any) => (
+                    <tr key={item.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3">{item.id}</td>
+                      <td className="px-4 py-3 font-medium">{item.fullName}</td>
+                      <td className="px-4 py-3">{item.nationalId}</td>
+                      <td className="px-4 py-3">{item.phone}</td>
+                      <td className="px-4 py-3">{item.address}</td>
                       <td className="px-4 py-3">
-                        {g.scannedDocument ? (
+                        {item.scannedDocument ? (
                           <button
-                            onClick={() => setViewDoc(g.scannedDocument!)}
+                            onClick={() => setViewDoc(item.scannedDocument!)}
                             className="text-blue-600 hover:underline flex items-center gap-1"
                           >
                             <Eye className="h-3 w-3" />
@@ -337,13 +394,13 @@ export default function GuarantorsPage() {
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-2">
                           <button
-                            onClick={() => handleEdit(g)}
+                            onClick={() => handleEdit(item)}
                             className="p-1 text-gray-500 hover:text-blue-600 transition-colors"
                           >
                             <Edit className="h-4 w-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(g.id)}
+                            onClick={() => handleDelete(item.id)}
                             className="p-1 text-gray-500 hover:text-red-600 transition-colors"
                           >
                             <Trash2 className="h-4 w-4" />

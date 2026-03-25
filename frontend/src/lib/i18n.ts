@@ -168,6 +168,9 @@ export const translations = {
     viewDocument: "View Document",
     scannedDocument: "Scanned Document",
     noDocument: "No Document Uploaded",
+    witnesses: "Witnesses",
+    addWitness: "Add Witness",
+    maxWitnesses: "Maximum 4 witnesses per contract",
 
     // Progress Report
     progressReports: "Progress Reports",
@@ -390,6 +393,9 @@ export const translations = {
     viewDocument: "ሰነዱን ተመልከት",
     scannedDocument: "የተቃኘ ሰነድ",
     noDocument: "ምንም ሰነድ አልተሰቀለም",
+    witnesses: "ምስክሮች",
+    addWitness: "ምስክር ጨምር",
+    maxWitnesses: "በአንድ ውል ቢበዛ 4 ምስክሮች",
 
     // Progress Report
     progressReports: "የሂደት ሪፖርቶች",

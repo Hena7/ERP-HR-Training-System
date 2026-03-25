@@ -931,6 +931,7 @@ export const contractApi = {
 };
 
 export const guarantorApi = {
+  // ... (existing guarantorApi code remains same)
   create: async (data: any) => {
     await delay(500);
     const guarantors = getMockData("guarantors");
@@ -965,6 +966,45 @@ export const guarantorApi = {
     await delay(500);
     const guarantors = getMockData("guarantors").filter((g: any) => g.id != id);
     saveMockData("guarantors", guarantors);
+    return { data: { success: true } };
+  },
+};
+
+export const witnessApi = {
+  create: async (data: any) => {
+    await delay(500);
+    const witnesses = getMockData("witnesses");
+    const newWitness = {
+      ...data,
+      id: Date.now(),
+      scannedDocument: data.scannedDocument || null,
+      createdAt: new Date().toISOString(),
+    };
+    saveMockData("witnesses", [...witnesses, newWitness]);
+    return { data: newWitness };
+  },
+  getByContract: async (contractId: number) => {
+    await delay(300);
+    const witnesses = getMockData("witnesses").filter(
+      (w: any) => w.contractId == contractId,
+    );
+    return { data: witnesses };
+  },
+  update: async (id: number, data: any) => {
+    await delay(300);
+    const witnesses = getMockData("witnesses");
+    const index = witnesses.findIndex((w: any) => w.id == id);
+    if (index !== -1) {
+      witnesses[index] = { ...witnesses[index], ...data };
+      saveMockData("witnesses", witnesses);
+      return { data: witnesses[index] };
+    }
+    throw new Error("Not found");
+  },
+  delete: async (id: number) => {
+    await delay(500);
+    const witnesses = getMockData("witnesses").filter((w: any) => w.id != id);
+    saveMockData("witnesses", witnesses);
     return { data: { success: true } };
   },
 };
