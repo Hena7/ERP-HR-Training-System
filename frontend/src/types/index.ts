@@ -22,6 +22,7 @@ export type UserRole =
   | "CYBER_DEVELOPMENT_CENTER"
   | "COMMITTEE_MEMBER"
   | "DIRECTOR"
+  | "PROCUREMENT"
   | "ADMIN";
 
 export interface AuthResponse {

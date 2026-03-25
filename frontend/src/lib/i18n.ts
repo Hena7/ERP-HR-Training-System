@@ -3,7 +3,7 @@ export type Locale = "en" | "am";
 export const translations = {
   en: {
     // Common
-    appName: "INSA Education Module",
+    appName: "INSA ERP-HR System",
     orgName: "Information Network Security Administration",
     dashboard: "Dashboard",
     login: "Login",
@@ -38,7 +38,7 @@ export const translations = {
     username: "Username",
     or: "or",
     password: "Password",
-    loginTitle: "Sign In to Education Module",
+    loginTitle: "Sign In to ERP-HR System",
     loginSubtitle: "Enter your credentials to access the system",
     registerTitle: "Register New Employee",
     invalidCredentials: "Invalid email or password",
@@ -87,11 +87,10 @@ export const translations = {
     submitRequest: "Submit Request",
     myRequests: "My Requests",
 
-    // Status
+    // Status (shared)
     DRAFT: "Draft",
     SUBMITTED: "Submitted",
     CDC_APPROVED: "CDC Approved",
-
     PENDING: "Pending",
     HR_VERIFIED: "HR Verified",
     SCORED: "Scored by CDC",
@@ -125,8 +124,7 @@ export const translations = {
     disciplineScore: "Discipline Score (0–100)",
     totalScore: "Total Score (%)",
     gradedBy: "Graded By",
-    scoringWeights:
-      "Weights: Experience 30% · Performance 50% · Discipline 20%",
+    scoringWeights: "Weights: Experience 30% · Performance 50% · Discipline 20%",
     experienceWeight: "Experience Weight",
     performanceWeight: "Performance Weight",
     disciplineWeight: "Discipline Weight",
@@ -148,7 +146,7 @@ export const translations = {
     committeeDecisionsHistory: "Committee Decisions History",
     pendingDecisions: "Requests Pending Decision",
 
-    // Contract
+    // Education Contract
     contracts: "Education Commitments",
     newContract: "New Commitment",
     program: "Program",
@@ -206,8 +204,7 @@ export const translations = {
     requiredServiceYears: "Required Service Years",
     serviceStartDate: "Service Start Date",
     serviceEndDate: "Service End Date",
-    obligationRule:
-      "ON_JOB: Service = Study Years | OFF_JOB: Service = Study Years x 2",
+    obligationRule: "ON_JOB: Service = Study Years | OFF_JOB: Service = Study Years x 2",
 
     // Dashboard
     totalRequests: "Total Requests",
@@ -225,8 +222,9 @@ export const translations = {
     COMMITTEE_MEMBER: "Committee Member",
     DIRECTOR: "Director",
     ADMIN: "Admin",
+    PROCUREMENT: "Procurement",
 
-    // Navigation
+    // Navigation — Education
     navDashboard: "Dashboard",
     navOpportunities: "Education Opportunities",
     navRequests: "Education Requests",
@@ -240,10 +238,57 @@ export const translations = {
     navCompletions: "Completions",
     navObligations: "Service Obligations",
     navUsers: "Users",
+    educationModule: "Education Module",
+
+    // ─── Training Module ───────────────────────────────────────────────────
+    trainingModule: "Training Module",
+    trainingRequests: "Training Requests",
+    newTrainingRequest: "New Training Request",
+    trainingTitle: "Training Title",
+    sector: "Sector / Directorate",
+    numTrainees: "Number of Trainees",
+    trainingDuration: "Training Duration",
+    trainingLocation: "Training Location",
+    domestic: "Domestic",
+    abroad: "Abroad",
+    budgetSource: "Budget Source",
+    specification: "Specification / Spec",
+    reviewNote: "Review Note",
+    procurementReview: "Procurement Review",
+    approveDirectly: "Approve Directly",
+    requireContract: "Require Contract",
+    trainingContracts: "Training Contracts",
+    newTrainingContract: "New Training Contract",
+    trainingCountry: "Training Country",
+    trainingCity: "Training City",
+    trainingType: "Training Type",
+    totalCost: "Total Cost (Birr)",
+    contractDuration: "Contract Duration (Months)",
+    houseNo: "House No.",
+    city: "City",
+    obligationTracking: "Obligation Tracking",
+    obligationMonths: "Obligation Months",
+    startDate: "Start Date",
+    endDate: "End Date",
+    releasedAt: "Released At",
+    releaseGuarantor: "Release Guarantor",
+    guarantorReplacement: "Guarantor Replacement",
+    APPROVED_DIRECT: "Approved (Direct)",
+    CONTRACT_REQUIRED: "Contract Required",
+    ACTIVE: "Active",
+    COMPLETED: "Completed",
+    VIOLATED: "Violated",
+    TRAINING_REJECTED: "Rejected",
+    navTrainingRequests: "Training Requests",
+    navTrainingProcurement: "Procurement Review",
+    navTrainingContracts: "Training Contracts",
+    navTrainingGuarantors: "Training Guarantors",
+    navTrainingObligations: "Training Obligations",
   },
+
   am: {
     // Common
-    appName: "የINSA የትምህርት ሞዱል",
+    appName: "የINSA ERP-HR ሥርዓት",
     orgName: "የኢንፎርሜሽን ኔትወርክ ሴኪዩሪቲ አስተዳደር",
     dashboard: "ዳሽቦርድ",
     login: "ግባ",
@@ -278,7 +323,7 @@ export const translations = {
     username: "የተጠቃሚ ስም",
     or: "ወይም",
     password: "የይለፍ ቃል",
-    loginTitle: "ወደ የትምህርት ሞዱል ይግቡ",
+    loginTitle: "ወደ ERP-HR ሥርዓት ይግቡ",
     loginSubtitle: "ስርዓቱን ለመድረስ የመግቢያ መረጃዎን ያስገቡ",
     registerTitle: "አዲስ ሰራተኛ ይመዝገቡ",
     invalidCredentials: "ልክ ያልሆነ ኢሜይል ወይም የይለፍ ቃል",
@@ -327,11 +372,10 @@ export const translations = {
     submitRequest: "ጥያቄ አስገባ",
     myRequests: "የእኔ ጥያቄዎች",
 
-    // Status
+    // Status (shared)
     DRAFT: "ረቂቅ",
     SUBMITTED: "ገብቷል",
     CDC_APPROVED: "በCDC ጸድቋል",
-
     PENDING: "በመጠባበቅ ላይ",
     HR_VERIFIED: "በHR ተረጋግጧል",
     SCORED: "በCDC ተሰልቷል",
@@ -387,7 +431,7 @@ export const translations = {
     committeeDecisionsHistory: "የኮሚቴ ውሳኔዎች ታሪክ",
     pendingDecisions: "ውሳኔ የሚጠባበቁ ጥያቄዎች",
 
-    // Contract
+    // Education Contract
     contracts: "የትምህርት ውሎች",
     newContract: "አዲስ ውል",
     program: "ፕሮግራም",
@@ -445,8 +489,7 @@ export const translations = {
     requiredServiceYears: "አስፈላጊ የአገልግሎት ዓመታት",
     serviceStartDate: "የአገልግሎት መጀመሪያ ቀን",
     serviceEndDate: "የአገልግሎት ማጠናቀቂያ ቀን",
-    obligationRule:
-      "በስራ ላይ: አገልግሎት = የትምህርት ዓመታት | ከስራ ውጪ: አገልግሎት = የትምህርት ዓመታት x 2",
+    obligationRule: "በስራ ላይ: አገልግሎት = የትምህርት ዓመታት | ከስራ ውጪ: አገልግሎት = የትምህርት ዓመታት x 2",
 
     // Dashboard
     totalRequests: "ጠቅላላ ጥያቄዎች",
@@ -464,8 +507,9 @@ export const translations = {
     COMMITTEE_MEMBER: "የኮሚቴ አባል",
     DIRECTOR: "ዳይሬክተር",
     ADMIN: "አስተዳዳሪ",
+    PROCUREMENT: "ፕሮኪዩርሜንት",
 
-    // Navigation
+    // Navigation — Education
     navDashboard: "ዳሽቦርድ",
     navOpportunities: "የትምህርት ፍላጎት (እድሎች)",
     navRequests: "የትምህርት ጥያቄዎች",
@@ -479,6 +523,52 @@ export const translations = {
     navCompletions: "ማጠናቀቂያ",
     navObligations: "የአገልግሎት ግዴታዎች",
     navUsers: "ተጠቃሚዎች",
+
+    // ─── Training Module ───────────────────────────────────────────────────
+    trainingModule: "ስልጠና ሞዱል",
+    trainingRequests: "የስልጠና ጥያቄዎች",
+    newTrainingRequest: "አዲስ የስልጠና ጥያቄ",
+    trainingTitle: "የስልጠና ርዕስ",
+    sector: "ዘርፍ / ዳይሬክቶሬት",
+    numTrainees: "የሰልጣኝ ብዛት",
+    trainingDuration: "የስልጠና ቆይታ",
+    trainingLocation: "የስልጠና ቦታ",
+    domestic: "ሀገር ውስጥ",
+    abroad: "ውጭ ሀገር",
+    budgetSource: "የበጀት ምንጭ",
+    specification: "ዝርዝር ሁኔታ",
+    reviewNote: "የፍተሻ ማስታወሻ",
+    procurementReview: "የፕሮኪዩርሜንት ፍተሻ",
+    approveDirectly: "ቀጥታ ፈቅድ",
+    requireContract: "ውል አስፈልጋል",
+    trainingContracts: "የስልጠና ውሎች",
+    newTrainingContract: "አዲስ የስልጠና ውል",
+    trainingCountry: "የስልጠና ሀገር",
+    trainingCity: "የስልጠና ከተማ",
+    trainingType: "የስልጠና አይነት",
+    totalCost: "ጠቅላላ ወጪ (ብር)",
+    contractDuration: "የውል ቆይታ (ወራት)",
+    houseNo: "የቤት ቁጥር",
+    city: "ከተማ",
+    obligationTracking: "የግዴታ ክትትል",
+    obligationMonths: "የግዴታ ወራት",
+    startDate: "ጀምሮ",
+    endDate: "አልቆ",
+    releasedAt: "የተለቀቀበት ቀን",
+    releaseGuarantor: "ዋሱን ለቀቅ",
+    guarantorReplacement: "ዋስ ምትክ",
+    APPROVED_DIRECT: "ቀጥታ ፈቅዷል",
+    CONTRACT_REQUIRED: "ውል ያስፈልጋል",
+    ACTIVE: "ንቁ",
+    COMPLETED: "ተጠናቋል",
+    VIOLATED: "ተጣሷል",
+    TRAINING_REJECTED: "ውድቅ ሆኗል",
+    navTrainingRequests: "የስልጠና ጥያቄዎች",
+    navTrainingProcurement: "የፕሮኪዩርሜንት ፍተሻ",
+    navTrainingContracts: "የስልጠና ውሎች",
+    navTrainingGuarantors: "የስልጠና ዋሶች",
+    navTrainingObligations: "የስልጠና ግዴታዎች",
+    educationModule: "የትምህርት ሞዱል",
   },
 } as const;
 
