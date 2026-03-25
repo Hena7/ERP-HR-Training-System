@@ -261,16 +261,16 @@ export default function EducationRequestsPage() {
     <DashboardLayout>
       <div className="mx-auto max-w-6xl space-y-6 pb-20">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-blue-600 p-2 text-white shadow-lg shadow-blue-200">
-              <FileText className="h-6 w-6" />
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
+              <FileText className="h-6 w-6 text-white" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 {t("educationRequests")}
               </h1>
-              <p className="text-sm text-gray-500 font-medium">
-                Manage departmental education batch requests
+              <p className="text-sm text-gray-500 font-medium italic">
+                Manage departmental education batch requests and nominations.
               </p>
             </div>
           </div>
@@ -278,7 +278,7 @@ export default function EducationRequestsPage() {
           {(isDepartmentHead || isAdmin) && !showForm && (
             <button
               onClick={() => setShowForm(true)}
-              className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 hover:-translate-y-0.5"
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:bg-blue-700 hover:-translate-y-0.5"
             >
               <Plus className="h-4 w-4" />
               {t("newRequest")}
@@ -289,7 +289,7 @@ export default function EducationRequestsPage() {
         {showForm && (
           <div className="animate-in fade-in slide-in-from-top-4 duration-300 space-y-6">
             {/* Requester Info */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="mb-6 flex items-center gap-3 border-b border-gray-100 pb-4">
                 <div className="rounded-lg bg-blue-50 p-2">
                   <User className="h-5 w-5 text-blue-600" />
@@ -335,11 +335,11 @@ export default function EducationRequestsPage() {
             </div>
 
             {/* Education Goal */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="mb-6 flex items-center justify-between border-b border-gray-100 pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-lg bg-indigo-50 p-2">
-                    <GraduationCap className="h-5 w-5 text-indigo-600" />
+                  <div className="rounded-lg bg-blue-50 p-2">
+                    <GraduationCap className="h-5 w-5 text-blue-600" />
                   </div>
                   <h2 className="text-lg font-bold text-gray-800">
                     {t("educationDetail")}
@@ -347,7 +347,7 @@ export default function EducationRequestsPage() {
                 </div>
                 <button
                   onClick={() => setShowEducationModal(true)}
-                  className="flex items-center gap-1.5 rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-1.5 text-xs font-bold text-indigo-700 transition-colors hover:bg-indigo-100"
+                  className="flex items-center gap-1.5 rounded-lg border border-blue-100 bg-blue-50 px-4 py-1.5 text-xs font-bold text-blue-700 transition-colors hover:bg-blue-100"
                 >
                   <Edit className="h-3.5 w-3.5" />
                   {batchEducation.fieldOfStudy ? t("edit") : t("save")}
@@ -421,26 +421,26 @@ export default function EducationRequestsPage() {
             </div>
 
             {/* Candidates List */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="mb-8 flex flex-col gap-4 border-b border-gray-100 pb-6 md:flex-row md:items-center md:justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-lg bg-emerald-50 p-2">
-                    <Users className="h-5 w-5 text-emerald-600" />
+                  <div className="rounded-lg bg-blue-50 p-2">
+                    <Users className="h-5 w-5 text-blue-600" />
                   </div>
                   <h2 className="text-lg font-bold text-gray-800">
                     {t("candidatesList")}
                   </h2>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
-                  <div className="relative group">
-                    <Search className="absolute left-3.5 top-3 h-4 w-4 text-gray-400 transition-colors group-focus-within:text-blue-500" />
-                    <input
-                      type="text"
-                      placeholder="Search employee..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-64 rounded-xl border-gray-200 bg-gray-50 pl-11 py-2.5 text-sm transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 placeholder:text-gray-400"
-                    />
+                    <div className="relative group">
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 transition-colors group-focus-within:text-blue-500" />
+                      <input
+                        type="text"
+                        placeholder="Search employee by name or ID..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-72 rounded-xl border border-gray-100 bg-gray-50 pl-11 py-2.5 text-sm font-medium transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 placeholder:text-gray-400 outline-none"
+                      />
 
                     {searchTerm && (
                       <div className="absolute right-0 z-20 mt-2 w-80 origin-top-right rounded-2xl border border-gray-100 bg-white p-2 shadow-2xl ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-200">
@@ -492,18 +492,19 @@ export default function EducationRequestsPage() {
 
                   <div className="h-10 w-[1px] bg-gray-100 hidden md:block"></div>
 
-                  <button
-                    onClick={handleManualAdd}
-                    className="flex items-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-600 transition-all hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50/50"
-                  >
-                    <UserPlus className="h-4 w-4" />+ Manual Add
-                  </button>
+                    <button
+                      onClick={handleManualAdd}
+                      className="flex items-center gap-2 rounded-xl border border-blue-100 bg-blue-50 px-6 py-2.5 text-sm font-bold text-blue-700 transition-all hover:bg-blue-100 hover:shadow-md active:scale-95"
+                    >
+                      <UserPlus className="h-4 w-4" />
+                      Manual Add
+                    </button>
                 </div>
               </div>
 
               <div className="overflow-hidden rounded-xl border border-gray-100 shadow-sm">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-gray-50/80 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100">
+                  <thead className="bg-gray-50/80 text-[10px] font-bold uppercase tracking-widest text-gray-400 border-b border-gray-100">
                     <tr>
                       <th className="px-6 py-4">ID / Emp ID</th>
                       <th className="px-6 py-4">Name</th>
@@ -527,7 +528,7 @@ export default function EducationRequestsPage() {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <div
-                              className={`h-1.5 w-1.5 rounded-full ${c.isManual ? "bg-amber-400" : "bg-blue-400"}`}
+                              className={`h-1.5 w-1.5 rounded-full ${c.isManual ? "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]" : "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"}`}
                             ></div>
                             <span className="font-bold text-gray-900">
                               {c.name}
@@ -544,7 +545,7 @@ export default function EducationRequestsPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="inline-flex items-center rounded-lg bg-blue-50 px-2.5 py-1 text-[10px] font-black text-blue-700 uppercase tracking-tighter border border-blue-100">
+                          <span className="inline-flex items-center rounded-lg bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-700 uppercase tracking-widest border border-blue-100 italic">
                             {c.program}
                           </span>
                         </td>
@@ -598,19 +599,19 @@ export default function EducationRequestsPage() {
                 >
                   {t("cancel")}
                 </button>
-                <button
-                  onClick={handleSubmitBatch}
-                  disabled={loading || candidates.length === 0}
-                  className="flex items-center gap-2.5 rounded-xl bg-indigo-600 px-10 py-3 text-sm font-black text-white shadow-xl shadow-indigo-100 transition-all hover:bg-indigo-700 hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
-                >
-                  {loading ? (
-                    t("loading")
-                  ) : (
-                    <>
-                      <Send className="h-4 w-4" /> {t("submit")}
-                    </>
-                  )}
-                </button>
+                  <button
+                    onClick={handleSubmitBatch}
+                    disabled={loading || candidates.length === 0}
+                    className="flex items-center gap-2.5 rounded-lg bg-blue-600 px-10 py-3 text-sm font-bold text-white shadow-md transition-all hover:bg-blue-700 hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
+                  >
+                    {loading ? (
+                      t("loading")
+                    ) : (
+                      <>
+                        <Send className="h-4 w-4" /> {t("submit")}
+                      </>
+                    )}
+                  </button>
               </div>
             </div>
           </div>
@@ -618,8 +619,8 @@ export default function EducationRequestsPage() {
 
         {/* History Table */}
 
-        <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-          <div className="border-b border-gray-100 px-8 py-5 flex items-center justify-between bg-gray-50/50">
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+          <div className="border-b border-gray-100 px-6 py-5 flex items-center justify-between bg-gray-50/50">
             <h2 className="text-lg font-bold text-gray-800">Process History</h2>
             <div className="flex items-center gap-2">
               <div className="flex rounded-lg border border-gray-200 bg-white p-1">
@@ -634,7 +635,7 @@ export default function EducationRequestsPage() {
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-white text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100">
+              <thead className="bg-gray-50/50 text-[10px] font-bold uppercase tracking-widest text-gray-400 border-b border-gray-100">
                 <tr>
                   <th className="px-8 py-5"># ID</th>
                   <th className="px-8 py-5">{t("fullName")}</th>
@@ -655,8 +656,8 @@ export default function EducationRequestsPage() {
                     </td>
                     <td className="px-8 py-5 text-gray-900">
                       <div className="flex flex-col">
-                        <span className="font-black">{req.employeeName}</span>
-                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-tight">
+                        <span className="font-bold text-gray-900">{req.employeeName}</span>
+                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">
                           {req.candidateId || req.employeeId}
                         </span>
                       </div>
@@ -684,7 +685,7 @@ export default function EducationRequestsPage() {
                             <button
                               onClick={() => approveRequest(req.id)}
                               disabled={busyId === req.id}
-                              className="inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-700 hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
+                              className="inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-4 py-2 text-[10px] font-bold text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm border border-emerald-100 uppercase tracking-widest italic"
                             >
                               <CheckCircle2 className="h-3.5 w-3.5" />
                               Approve
@@ -717,18 +718,18 @@ export default function EducationRequestsPage() {
 
       {/* Education Detail Modal */}
       {showEducationModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="w-full max-w-xl rounded-3xl bg-white p-10 shadow-2xl animate-in zoom-in-95 duration-200">
-            <h3 className="mb-8 text-2xl font-black text-gray-900 flex items-center gap-3">
-              <div className="rounded-xl bg-indigo-600 p-2 text-white">
-                <GraduationCap className="h-6 w-6" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-xl rounded-2xl bg-white p-10 shadow-2xl animate-in zoom-in-95 duration-200 border border-gray-100">
+            <h3 className="mb-8 text-2xl font-bold text-gray-900 flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
+                <GraduationCap className="h-6 w-6 text-white" />
               </div>
-              {t("educationDetail")}
+              Education Goal Detail
             </h3>
 
             <div className="grid grid-cols-2 gap-6">
-              <div className="col-span-2 space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+              <div className="col-span-2 space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                   {t("educationOpportunity")}
                 </label>
                 <select
@@ -746,7 +747,7 @@ export default function EducationRequestsPage() {
                       institution: opp?.institution || "",
                     });
                   }}
-                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-bold text-gray-900 transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                 >
                   <option value="">Manual Entry / Other</option>
                   {opportunities.map((opp) => (
@@ -758,8 +759,8 @@ export default function EducationRequestsPage() {
                 </select>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                   {t("educationCategory")}
                 </label>
                 <select
@@ -770,15 +771,15 @@ export default function EducationRequestsPage() {
                       educationCategory: e.target.value,
                     })
                   }
-                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-bold text-gray-900 transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                 >
                   <option value="Technical">Technical</option>
                   <option value="Management">Management</option>
                 </select>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                   {t("educationLevel")}
                 </label>
                 <select
@@ -789,7 +790,7 @@ export default function EducationRequestsPage() {
                       educationLevel: e.target.value,
                     })
                   }
-                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-bold text-gray-900 transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                 >
                   <option value="Diploma">Diploma</option>
                   <option value="BSc">BSc</option>
@@ -880,7 +881,7 @@ export default function EducationRequestsPage() {
                     })
                   }
                   rows={2}
-                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                 />
               </div>
             </div>
@@ -888,13 +889,13 @@ export default function EducationRequestsPage() {
             <div className="mt-10 flex justify-end gap-4">
               <button
                 onClick={() => setShowEducationModal(false)}
-                className="px-8 py-2.5 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors"
+                className="px-6 py-2.5 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors"
               >
                 {t("cancel")}
               </button>
               <button
                 onClick={() => setShowEducationModal(false)}
-                className="rounded-xl bg-indigo-600 px-10 py-3 text-sm font-black text-white shadow-xl shadow-indigo-100 transition-all hover:bg-indigo-700 hover:scale-[1.02]"
+                className="rounded-lg bg-blue-600 px-8 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:bg-blue-700 hover:scale-[1.02]"
               >
                 {t("save")}
               </button>
@@ -905,10 +906,10 @@ export default function EducationRequestsPage() {
 
       {/* Candidate Modal */}
       {showCandidateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="w-full max-w-xl rounded-3xl bg-white p-10 shadow-2xl animate-in zoom-in-95 duration-200">
-            <h3 className="mb-8 text-2xl font-black text-gray-900 border-b border-gray-100 pb-6 flex items-center gap-3">
-              <div className="rounded-xl bg-emerald-600 p-2 text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-xl rounded-xl bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-200">
+            <h3 className="mb-8 text-2xl font-bold text-gray-900 border-b border-gray-100 pb-6 flex items-center gap-3">
+              <div className="rounded-lg bg-blue-600 p-2 text-white">
                 <UserPlus className="h-6 w-6" />
               </div>
               {currentCandidate.isManual
@@ -932,7 +933,7 @@ export default function EducationRequestsPage() {
                       candidateId: e.target.value,
                     })
                   }
-                  className={`w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 ${!currentCandidate.isManual ? "opacity-70" : ""}`}
+                  className={`w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none ${!currentCandidate.isManual ? "opacity-70" : ""}`}
                   placeholder="e.g. EMP123"
                 />
               </div>
@@ -952,7 +953,7 @@ export default function EducationRequestsPage() {
                       name: e.target.value,
                     })
                   }
-                  className={`w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 ${!currentCandidate.isManual ? "opacity-70" : ""}`}
+                  className={`w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none ${!currentCandidate.isManual ? "opacity-70" : ""}`}
                   placeholder="e.g. John Doe"
                 />
               </div>
@@ -970,7 +971,7 @@ export default function EducationRequestsPage() {
                       award: e.target.value,
                     })
                   }
-                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                   placeholder="e.g. Master of Science"
                 />
               </div>
@@ -988,7 +989,7 @@ export default function EducationRequestsPage() {
                       institution: e.target.value,
                     })
                   }
-                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                 />
               </div>
 
@@ -1005,7 +1006,7 @@ export default function EducationRequestsPage() {
                       duration: Number(e.target.value),
                     })
                   }
-                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                 />
               </div>
 
@@ -1021,7 +1022,7 @@ export default function EducationRequestsPage() {
                       program: e.target.value,
                     })
                   }
-                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                 >
                   <option value="Regular">Regular</option>
                   <option value="Extension">Extension</option>
@@ -1041,7 +1042,7 @@ export default function EducationRequestsPage() {
                       location: e.target.value,
                     })
                   }
-                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-bold transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                 >
                   <option value="Local">Local</option>
                   <option value="Abroad">Abroad</option>
@@ -1052,13 +1053,13 @@ export default function EducationRequestsPage() {
             <div className="mt-10 flex justify-end gap-4">
               <button
                 onClick={() => setShowCandidateModal(false)}
-                className="px-8 py-2.5 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors"
+                className="px-6 py-2.5 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors"
               >
                 {t("cancel")}
               </button>
               <button
                 onClick={saveCandidate}
-                className="rounded-xl bg-emerald-600 px-10 py-3 text-sm font-black text-white shadow-xl shadow-emerald-100 transition-all hover:bg-emerald-700 hover:scale-[1.02]"
+                className="rounded-lg bg-blue-600 px-8 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:bg-blue-700 hover:scale-[1.02]"
               >
                 {t("save")}
               </button>

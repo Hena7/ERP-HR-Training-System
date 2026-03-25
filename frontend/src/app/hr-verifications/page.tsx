@@ -140,8 +140,8 @@ export default function HRVerificationsPage() {
   const renderVerificationStatus = (status?: string) => {
     const color =
       status === "VERIFIED"
-        ? "bg-green-100 text-green-800"
-        : "bg-red-100 text-red-800";
+        ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+        : "bg-red-50 text-red-600 border border-red-100";
 
     const label =
       status === "VERIFIED"
@@ -152,7 +152,7 @@ export default function HRVerificationsPage() {
 
     return (
       <span
-        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${color}`}
+        className={`inline-flex rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider italic ${color}`}
       >
         {label}
       </span>
@@ -162,34 +162,37 @@ export default function HRVerificationsPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <ClipboardCheck className="h-6 w-6 text-blue-600" />
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
+            <ClipboardCheck className="h-6 w-6 text-white" />
+          </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
               {t("hrVerifications")}
             </h1>
-            <p className="text-sm text-gray-500">
-              HR reviews employees forwarded by the Cyber Development Center and
-              records semester-based performance scores.
+            <p className="text-sm text-gray-500 font-medium italic">
+              HR reviews employees forwarded by the Cyber Development Center and records semester-based performance scores.
             </p>
           </div>
         </div>
 
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">
-            Nominated Employees from CDC
-          </h2>
+        <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+          <div className="border-b border-gray-50 bg-gray-50/30 px-6 py-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400">
+              Nominated Employees from CDC
+            </h2>
+          </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b bg-gray-50 text-xs uppercase text-gray-500">
+              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
                 <tr>
-                  <th className="px-4 py-3">ID</th>
-                  <th className="px-4 py-3">{t("fullName")}</th>
-                  <th className="px-4 py-3">{t("department")}</th>
-                  <th className="px-4 py-3">{t("educationOpportunity")}</th>
-                  <th className="px-4 py-3">{t("institution")}</th>
-                  <th className="px-4 py-3 text-right">{t("actions")}</th>
+                  <th className="px-6 py-4">ID</th>
+                  <th className="px-6 py-4">{t("fullName")}</th>
+                  <th className="px-6 py-4">{t("department")}</th>
+                  <th className="px-6 py-4">{t("educationOpportunity")}</th>
+                  <th className="px-6 py-4">{t("institution")}</th>
+                  <th className="px-6 py-4 text-right">{t("actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -198,25 +201,25 @@ export default function HRVerificationsPage() {
                     const isSelected = form.requestId === request.id;
 
                     return (
-                      <tr key={request.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3">#{request.id}</td>
-                        <td className="px-4 py-3 font-medium text-gray-900">
+                      <tr key={request.id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-6 py-4 text-xs font-bold text-blue-600">REQ-{request.id.toString().slice(-6)}</td>
+                        <td className="px-6 py-4 font-bold text-gray-900">
                           {request.employeeName}
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-6 py-4 font-medium text-gray-600">
                           {request.employeeDepartment}
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-6 py-4 font-medium text-gray-700 text-xs italic">
                           {request.educationType} ({request.educationLevel})
                         </td>
-                        <td className="px-4 py-3">{request.institution}</td>
-                        <td className="px-4 py-3 text-right">
+                        <td className="px-6 py-4 font-medium text-gray-500">{request.institution}</td>
+                        <td className="px-6 py-4 text-right">
                           <button
                             onClick={() => handleRequestSelect(request.id)}
-                            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                            className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
                               isSelected
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-blue-600 text-white hover:bg-blue-700"
+                                ? "bg-blue-600 text-white shadow-blue-200"
+                                : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
                             }`}
                           >
                             {isSelected ? "Selected" : "Review"}
@@ -240,35 +243,35 @@ export default function HRVerificationsPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">
+        <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+          <h2 className="mb-6 text-sm font-bold uppercase tracking-widest text-gray-400">
             HR Performance Verification
           </h2>
 
           {selectedRequest ? (
             <form className="space-y-6">
-              <div className="grid grid-cols-1 gap-4 rounded-lg border bg-gray-50 p-4 md:grid-cols-3">
-                <div>
-                  <p className="text-xs uppercase text-gray-500">
+              <div className="grid grid-cols-1 gap-6 rounded-xl border border-gray-100 bg-gray-50/30 p-6 md:grid-cols-3">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                     {t("fullName")}
                   </p>
-                  <p className="mt-1 font-medium text-gray-900">
+                  <p className="font-bold text-gray-900">
                     {selectedRequest.employeeName}
                   </p>
                 </div>
-                <div>
-                  <p className="text-xs uppercase text-gray-500">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                     {t("department")}
                   </p>
-                  <p className="mt-1 font-medium text-gray-900">
+                  <p className="font-bold text-gray-900">
                     {selectedRequest.employeeDepartment}
                   </p>
                 </div>
-                <div>
-                  <p className="text-xs uppercase text-gray-500">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                     {t("educationOpportunity")}
                   </p>
-                  <p className="mt-1 font-medium text-gray-900">
+                  <p className="font-bold text-gray-900">
                     {selectedRequest.educationType} (
                     {selectedRequest.educationLevel})
                   </p>
@@ -276,8 +279,9 @@ export default function HRVerificationsPage() {
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
                     {t("semester1Score")}
                   </label>
                   <input
@@ -293,12 +297,12 @@ export default function HRVerificationsPage() {
                         semester1Score: e.target.value,
                       }))
                     }
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                   />
                 </div>
 
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
                     {t("semester2Score")}
                   </label>
                   <input
@@ -314,67 +318,81 @@ export default function HRVerificationsPage() {
                         semester2Score: e.target.value,
                       }))
                     }
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                   />
                 </div>
 
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
                     {t("averageScore")}
                   </label>
-                  <input
-                    type="text"
-                    readOnly
-                    value={averageScore}
-                    className="w-full rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-gray-700 focus:outline-none"
-                    placeholder="Auto-calculated"
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      readOnly
+                      value={averageScore}
+                      className="w-full rounded-lg border border-gray-100 bg-blue-50 px-4 py-2.5 text-sm font-bold text-blue-700 focus:outline-none italic"
+                      placeholder="Auto-calculated"
+                    />
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-blue-400 uppercase">AVG</div>
+                  </div>
                 </div>
               </div>
+              </div>
 
-              <div className="space-y-4 rounded-lg border bg-gray-50 p-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-gray-900">
+              <div className="space-y-4 rounded-xl border border-gray-100 bg-gray-50/30 p-6">
+                <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                     {t("disciplineRecord")}
                   </h3>
-                  <div className="flex gap-4">
-                    <label className="flex items-center gap-2 text-sm text-gray-700">
-                      <input
-                        type="checkbox"
-                        checked={form.hasDiscipline}
-                        onChange={() =>
-                          setForm((prev) => ({
-                            ...prev,
-                            hasDiscipline: true,
-                          }))
-                        }
-                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      {t("yes")}
+                  <div className="flex gap-6">
+                    <label className="flex items-center gap-2 cursor-pointer group">
+                      <div className="relative flex items-center">
+                        <input
+                          type="checkbox"
+                          className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-gray-300 bg-white transition-all checked:border-blue-600 checked:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-500/10"
+                          checked={form.hasDiscipline}
+                          onChange={() =>
+                            setForm((prev) => ({
+                              ...prev,
+                              hasDiscipline: true,
+                            }))
+                          }
+                        />
+                        <CheckCircle2 className="absolute h-3.5 w-3.5 text-white opacity-0 peer-checked:opacity-100 left-0.5" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-600 group-hover:text-blue-600 transition-colors uppercase tracking-widest text-[10px]">
+                        {t("yes")}
+                      </span>
                     </label>
-                    <label className="flex items-center gap-2 text-sm text-gray-700">
-                      <input
-                        type="checkbox"
-                        checked={!form.hasDiscipline}
-                        onChange={() =>
-                          setForm((prev) => ({
-                            ...prev,
-                            hasDiscipline: false,
-                          }))
-                        }
-                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      {t("no")}
+                    <label className="flex items-center gap-2 cursor-pointer group">
+                      <div className="relative flex items-center">
+                        <input
+                          type="checkbox"
+                          className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-gray-300 bg-white transition-all checked:border-blue-600 checked:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-500/10"
+                          checked={!form.hasDiscipline}
+                          onChange={() =>
+                            setForm((prev) => ({
+                              ...prev,
+                              hasDiscipline: false,
+                            }))
+                          }
+                        />
+                        <CheckCircle2 className="absolute h-3.5 w-3.5 text-white opacity-0 peer-checked:opacity-100 left-0.5" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-600 group-hover:text-blue-600 transition-colors uppercase tracking-widest text-[10px]">
+                        {t("no")}
+                      </span>
                     </label>
                   </div>
                 </div>
 
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
                     {t("disciplineDescription")}
                   </label>
                   <textarea
-                    rows={2}
+                    rows={3}
                     value={form.disciplineDescription}
                     onChange={(e) =>
                       setForm((prev) => ({
@@ -383,17 +401,17 @@ export default function HRVerificationsPage() {
                       }))
                     }
                     placeholder="Enter details if there is a disciplinary record..."
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                   />
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-4 pt-4">
                 <button
                   type="button"
                   onClick={(e) => handleSubmit(e, "VERIFIED")}
                   disabled={loading}
-                  className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-8 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-200 hover:bg-blue-700 disabled:opacity-50 transition-all"
                 >
                   <CheckCircle2 className="h-4 w-4" />
                   {loading && submittingStatus === "VERIFIED"
@@ -405,7 +423,7 @@ export default function HRVerificationsPage() {
                   type="button"
                   onClick={(e) => handleSubmit(e, "REJECTED")}
                   disabled={loading}
-                  className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-8 py-2.5 text-sm font-bold text-white shadow-md shadow-red-200 hover:bg-red-700 disabled:opacity-50 transition-all"
                 >
                   <XCircle className="h-4 w-4" />
                   {loading && submittingStatus === "REJECTED"
@@ -413,12 +431,10 @@ export default function HRVerificationsPage() {
                     : t("REJECTED_HR")}
                 </button>
 
-
-
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                  className="rounded-lg border border-gray-200 bg-white px-8 py-2.5 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 transition-all"
                 >
                   {t("cancel")}
                 </button>
@@ -432,56 +448,49 @@ export default function HRVerificationsPage() {
           )}
         </div>
 
-        <div className="rounded-xl border bg-white shadow-sm">
-          <div className="border-b px-6 py-4">
-            <h2 className="text-lg font-semibold text-gray-900">
+        <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+          <div className="border-b border-gray-50 bg-gray-50/30 px-6 py-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400">
               Verified / Rejected Requests
             </h2>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b bg-gray-50 text-xs uppercase text-gray-500">
+              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
                 <tr>
-                  <th className="px-4 py-3">ID</th>
-                  <th className="px-4 py-3">{t("educationRequests")} ID</th>
-                  <th className="px-4 py-3">{t("semester1Score")}</th>
-                  <th className="px-4 py-3">{t("semester2Score")}</th>
-                  <th className="px-4 py-3">{t("averageScore")}</th>
-                  <th className="px-4 py-3">{t("disciplineRecord")}</th>
-                  <th className="px-4 py-3">{t("status")}</th>
-                  <th className="px-4 py-3">{t("verifiedBy")}</th>
-                  <th className="px-4 py-3">{t("verifiedAt")}</th>
+                  <th className="px-6 py-4">ID</th>
+                  <th className="px-6 py-4">{t("educationRequests")} ID</th>
+                  <th className="px-6 py-4">{t("semester1Score")}</th>
+                  <th className="px-6 py-4">{t("semester2Score")}</th>
+                  <th className="px-6 py-4 text-blue-600">{t("averageScore")}</th>
+                  <th className="px-6 py-4">{t("disciplineRecord")}</th>
+                  <th className="px-6 py-4">{t("status")}</th>
+                  <th className="px-6 py-4">{t("verifiedBy")}</th>
+                  <th className="px-6 py-4">{t("verifiedAt")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {verifications.length > 0 ? (
                   verifications.map((verification) => (
-                    <tr key={verification.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3">{verification.id}</td>
-                      <td className="px-4 py-3">#{verification.requestId}</td>
-                      <td className="px-4 py-3">
-                        {verification.semester1Score}
-                      </td>
-                      <td className="px-4 py-3">
-                        {verification.semester2Score}
-                      </td>
-                      <td className="px-4 py-3">{verification.averageScore}</td>
-                      <td className="px-4 py-3 text-xs">
-                        <div className="flex flex-col gap-0.5">
-                          <span className={`inline-flex w-fit rounded-full px-2 py-0.5 text-[10px] font-medium ${verification.hasDiscipline ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
+                    <tr key={verification.id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="px-6 py-4 text-xs font-bold text-blue-600 uppercase">VER-{verification.id.toString().slice(-6)}</td>
+                      <td className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">REQ-{verification.requestId.toString().slice(-6)}</td>
+                      <td className="px-6 py-4 font-medium text-gray-700">{verification.semester1Score}</td>
+                      <td className="px-6 py-4 font-medium text-gray-700">{verification.semester2Score}</td>
+                      <td className="px-6 py-4 font-bold text-blue-700 tracking-tight">{verification.averageScore}%</td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col gap-1">
+                          <span className={`inline-flex w-fit rounded-lg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${verification.hasDiscipline ? "bg-red-50 text-red-600 border border-red-100" : "bg-emerald-50 text-emerald-600 border border-emerald-100"}`}>
                             {verification.hasDiscipline ? t("yes") : t("no")}
                           </span>
-                          {verification.disciplineDescription && (
-                            <p className="max-w-[120px] truncate text-[9px] text-gray-400" title={verification.disciplineDescription}>{verification.disciplineDescription}</p>
-                          )}
                         </div>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-6 py-4">
                         {renderVerificationStatus(verification.status)}
                       </td>
-                      <td className="px-4 py-3">{verification.verifiedBy}</td>
-                      <td className="px-4 py-3">{verification.verifiedAt}</td>
+                      <td className="px-6 py-4 text-xs font-medium text-gray-500 italic">{verification.verifiedBy}</td>
+                      <td className="px-6 py-4 text-xs font-medium text-gray-400">{verification.verifiedAt}</td>
                     </tr>
                   ))
                 ) : (

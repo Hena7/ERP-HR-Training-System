@@ -246,16 +246,20 @@ export default function EducationOpportunitiesPage() {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              <BookOpen className="mr-2 inline-block h-8 w-8 text-blue-600" />
-              {t("educationOpportunities")}
-            </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              {isCenterUser
-                ? "Create and target education opportunities to specific departments."
-                : "View only the education opportunities assigned to your department."}
-            </p>
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
+              <BookOpen className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {t("educationOpportunities")}
+              </h1>
+              <p className="text-sm text-gray-500 font-medium italic">
+                {isCenterUser
+                  ? "Create and target education opportunities to specific departments."
+                  : `View educational opportunities available for your department.`}
+              </p>
+            </div>
           </div>
 
           {isCenterUser && (
@@ -265,7 +269,7 @@ export default function EducationOpportunitiesPage() {
                 setFormData(emptyForm);
                 setShowForm((prev) => !prev);
               }}
-              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700"
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:bg-blue-700 hover:-translate-y-0.5"
             >
               <Plus className="h-4 w-4" />
               {t("newOpportunity")}
@@ -276,13 +280,13 @@ export default function EducationOpportunitiesPage() {
         {isDepartmentHead && !isCenterUser && userDepartment && (
           <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-800">
             Your department:{" "}
-            <span className="font-semibold">{userDepartment}</span>
+            <span className="font-semibold text-blue-900">{userDepartment}</span>
           </div>
         )}
 
         {showForm && isCenterUser && (
-          <div className="rounded-xl border bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold">
+          <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+            <h2 className="mb-4 text-lg font-bold text-gray-900">
               {editId ? t("editOpportunity") : t("addOpportunity")}
             </h2>
 
@@ -297,7 +301,7 @@ export default function EducationOpportunitiesPage() {
                 <input
                   type="text"
                   required
-                  className="w-full rounded-lg border p-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                   value={formData.educationType}
                   onChange={(e) =>
                     setFormData({ ...formData, educationType: e.target.value })
@@ -312,7 +316,7 @@ export default function EducationOpportunitiesPage() {
                 <input
                   type="text"
                   required
-                  className="w-full rounded-lg border p-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                   value={formData.educationLevel}
                   onChange={(e) =>
                     setFormData({ ...formData, educationLevel: e.target.value })
@@ -327,7 +331,7 @@ export default function EducationOpportunitiesPage() {
                 <input
                   type="text"
                   required
-                  className="w-full rounded-lg border p-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                   value={formData.institution}
                   onChange={(e) =>
                     setFormData({ ...formData, institution: e.target.value })
@@ -341,7 +345,7 @@ export default function EducationOpportunitiesPage() {
                     {t("opportunityStatus")}
                   </label>
                   <select
-                    className="w-full rounded-lg border p-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                     value={formData.status}
                     onChange={(e) =>
                       setFormData({
@@ -363,7 +367,7 @@ export default function EducationOpportunitiesPage() {
                   <input
                     type="date"
                     required
-                    className="w-full rounded-lg border p-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                     value={formData.deadline}
                     onChange={(e) =>
                       setFormData({ ...formData, deadline: e.target.value })
@@ -417,7 +421,7 @@ export default function EducationOpportunitiesPage() {
                   {t("description")}
                 </label>
                 <textarea
-                  className="w-full rounded-lg border p-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                   rows={3}
                   value={formData.description}
                   onChange={(e) =>
@@ -426,17 +430,17 @@ export default function EducationOpportunitiesPage() {
                 />
               </div>
 
-              <div className="flex gap-2 md:col-span-2">
+              <div className="flex gap-2 md:col-span-2 pt-4 border-t border-gray-50">
                 <button
                   type="submit"
-                  className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                  className="rounded-lg bg-blue-600 px-6 py-2 text-sm font-bold text-white shadow-md transition-all hover:bg-blue-700 hover:-translate-y-0.5"
                 >
                   {t("save")}
                 </button>
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="rounded-lg border px-4 py-2 text-gray-700 hover:bg-gray-50"
+                  className="rounded-lg border border-gray-200 px-6 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   {t("cancel")}
                 </button>
@@ -446,31 +450,31 @@ export default function EducationOpportunitiesPage() {
         )}
 
         <div className="rounded-xl border bg-white shadow-sm">
-          <div className="border-b border-gray-100 p-4">
-            <div className="relative max-w-sm">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <div className="border-b border-gray-100 p-6 flex items-center justify-between bg-gray-50/30">
+            <div className="relative group w-full max-w-sm">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 transition-colors group-focus-within:text-blue-500" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder={`${t("search")}...`}
-                className="w-full rounded-lg border py-2 pl-10 pr-4 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                placeholder="Search opportunities..."
+                className="w-full rounded-xl border border-gray-100 bg-white py-2.5 pl-11 pr-4 text-sm font-medium transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none shadow-sm"
               />
             </div>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-gray-600">
+              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400 border-b border-gray-100">
                 <tr>
-                  <th className="p-4 font-medium">{t("educationType")}</th>
-                  <th className="p-4 font-medium">{t("educationLevel")}</th>
-                  <th className="p-4 font-medium">{t("institution")}</th>
-                  <th className="p-4 font-medium">Target Departments</th>
-                  <th className="p-4 font-medium">{t("deadline")}</th>
-                  <th className="p-4 font-medium">{t("status")}</th>
+                  <th className="px-6 py-5">{t("educationType")}</th>
+                  <th className="px-6 py-5">{t("educationLevel")}</th>
+                  <th className="px-6 py-5">{t("institution")}</th>
+                  <th className="px-6 py-5">Target Departments</th>
+                  <th className="px-6 py-5">{t("deadline")}</th>
+                  <th className="px-6 py-5">{t("status")}</th>
                   {isCenterUser && (
-                    <th className="p-4 font-medium">{t("actions")}</th>
+                    <th className="px-6 py-5 text-right">{t("actions")}</th>
                   )}
                 </tr>
               </thead>
@@ -485,44 +489,44 @@ export default function EducationOpportunitiesPage() {
                         : [];
 
                   return (
-                    <tr key={opp.id} className="hover:bg-gray-50/50">
-                      <td className="p-4 font-medium text-gray-900">
+                    <tr key={opp.id} className="hover:bg-gray-50/50 transition-colors group">
+                      <td className="px-6 py-5 font-bold text-gray-900 uppercase tracking-tight">
                         {opp.educationType}
                       </td>
-                      <td className="p-4">{opp.educationLevel}</td>
-                      <td className="p-4">{opp.institution}</td>
-                      <td className="p-4">
+                      <td className="px-6 py-5 font-medium text-gray-600 italic text-xs">{opp.educationLevel}</td>
+                      <td className="px-6 py-5 font-medium text-gray-800">{opp.institution}</td>
+                      <td className="px-6 py-5">
                         <div className="flex flex-wrap gap-2">
                           {targets.map((department) => (
                             <span
                               key={`${opp.id}-${department}`}
-                              className="rounded-full bg-blue-50 px-2.5 py-1 text-xs text-blue-700"
+                              className="rounded-lg bg-blue-50 border border-blue-100 px-2.5 py-1 text-[10px] font-bold text-blue-600 uppercase tracking-widest italic"
                             >
                               {department}
                             </span>
                           ))}
                         </div>
                       </td>
-                      <td className="p-4 whitespace-nowrap">
+                      <td className="px-6 py-5 text-xs font-bold text-gray-500 whitespace-nowrap">
                         {opp.deadline || "-"}
                       </td>
-                      <td className="p-4">
+                      <td className="px-6 py-5">
                         <StatusBadge status={opp.status} />
                       </td>
 
                       {isCenterUser && (
-                        <td className="p-4">
-                          <div className="flex gap-2">
+                        <td className="px-6 py-5 text-right">
+                          <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={() => handleEdit(opp)}
-                              className="rounded p-1 text-blue-600 hover:bg-blue-50"
+                              className="rounded-lg p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
                               title={t("edit")}
                             >
                               <Edit className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => handleDelete(opp.id)}
-                              className="rounded p-1 text-red-600 hover:bg-red-50"
+                              className="rounded-lg p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all"
                               title={t("delete")}
                             >
                               <Trash2 className="h-4 w-4" />

@@ -36,31 +36,32 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed left-64 right-0 top-0 z-30 flex h-16 items-center justify-between border-b bg-white px-6 shadow-sm">
+    <header className="fixed left-64 right-0 top-0 z-30 flex h-16 items-center justify-between border-b border-gray-100 bg-white/80 px-6 backdrop-blur-md">
       <div className="flex items-center gap-3">
-        <img src="/INSA_LOGO.png" alt="INSA" className="h-8 w-8 object-contain" />
-        <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide">{t("orgName")}</h2>
+        <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400">{t("orgName")}</h2>
       </div>
       <div className="flex items-center gap-4">
         <LanguageToggle />
         {user && (
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-1.5">
-              <User className="h-4 w-4 text-blue-600" />
-              <div className="text-sm">
-                <span className="font-medium text-blue-900">
+            <div className="flex items-center gap-3 rounded-lg bg-blue-50/50 border border-blue-100 px-4 py-1.5">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 shadow-sm shadow-blue-200">
+                <User className="h-4 w-4 text-white" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-bold text-gray-900 leading-none">
                   {user.fullName}
                 </span>
-                <span className="ml-2 rounded bg-blue-100 px-1.5 py-0.5 text-xs text-blue-700">
+                <span className="mt-1 text-[10px] font-bold uppercase tracking-tighter text-blue-600">
                   {roleLabel(user.role)}
                 </span>
               </div>
             </div>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-1 rounded-lg border border-red-200 px-3 py-1.5 text-sm text-red-600 transition-colors hover:bg-red-50"
+              className="group flex items-center gap-2 rounded-lg border border-gray-100 bg-white px-3 py-1.5 text-xs font-bold text-gray-500 transition-all hover:border-red-100 hover:bg-red-50 hover:text-red-600"
             >
-              <LogOut className="h-4 w-4" />
+              <LogOut className="h-3.5 w-3.5 text-gray-400 group-hover:text-red-500" />
               {t("logout")}
             </button>
           </div>

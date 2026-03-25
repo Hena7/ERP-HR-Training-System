@@ -162,40 +162,44 @@ export default function CDCScoringPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <BarChart3 className="h-6 w-6 text-blue-600" />
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
+            <BarChart3 className="h-6 w-6 text-white" />
+          </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{t("cdcScoring")}</h1>
-            <p className="text-sm text-gray-500">
-              {t("experienceWeight")}: {config.experienceWeight * 100}% · 
-              {t("performanceWeight")}: {config.performanceWeight * 100}% · 
-              {t("disciplineWeight")}: {config.disciplineWeight * 100}%
+            <p className="text-sm text-gray-500 font-medium italic">
+              {t("experienceWeight")}: {(config.experienceWeight * 100).toFixed(0)}% · 
+              {t("performanceWeight")}: {(config.performanceWeight * 100).toFixed(0)}% · 
+              {t("disciplineWeight")}: {(config.disciplineWeight * 100).toFixed(0)}%
             </p>
           </div>
           <button
             onClick={() => setIsConfigOpen(true)}
-            className="ml-auto inline-flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm"
+            className="ml-auto inline-flex items-center gap-2 rounded-lg border border-gray-100 bg-white px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 shadow-sm transition-colors"
           >
             <Settings className="h-4 w-4" />
             {t("scoringConfig")}
           </button>
         </div>
 
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">
-            {t("hrVerifiedRequests")}
-          </h2>
+        <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+          <div className="border-b border-gray-50 bg-gray-50/30 px-6 py-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400">
+              {t("hrVerifiedRequests")}
+            </h2>
+          </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b bg-gray-50 text-xs uppercase text-gray-500">
+              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
                 <tr>
-                  <th className="px-4 py-3">ID</th>
-                  <th className="px-4 py-3">{t("fullName")}</th>
-                  <th className="px-4 py-3">{t("workExperience")}</th>
-                  <th className="px-4 py-3">{t("averageScore")} (HR)</th>
-                  <th className="px-4 py-3">{t("disciplineRecord")}</th>
-                  <th className="px-4 py-3 text-right">{t("actions")}</th>
+                  <th className="px-6 py-4">ID</th>
+                  <th className="px-6 py-4">{t("fullName")}</th>
+                  <th className="px-6 py-4">{t("workExperience")}</th>
+                  <th className="px-6 py-4">{t("averageScore")} (HR)</th>
+                  <th className="px-6 py-4">{t("disciplineRecord")}</th>
+                  <th className="px-6 py-4 text-right">{t("actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -205,27 +209,27 @@ export default function CDCScoringPage() {
                     const hrVer = hrVerifications[request.id];
 
                     return (
-                      <tr key={request.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3">#{request.id}</td>
-                        <td className="px-4 py-3 font-medium text-gray-900">
+                      <tr key={request.id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-6 py-4 text-xs font-bold text-blue-600">REQ-{request.id.toString().slice(-6)}</td>
+                        <td className="px-6 py-4 font-bold text-gray-900">
                           {request.employeeName}
                         </td>
-                        <td className="px-4 py-3">{request.workExperience}</td>
-                        <td className="px-4 py-3">
+                        <td className="px-6 py-4 font-medium text-gray-700">{request.workExperience} Years</td>
+                        <td className="px-6 py-4 font-bold text-gray-900">
                           {hrVer ? hrVer.averageScore : "-"}
                         </td>
-                        <td className="px-4 py-3">
-                            <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${request.description?.toLowerCase().includes("discipline") ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
+                        <td className="px-6 py-4">
+                            <span className={`inline-flex rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${request.description?.toLowerCase().includes("discipline") ? "bg-red-50 text-red-600 border border-red-100" : "bg-emerald-50 text-emerald-600 border border-emerald-100"}`}>
                                 {request.description?.toLowerCase().includes("discipline") ? t("hasDisciplineRecord") : t("noDisciplineRecord")}
                             </span>
                         </td>
-                        <td className="px-4 py-3 text-right">
+                        <td className="px-6 py-4 text-right">
                           <button
                             onClick={() => handleRequestSelect(request)}
-                            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                            className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
                               isSelected
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-blue-600 text-white hover:bg-blue-700"
+                                ? "bg-blue-600 text-white shadow-blue-200"
+                                : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
                             }`}
                           >
                             {isSelected ? "Selected" : t("scoreRequest")}
@@ -246,34 +250,36 @@ export default function CDCScoringPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">
+        <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+          <h2 className="mb-6 text-sm font-bold uppercase tracking-widest text-gray-400">
             {t("cdcScoringTitle")}
           </h2>
 
           {selectedRequest ? (
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 gap-4 rounded-lg border bg-blue-50/50 p-4 md:grid-cols-3">
-                <div className="flex items-start gap-3">
-                    <Info className="mt-0.5 h-4 w-4 text-blue-500" />
+              <div className="grid grid-cols-1 gap-6 rounded-xl border border-blue-100 bg-blue-50/30 p-6 md:grid-cols-3">
+                <div className="flex items-start gap-4">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100">
+                        <Info className="h-5 w-5 text-blue-600" />
+                    </div>
                     <div>
-                        <p className="text-xs uppercase text-gray-500 font-bold">{t("fullName")}</p>
-                        <p className="font-medium text-gray-900">{selectedRequest.employeeName}</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">{t("fullName")}</p>
+                        <p className="text-sm font-bold text-gray-900">{selectedRequest.employeeName}</p>
                     </div>
                 </div>
                 <div>
-                   <p className="text-xs uppercase text-gray-500 font-bold">{t("workExperience")}</p>
-                   <p className="font-medium text-gray-900">{selectedRequest.workExperience} {t("years") || "Years"}</p>
+                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">{t("workExperience")}</p>
+                   <p className="text-sm font-bold text-gray-900">{selectedRequest.workExperience} {t("years") || "Years"}</p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase text-gray-500 font-bold">{t("averageScore")} (HR)</p>
-                  <p className="font-medium text-gray-900">{hrVerifications[selectedRequest.id]?.averageScore || "-"}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">{t("averageScore")} (HR)</p>
+                  <p className="text-sm font-bold text-gray-900">{hrVerifications[selectedRequest.id]?.averageScore || "-"}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
                     {t("experienceScore")}
                   </label>
                   <input
@@ -283,12 +289,12 @@ export default function CDCScoringPage() {
                     required
                     value={form.experienceScore}
                     onChange={(e) => setForm({ ...form, experienceScore: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                     placeholder="0-100"
                   />
                 </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
                     {t("performanceScore")}
                   </label>
                   <input
@@ -299,12 +305,12 @@ export default function CDCScoringPage() {
                     required
                     value={form.performanceScore}
                     onChange={(e) => setForm({ ...form, performanceScore: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                     placeholder="0-100"
                   />
                 </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
                     {t("disciplineScore")}
                   </label>
                   <input
@@ -314,29 +320,29 @@ export default function CDCScoringPage() {
                     required
                     value={form.disciplineScore}
                     onChange={(e) => setForm({ ...form, disciplineScore: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                     placeholder="0-100"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-between rounded-lg bg-gray-900 p-4 text-white">
+              <div className="flex items-center justify-between rounded-xl bg-blue-900 px-6 py-5 text-white shadow-xl">
                 <div>
-                  <p className="text-xs uppercase opacity-70 font-bold">{t("totalScore")}</p>
-                  <p className="text-2xl font-bold">{totalScore || "0.00"}%</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-0.5">{t("totalScore")}</p>
+                  <p className="text-3xl font-bold tracking-tight">{totalScore || "0.00"}<span className="text-lg ml-0.5 opacity-60">%</span></p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex items-center gap-4">
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="rounded-lg border border-white/20 px-4 py-2 text-sm font-medium hover:bg-white/10 transition-colors"
+                    className="rounded-lg border border-white/20 px-5 py-2.5 text-sm font-bold hover:bg-white/10 transition-all"
                   >
                     {t("cancel")}
                   </button>
                   <button
                     type="submit"
                     disabled={loading || !totalScore}
-                    className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-6 py-2 text-sm font-medium text-white hover:bg-blue-600 transition-colors disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-8 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-900/40 hover:bg-blue-600 transition-all disabled:opacity-50"
                   >
                     <CheckCircle2 className="h-4 w-4" />
                     {loading ? t("loading") : t("submit")}
@@ -351,36 +357,36 @@ export default function CDCScoringPage() {
           )}
         </div>
 
-        <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
-          <div className="border-b px-6 py-4 bg-gray-50">
-            <h2 className="text-lg font-semibold text-gray-900">{t("scoredRequests")}</h2>
+        <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+          <div className="border-b border-gray-50 bg-gray-50/30 px-6 py-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400">{t("scoredRequests")}</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b bg-gray-50 text-xs uppercase text-gray-500">
+              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
                 <tr>
-                  <th className="px-4 py-3">ID</th>
-                  <th className="px-4 py-3">{t("educationRequests")} ID</th>
-                  <th className="px-4 py-3">Exp%</th>
-                  <th className="px-4 py-3">Perf%</th>
-                  <th className="px-4 py-3">Disc%</th>
-                  <th className="px-4 py-3 font-bold text-blue-600">{t("totalScore")}</th>
-                  <th className="px-4 py-3">{t("gradedBy")}</th>
-                  <th className="px-4 py-3">{t("verifiedAt")}</th>
+                  <th className="px-6 py-4">ID</th>
+                  <th className="px-6 py-4">{t("educationRequests")} ID</th>
+                  <th className="px-6 py-4">Exp%</th>
+                  <th className="px-6 py-4">Perf%</th>
+                  <th className="px-6 py-4">Disc%</th>
+                  <th className="px-6 py-4 text-blue-600">{t("totalScore")}</th>
+                  <th className="px-6 py-4">{t("gradedBy")}</th>
+                  <th className="px-6 py-4">{t("verifiedAt")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {scorings.length > 0 ? (
                   scorings.map((s) => (
-                    <tr key={s.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3">{s.id}</td>
-                      <td className="px-4 py-3">#{s.requestId}</td>
-                      <td className="px-4 py-3">{s.experienceScore}</td>
-                      <td className="px-4 py-3">{s.performanceScore}</td>
-                      <td className="px-4 py-3">{s.disciplineScore}</td>
-                      <td className="px-4 py-3 font-bold text-blue-700">{s.totalScore}%</td>
-                      <td className="px-4 py-3 text-xs">{s.gradedBy}</td>
-                      <td className="px-4 py-3 text-xs">{new Date(s.createdAt).toLocaleDateString()}</td>
+                    <tr key={s.id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="px-6 py-4 text-xs font-bold text-blue-600">SCR-{s.id.toString().slice(-6)}</td>
+                      <td className="px-6 py-4 text-xs font-bold text-gray-500">REQ-{s.requestId.toString().slice(-6)}</td>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-700">{s.experienceScore}</td>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-700">{s.performanceScore}</td>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-700">{s.disciplineScore}</td>
+                      <td className="px-6 py-4 font-bold text-blue-700">{s.totalScore}%</td>
+                      <td className="px-6 py-4 text-xs font-medium text-gray-500">{s.gradedBy}</td>
+                      <td className="px-6 py-4 text-xs font-medium text-gray-400">{new Date(s.createdAt).toLocaleDateString()}</td>
                     </tr>
                   ))
                 ) : (
@@ -397,21 +403,21 @@ export default function CDCScoringPage() {
       </div>
 
       {isConfigOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-gray-900">{t("scoringConfig")}</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-2xl border border-gray-100">
+            <div className="mb-8 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-gray-900 uppercase tracking-tight">{t("scoringConfig")}</h3>
               <button 
                 onClick={() => setIsConfigOpen(false)}
-                className="rounded-full p-1 hover:bg-gray-100"
+                className="rounded-lg p-1.5 hover:bg-gray-100 transition-colors"
               >
                 <X className="h-5 w-5 text-gray-500" />
               </button>
             </div>
 
-            <form onSubmit={handleUpdateConfig} className="space-y-4">
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+            <form onSubmit={handleUpdateConfig} className="space-y-5">
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
                   {t("experienceWeight")} (0.0 - 1.0)
                 </label>
                 <input
@@ -422,11 +428,11 @@ export default function CDCScoringPage() {
                   required
                   value={configForm.experienceWeight}
                   onChange={(e) => setConfigForm({ ...configForm, experienceWeight: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                 />
               </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
                   {t("performanceWeight")} (0.0 - 1.0)
                 </label>
                 <input
@@ -437,11 +443,11 @@ export default function CDCScoringPage() {
                   required
                   value={configForm.performanceWeight}
                   onChange={(e) => setConfigForm({ ...configForm, performanceWeight: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                 />
               </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
                   {t("disciplineWeight")} (0.0 - 1.0)
                 </label>
                 <input
@@ -452,34 +458,34 @@ export default function CDCScoringPage() {
                   required
                   value={configForm.disciplineWeight}
                   onChange={(e) => setConfigForm({ ...configForm, disciplineWeight: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                 />
               </div>
 
-              <div className="rounded-lg bg-blue-50 p-3">
-                <p className="text-xs text-blue-700">
-                  <Info className="mr-1 inline h-3 w-3" />
+              <div className="rounded-lg bg-blue-50/50 border border-blue-100 p-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-2">
+                  <Info className="mr-1 inline h-3.5 w-3.5" />
                   {t("weightSumError")}
                 </p>
-                <p className="mt-1 text-sm font-bold text-blue-900">
-                  Total: {(Number(configForm.experienceWeight) + Number(configForm.performanceWeight) + Number(configForm.disciplineWeight)).toFixed(2)}
+                <p className="text-xl font-bold text-blue-900">
+                  {(Number(configForm.experienceWeight) + Number(configForm.performanceWeight) + Number(configForm.disciplineWeight)).toFixed(2)}
                 </p>
               </div>
 
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsConfigOpen(false)}
-                  className="flex-1 rounded-lg border py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                >
-                  {t("cancel")}
-                </button>
+              <div className="flex gap-4 pt-2">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 rounded-lg bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                  className="flex-1 rounded-lg bg-blue-600 py-3.5 text-sm font-bold text-white shadow-md transition-all hover:bg-blue-700 disabled:opacity-50"
                 >
                   {loading ? t("loading") : t("updateWeights")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsConfigOpen(false)}
+                  className="flex-1 rounded-lg border border-gray-200 bg-white py-3.5 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50"
+                >
+                  {t("cancel")}
                 </button>
               </div>
             </form>

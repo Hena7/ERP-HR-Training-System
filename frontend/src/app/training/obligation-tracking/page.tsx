@@ -73,30 +73,30 @@ export default function ObligationTrackingPage() {
   };
 
   const fieldClass =
-    "w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-medium focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-100 transition-all";
+    "w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all";
   const labelClass =
-    "block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1.5";
+    "block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5";
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 shadow-lg">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
               <Clock className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900">
                 {t("obligationTracking")}
               </h1>
-              <p className="text-sm text-gray-500 font-medium">
+              <p className="text-sm text-gray-500 font-medium italic">
                 {obligations.length} obligation record(s)
               </p>
             </div>
           </div>
           <button
             onClick={() => setShowAdd(true)}
-            className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-rose-600 to-pink-600 px-5 py-2.5 text-sm font-black text-white hover:opacity-90 transition-all shadow-lg shadow-rose-200"
+            className="flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-700 transition-all shadow-md"
           >
             <Plus className="h-4 w-4" /> {t("startDate")} Obligation
           </button>
@@ -105,8 +105,8 @@ export default function ObligationTrackingPage() {
         {/* Add Form Modal */}
         {showAdd && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-            <div className="w-full max-w-lg rounded-3xl bg-white shadow-2xl border-2 border-gray-100 p-6 space-y-4">
-              <h3 className="text-sm font-black text-gray-900">New Obligation Record</h3>
+            <div className="w-full max-w-lg rounded-xl bg-white shadow-2xl border border-gray-100 p-6 space-y-4">
+              <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest">New Obligation Record</h3>
               <form onSubmit={handleCreate} className="space-y-4">
                 <div>
                   <label className={labelClass}>Contract</label>
@@ -134,10 +134,10 @@ export default function ObligationTrackingPage() {
                   <input type="number" value={form.obligationMonths} onChange={(e) => setForm({ ...form, obligationMonths: e.target.value })} required className={fieldClass} placeholder="e.g. 24" />
                 </div>
                 <div className="flex gap-3">
-                  <button type="submit" className="flex-1 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 px-4 py-2.5 text-sm font-black text-white hover:opacity-90">
-                    Create
+                  <button type="submit" className="flex-1 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 transition-all">
+                    Create Record
                   </button>
-                  <button type="button" onClick={() => setShowAdd(false)} className="rounded-xl border-2 border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50">
+                  <button type="button" onClick={() => setShowAdd(false)} className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors">
                     {t("cancel")}
                   </button>
                 </div>
@@ -147,12 +147,12 @@ export default function ObligationTrackingPage() {
         )}
 
         {/* Table */}
-        <div className="rounded-2xl border-2 border-gray-100 bg-white shadow-sm overflow-hidden">
+        <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
           <table className="min-w-full divide-y divide-gray-100">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50/80 text-[10px] font-bold uppercase tracking-widest text-gray-400">
               <tr>
                 {["OBL-ID", t("fullName"), t("startDate"), t("endDate"), t("obligationMonths"), t("status"), t("actions")].map((h) => (
-                  <th key={h} className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-gray-500">{h}</th>
+                  <th key={h} className="px-6 py-4 text-left">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -173,8 +173,8 @@ export default function ObligationTrackingPage() {
                   const sc = statusConfig[ob.status] || statusConfig.ACTIVE;
                   const Icon = sc.icon;
                   return (
-                    <tr key={ob.id} className="hover:bg-gray-50/80 transition-colors">
-                      <td className="px-6 py-4 text-xs font-black text-rose-700">OBL-{ob.id.toString().slice(-6)}</td>
+                    <tr key={ob.id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="px-6 py-4 text-xs font-bold text-blue-600">OBL-{ob.id.toString().slice(-6)}</td>
                       <td className="px-6 py-4 text-sm font-semibold text-gray-900">{ob.employeeName}</td>
                       <td className="px-6 py-4 text-sm text-gray-700">{ob.startDate}</td>
                       <td className="px-6 py-4 text-sm text-gray-700">{ob.endDate}</td>

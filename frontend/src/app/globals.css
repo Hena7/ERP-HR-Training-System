@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --brand-blue-50: 239 246 255;
+    --brand-blue-100: 219 234 254;
+    --brand-blue-600: 37 99 235;
+    --brand-blue-700: 29 78 216;
+    --brand-blue-900: 30 58 138;
+  }
+}

@@ -81,7 +81,12 @@ const eduNavItems: NavItem[] = [
     href: "/education-requests",
     labelKey: "navRequests",
     icon: <FileText className="h-5 w-5" />,
-    roles: ["DEPARTMENT_HEAD", "HR_OFFICER", "CYBER_DEVELOPMENT_CENTER", "ADMIN"],
+    roles: [
+      "DEPARTMENT_HEAD",
+      "HR_OFFICER",
+      "CYBER_DEVELOPMENT_CENTER",
+      "ADMIN",
+    ],
   },
   {
     href: "/hr-verifications",
@@ -117,13 +122,23 @@ const eduNavItems: NavItem[] = [
     href: "/progress-reports",
     labelKey: "navReports",
     icon: <BarChart3 className="h-5 w-5" />,
-    roles: ["DEPARTMENT_HEAD", "HR_OFFICER", "CYBER_DEVELOPMENT_CENTER", "ADMIN"],
+    roles: [
+      "DEPARTMENT_HEAD",
+      "HR_OFFICER",
+      "CYBER_DEVELOPMENT_CENTER",
+      "ADMIN",
+    ],
   },
   {
     href: "/completions",
     labelKey: "navCompletions",
     icon: <GraduationCap className="h-5 w-5" />,
-    roles: ["DEPARTMENT_HEAD", "HR_OFFICER", "CYBER_DEVELOPMENT_CENTER", "ADMIN"],
+    roles: [
+      "DEPARTMENT_HEAD",
+      "HR_OFFICER",
+      "CYBER_DEVELOPMENT_CENTER",
+      "ADMIN",
+    ],
   },
   {
     href: "/service-obligations",
@@ -143,7 +158,7 @@ const trainingNavItems: NavItem[] = [
   },
   {
     href: "/training/requests-list",
-    labelKey: "navTrainingRequests",
+    labelKey: "navTrainingRequestLists",
     icon: <Briefcase className="h-5 w-5" />,
     roles: ["PROCUREMENT", "HR_OFFICER", "ADMIN"],
   },
@@ -201,9 +216,9 @@ export default function Sidebar() {
       <Link
         key={item.href}
         href={item.href}
-        className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+        className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-bold transition-all ${
           isActive
-            ? "bg-blue-700 text-white"
+            ? "bg-blue-600 text-white shadow-md shadow-blue-900/50"
             : "text-blue-100 hover:bg-blue-800 hover:text-white"
         }`}
       >
@@ -216,14 +231,20 @@ export default function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-blue-900 text-white shadow-xl flex flex-col">
       {/* Logo */}
-      <div className="flex h-20 flex-shrink-0 items-center gap-3 border-b border-blue-800 px-4">
-        <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg bg-white p-1">
-          <img src="/INSA_LOGO.png" alt="INSA Logo" className="h-full w-full object-contain" />
+      <div className="flex h-20 flex-shrink-0 items-center gap-3 border-b border-blue-800/50 px-4">
+        <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-white p-1.5 shadow-sm">
+          <img
+            src="/INSA_LOGO.png"
+            alt="INSA Logo"
+            className="h-full w-full object-contain"
+          />
         </div>
         <div className="flex flex-col">
-          <span className="text-sm font-bold leading-tight">{t("appName")}</span>
-          <span className="text-[10px] text-blue-300 uppercase tracking-wider font-semibold">
-            Security Administration
+          <span className="text-sm font-bold leading-tight tracking-tight text-white">
+            {t("appName")}
+          </span>
+          <span className="text-[10px] text-blue-400 uppercase tracking-widest font-bold">
+            Security Admin
           </span>
         </div>
       </div>
@@ -239,16 +260,16 @@ export default function Sidebar() {
             <div className="mt-3">
               <button
                 onClick={() => setEduOpen((o) => !o)}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-bold text-blue-200 hover:bg-blue-800 transition-colors"
+                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-bold uppercase tracking-widest text-blue-400 hover:bg-blue-800 transition-colors"
               >
                 <span className="flex items-center gap-2">
                   <GraduationCap className="h-4 w-4" />
                   {t("educationModule")}
                 </span>
                 {eduOpen ? (
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="h-3.5 w-3.5" />
                 ) : (
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-3.5 w-3.5" />
                 )}
               </button>
             </div>
@@ -266,16 +287,16 @@ export default function Sidebar() {
             <div className="mt-3">
               <button
                 onClick={() => setTrainingOpen((o) => !o)}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-bold text-blue-200 hover:bg-blue-800 transition-colors"
+                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-bold uppercase tracking-widest text-blue-400 hover:bg-blue-800 transition-colors"
               >
                 <span className="flex items-center gap-2">
                   <Package className="h-4 w-4" />
                   {t("trainingModule")}
                 </span>
                 {trainingOpen ? (
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="h-3.5 w-3.5" />
                 ) : (
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-3.5 w-3.5" />
                 )}
               </button>
             </div>

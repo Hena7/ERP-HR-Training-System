@@ -87,29 +87,29 @@ export default function TrainingGuarantorFormPage() {
   };
 
   const fieldClass =
-    "w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-100 transition-all";
+    "w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all";
   const labelClass =
-    "block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1.5";
+    "block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5";
 
   return (
     <DashboardLayout>
       <div className="max-w-3xl mx-auto space-y-6">
         <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
             <Shield className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900">
               {t("navTrainingGuarantors")}
             </h1>
-            <p className="text-sm text-gray-500 font-medium">
+            <p className="text-sm text-gray-500 font-medium italic">
               {t("maxGuarantors")}
             </p>
           </div>
         </div>
 
         {/* Contract Selector */}
-        <div className="rounded-2xl border-2 border-gray-100 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
           <label className={labelClass}>{t("trainingContracts")}</label>
           <select
             value={selectedContract}
@@ -127,15 +127,15 @@ export default function TrainingGuarantorFormPage() {
 
         {/* Existing Guarantors */}
         {guarantors.length > 0 && (
-          <div className="rounded-2xl border-2 border-gray-100 bg-white p-6 shadow-sm space-y-3">
-            <h2 className="text-xs font-black uppercase tracking-widest text-gray-700 mb-2">
+          <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm space-y-3">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-gray-700 mb-2">
               Current Guarantors ({guarantors.length}/2)
             </h2>
             {guarantors.map((g, i) => (
-              <div key={g.id} className="flex items-center justify-between rounded-xl bg-gray-50 border border-gray-100 px-4 py-3">
+              <div key={g.id} className="flex items-center justify-between rounded-lg bg-gray-50 border border-gray-100 px-4 py-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100">
-                    <User className="h-4 w-4 text-indigo-600" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
+                    <User className="h-4 w-4 text-blue-600" />
                   </div>
                   <div>
                     <p className="text-sm font-bold text-gray-900">{g.fullName}</p>
@@ -155,21 +155,21 @@ export default function TrainingGuarantorFormPage() {
 
         {/* Success / Error */}
         {success && (
-          <div className="flex items-center gap-3 rounded-2xl bg-emerald-50 border border-emerald-200 px-5 py-4">
+          <div className="flex items-center gap-3 rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-4">
             <CheckCircle2 className="h-5 w-5 text-emerald-600" />
             <p className="text-sm font-semibold text-emerald-700">Guarantor added!</p>
           </div>
         )}
         {error && (
-          <div className="rounded-2xl bg-red-50 border border-red-200 px-5 py-4">
+          <div className="rounded-xl bg-red-50 border border-red-200 px-5 py-4">
             <p className="text-sm font-semibold text-red-700">{error}</p>
           </div>
         )}
 
         {/* Add Form */}
         {guarantors.length < 2 && (
-          <form onSubmit={handleAdd} className="rounded-2xl border-2 border-gray-100 bg-white p-6 shadow-sm space-y-4">
-            <h2 className="text-xs font-black uppercase tracking-widest text-gray-700">
+          <form onSubmit={handleAdd} className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-gray-700">
               <Plus className="inline h-3.5 w-3.5 mr-1" /> Add Guarantor
             </h2>
             <div className="grid grid-cols-2 gap-4">
@@ -195,7 +195,7 @@ export default function TrainingGuarantorFormPage() {
               </div>
               <div>
                 <label className={labelClass}>{t("uploadDocument")}</label>
-                <label className="flex items-center gap-2 cursor-pointer rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-500 hover:border-indigo-300 hover:text-indigo-600 transition-all">
+                <label className="flex items-center gap-2 cursor-pointer rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-500 hover:border-blue-300 hover:text-blue-600 transition-all select-none">
                   <Upload className="h-4 w-4" />
                   {form.scannedDocument ? "Document uploaded ✓" : "Upload signature..."}
                   <input type="file" accept="image/*,application/pdf" onChange={handleFileChange} className="hidden" />
@@ -205,7 +205,7 @@ export default function TrainingGuarantorFormPage() {
             <button
               type="submit"
               disabled={loading || !selectedContract}
-              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-4 text-sm font-black text-white hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg shadow-blue-200 disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-8 py-4 text-sm font-bold text-white hover:bg-blue-700 transition-all shadow-md disabled:opacity-60"
             >
               <Plus className="h-4 w-4" />
               {loading ? t("loading") : t("addGuarantor")}

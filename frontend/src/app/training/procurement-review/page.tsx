@@ -60,34 +60,34 @@ export default function ProcurementReviewPage() {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
             <ClipboardCheck className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900">
               {t("procurementReview")}
             </h1>
-            <p className="text-sm text-gray-500 font-medium">
+            <p className="text-sm text-gray-500 font-medium italic">
               Requests pending procurement decision
             </p>
           </div>
         </div>
 
         {/* Cost Rule Banner */}
-        <div className="flex items-center gap-3 rounded-2xl bg-amber-50 border border-amber-200 px-5 py-4">
-          <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0" />
-          <p className="text-sm font-semibold text-amber-700">
+        <div className="flex items-center gap-3 rounded-xl bg-blue-50/50 border border-blue-100 px-5 py-4">
+          <AlertTriangle className="h-5 w-5 text-blue-600 flex-shrink-0" />
+          <p className="text-sm font-bold text-blue-900">
             Cost &lt; 50,000 Birr → Approve Directly &nbsp;|&nbsp; Cost ≥ 50,000 Birr
             → Require Contract
           </p>
         </div>
 
-        <div className="rounded-2xl border-2 border-gray-100 bg-white shadow-sm overflow-hidden">
+        <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
           <table className="min-w-full divide-y divide-gray-100">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50/80 text-[10px] font-bold uppercase tracking-widest text-gray-400">
               <tr>
                 {["REQ-ID", t("department"), t("trainingTitle"), t("estimatedCost"), t("numTrainees"), t("actions")].map((h) => (
-                  <th key={h} className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-gray-500">
+                  <th key={h} className="px-6 py-4 text-left">
                     {h}
                   </th>
                 ))}
@@ -110,7 +110,7 @@ export default function ProcurementReviewPage() {
               ) : (
                 requests.map((req) => (
                   <tr key={req.id} className="hover:bg-gray-50/80 transition-colors">
-                    <td className="px-6 py-4 text-xs font-black text-indigo-700">
+                    <td className="px-6 py-4 text-xs font-bold text-blue-600">
                       TRQ-{req.id.toString().slice(-6)}
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">{req.department}</td>
@@ -140,7 +140,7 @@ export default function ProcurementReviewPage() {
                         <button
                           onClick={() => handleReject(req.id)}
                           disabled={busyId === req.id}
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700 hover:bg-red-600 hover:text-white transition-all"
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700 hover:bg-red-600 hover:text-white transition-all shadow-sm"
                         >
                           <X className="h-3.5 w-3.5" /> {t("reject")}
                         </button>
@@ -156,26 +156,26 @@ export default function ProcurementReviewPage() {
         {/* Note Modal */}
         {showNoteModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-            <div className="relative w-full max-w-md rounded-3xl bg-white shadow-2xl border-2 border-gray-100 p-6 space-y-4">
-              <h3 className="text-sm font-black text-gray-900">Add Review Note (Optional)</h3>
+            <div className="relative w-full max-w-md rounded-xl bg-white shadow-2xl border border-gray-100 p-6 space-y-4">
+              <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest">Add Review Note</h3>
               <textarea
                 rows={3}
                 value={note[showNoteModal.id] || ""}
                 onChange={(e) => setNote({ ...note, [showNoteModal.id]: e.target.value })}
-                className="w-full rounded-xl border-2 border-gray-100 bg-gray-50 px-4 py-3 text-sm font-medium focus:border-indigo-500 focus:outline-none resize-none"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-bold placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all resize-none"
                 placeholder="Leave a review note..."
               />
               <div className="flex gap-3">
                 <button
                   onClick={() => handleApprove(showNoteModal)}
                   disabled={busyId === showNoteModal.id}
-                  className="flex-1 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 px-4 py-2.5 text-sm font-black text-white hover:opacity-90 transition-all"
+                  className="flex-1 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 transition-all"
                 >
-                  {busyId === showNoteModal.id ? t("loading") : "Confirm"}
+                  {busyId === showNoteModal.id ? t("loading") : "Confirm Approval"}
                 </button>
                 <button
                   onClick={() => setShowNoteModal(null)}
-                  className="rounded-xl border-2 border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50"
+                  className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   {t("cancel")}
                 </button>

@@ -87,21 +87,21 @@ export default function TrainingRequestFormPage() {
       <div className="max-w-3xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
             <BookOpen className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900">
               {t("newTrainingRequest")}
             </h1>
-            <p className="text-sm text-gray-500 font-medium">
+            <p className="text-sm text-gray-500 font-medium italic">
               {t("trainingModule")} — ስልጠና
             </p>
           </div>
         </div>
 
         {success && (
-          <div className="flex items-center gap-3 rounded-2xl bg-emerald-50 border border-emerald-200 px-5 py-4">
+          <div className="flex items-center gap-3 rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-4">
             <CheckCircle2 className="h-5 w-5 text-emerald-600 flex-shrink-0" />
             <p className="text-sm font-semibold text-emerald-700">
               Training request submitted successfully to Procurement!
@@ -110,17 +110,17 @@ export default function TrainingRequestFormPage() {
         )}
 
         {error && (
-          <div className="rounded-2xl bg-red-50 border border-red-200 px-5 py-4">
+          <div className="rounded-xl bg-red-50 border border-red-200 px-5 py-4">
             <p className="text-sm font-semibold text-red-700">{error}</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Department Info */}
-          <div className="rounded-2xl border-2 border-gray-100 bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-5">
-              <Building2 className="h-4 w-4 text-indigo-600" />
-              <h2 className="text-xs font-black uppercase tracking-widest text-gray-700">
+              <Building2 className="h-4 w-4 text-blue-600" />
+              <h2 className="text-xs font-bold uppercase tracking-widest text-gray-700">
                 {t("department")} / {t("sector")}
               </h2>
             </div>
@@ -150,10 +150,10 @@ export default function TrainingRequestFormPage() {
           </div>
 
           {/* Training Details */}
-          <div className="rounded-2xl border-2 border-gray-100 bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-5">
-              <FileText className="h-4 w-4 text-indigo-600" />
-              <h2 className="text-xs font-black uppercase tracking-widest text-gray-700">
+              <FileText className="h-4 w-4 text-blue-600" />
+              <h2 className="text-xs font-bold uppercase tracking-widest text-gray-700">
                 Training Details
               </h2>
             </div>
@@ -268,7 +268,7 @@ export default function TrainingRequestFormPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-8 py-4 text-sm font-black text-white hover:from-emerald-700 hover:to-teal-700 transition-all shadow-lg shadow-emerald-200 disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-8 py-4 text-sm font-bold text-white hover:bg-blue-700 transition-all shadow-md disabled:opacity-60"
           >
             <Send className="h-4 w-4" />
             {loading ? t("loading") : t("submit")}

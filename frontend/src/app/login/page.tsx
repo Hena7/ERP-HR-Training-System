@@ -34,14 +34,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900">
-      <div className="absolute right-4 top-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-900 via-blue-950 to-black p-4">
+      <div className="absolute right-6 top-6">
         <LanguageToggle />
       </div>
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
-        <div className="mb-8 text-center">
-          <div className="mb-4 flex justify-center">
-            <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-white p-2 shadow-inner border border-blue-100">
+      <div className="w-full max-w-md rounded-xl bg-white/95 p-10 shadow-2xl backdrop-blur-sm border border-white/20">
+        <div className="mb-10 text-center">
+          <div className="mb-6 flex justify-center">
+            <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-xl bg-white p-3 shadow-xl border border-blue-50">
               <img
                 src="/INSA_LOGO.png"
                 alt="INSA Logo"
@@ -49,22 +49,22 @@ export default function LoginPage() {
               />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
             {t("loginTitle")}
           </h1>
-          <p className="mt-2 text-sm text-gray-500">{t("loginSubtitle")}</p>
-          <p className="mt-1 text-xs text-gray-400">{t("orgName")}</p>
+          <p className="mt-2 text-sm font-medium text-gray-500">{t("loginSubtitle")}</p>
+          <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-blue-600">{t("orgName")}</p>
         </div>
 
         {error && (
-          <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+          <div className="mb-6 rounded-lg bg-red-50 border border-red-100 p-4 text-xs font-bold text-red-600 animate-shake">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-500">
               {t("email")} {t("or")} {t("username")}
             </label>
             <input
@@ -72,12 +72,12 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-              placeholder="username or email"
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-bold text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+              placeholder="Username or email address"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-500">
               {t("password")}
             </label>
             <input
@@ -85,15 +85,16 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+              placeholder="••••••••"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-white font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-blue-600 px-4 py-4 text-sm font-bold text-white shadow-lg shadow-blue-900/40 hover:bg-blue-700 disabled:opacity-50 transition-all"
           >
-            <LogIn className="h-4 w-4" />
+            <LogIn className="h-4 w-4 transition-transform group-hover:scale-110" />
             {loading ? t("loading") : t("login")}
           </button>
         </form>

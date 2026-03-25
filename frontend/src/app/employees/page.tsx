@@ -146,16 +146,18 @@ export default function EmployeesPage() {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-          <div className="flex items-center gap-3">
-             <Users className="h-6 w-6 text-blue-600" />
-             <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {t("employeeList")}
-                </h1>
-                <p className="text-sm text-gray-500">
-                  {isDH ? `Viewing employees in ${userDept}` : "Manage organization staff directory."}
-                </p>
-             </div>
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
+              <Users className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {t("employeeList")}
+              </h1>
+              <p className="text-sm text-gray-500 font-medium italic">
+                {isDH ? `Viewing employees in ${userDept}` : "Organization staff directory"}
+              </p>
+            </div>
           </div>
           {canManage && (
             <button
@@ -164,7 +166,7 @@ export default function EmployeesPage() {
                 setEditId(null);
                 setShowForm(true);
               }}
-              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700 shadow-sm"
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-700 transition-all shadow-md"
             >
               <UserPlus className="h-4 w-4" />
               {t("addEmployee")}
@@ -174,27 +176,27 @@ export default function EmployeesPage() {
 
         {/* Search Bar */}
         <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             placeholder={`${t("search")}...`}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-lg border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-sm font-bold text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
           />
         </div>
 
         {/* Table Card */}
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-gray-700 border-b border-gray-200">
+              <thead className="bg-gray-50/80 text-[10px] font-bold uppercase tracking-widest text-gray-400">
                 <tr>
-                  <th className="px-6 py-3 font-semibold uppercase tracking-wider">Employee</th>
-                  <th className="px-6 py-3 font-semibold uppercase tracking-wider">Contact</th>
-                  <th className="px-6 py-3 font-semibold uppercase tracking-wider">Org Context</th>
-                  <th className="px-6 py-3 font-semibold uppercase tracking-wider">Role</th>
-                  {canManage && <th className="px-6 py-3 text-center font-semibold uppercase tracking-wider">{t("actions")}</th>}
+                  <th className="px-6 py-4">Employee</th>
+                  <th className="px-6 py-4">Contact</th>
+                  <th className="px-6 py-4">Org Context</th>
+                  <th className="px-6 py-4">Role</th>
+                  {canManage && <th className="px-6 py-4 text-center">{t("actions")}</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -246,7 +248,7 @@ export default function EmployeesPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700 border border-blue-100">
+                        <span className="inline-flex rounded-lg bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-700 border border-blue-100">
                           {(emp.role || 'EMPLOYEE').replace('_', ' ')}
                         </span>
                       </td>
@@ -283,112 +285,112 @@ export default function EmployeesPage() {
 
         {/* Form Modal */}
         {showForm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-2xl rounded-xl bg-white p-8 shadow-2xl border border-gray-200">
-              <div className="mb-6 flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+            <div className="w-full max-w-2xl rounded-xl bg-white p-8 shadow-2xl border border-gray-100">
+              <div className="mb-8 flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-900 uppercase tracking-tight">
                    {editId ? t("editEmployee") : t("addEmployee")}
                 </h2>
                 <button
                   onClick={() => setShowForm(false)}
-                  className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                  className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t("employeeId")}</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("employeeId")}</label>
                   <input
                     required
                     value={form.employeeId}
                     onChange={(e) => setForm({ ...form, employeeId: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                     placeholder="EMP001"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t("email")}</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("email")}</label>
                   <input
                     type="email"
                     required
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                     placeholder="email@insa.gov.et"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t("firstName")}</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("firstName")}</label>
                   <input
                     required
                     value={form.firstName}
                     onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t("lastName")}</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("lastName")}</label>
                   <input
                     required
                     value={form.lastName}
                     onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t("gender")}</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("gender")}</label>
                   <select
                     value={form.gender}
                     onChange={(e) => setForm({ ...form, gender: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                   >
                     <option value="MALE">{t("male")}</option>
                     <option value="FEMALE">{t("female")}</option>
                   </select>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t("phone")}</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("phone")}</label>
                   <input
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t("department")}</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("department")}</label>
                   <input
                     required
                     disabled={isDH}
                     value={form.department}
                     onChange={(e) => setForm({ ...form, department: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all disabled:opacity-50"
                     placeholder="e.g. Software engineering"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t("position")}</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("position")}</label>
                   <input
                     value={form.position}
                     onChange={(e) => setForm({ ...form, position: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t("role")}</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("role")}</label>
                   <select
                     value={form.role}
                     onChange={(e) => setForm({ ...form, role: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                   >
                     <option value="EMPLOYEE">{t("EMPLOYEE")}</option>
                     <option value="DEPARTMENT_HEAD">{t("DEPARTMENT_HEAD")}</option>
@@ -401,30 +403,30 @@ export default function EmployeesPage() {
                 </div>
 
                 {!editId && (
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t("password")}</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("password")}</label>
                     <input
                       type="password"
                       required
                       value={form.password}
                       onChange={(e) => setForm({ ...form, password: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none"
+                      className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                     />
                   </div>
                 )}
 
-                <div className="md:col-span-2 mt-4 flex gap-3">
+                <div className="md:col-span-2 mt-4 flex gap-4">
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 rounded-lg bg-blue-600 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-50"
+                    className="flex-1 rounded-lg bg-blue-600 py-3.5 text-sm font-bold text-white shadow-md transition-all hover:bg-blue-700 disabled:opacity-50"
                   >
-                    {loading ? "..." : editId ? t("save") : t("submit")}
+                    {loading ? t("loading") : editId ? t("save") : t("submit")}
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowForm(false)}
-                    className="flex-1 rounded-lg border border-gray-300 bg-white py-3 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-50"
+                    className="flex-1 rounded-lg border border-gray-200 bg-white py-3.5 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50"
                   >
                     {t("cancel")}
                   </button>

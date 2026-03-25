@@ -56,7 +56,7 @@ export default function TrainingRequestsListPage() {
     SUBMITTED: "bg-blue-100 text-blue-800",
     APPROVED_DIRECT: "bg-emerald-100 text-emerald-800",
     CONTRACT_REQUIRED: "bg-amber-100 text-amber-800",
-    CONTRACT_CREATED: "bg-purple-100 text-purple-800",
+    CONTRACT_CREATED: "bg-blue-100 text-blue-800 border border-blue-200",
     REJECTED: "bg-red-100 text-red-800",
   };
 
@@ -66,14 +66,14 @@ export default function TrainingRequestsListPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
               <BookOpen className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900">
                 {t("trainingRequests")}
               </h1>
-              <p className="text-sm text-gray-500 font-medium">
+              <p className="text-sm text-gray-500 font-medium italic">
                 {filtered.length} record(s)
               </p>
             </div>
@@ -84,7 +84,7 @@ export default function TrainingRequestsListPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="rounded-xl border-2 border-gray-100 bg-gray-50 px-3 py-2 text-xs font-bold text-gray-700 focus:border-indigo-500 focus:outline-none"
+              className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-bold text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
             >
               {STATUS_OPTIONS.map((s) => (
                 <option key={s} value={s}>
@@ -96,9 +96,9 @@ export default function TrainingRequestsListPage() {
         </div>
 
         {/* Table */}
-        <div className="rounded-2xl border-2 border-gray-100 bg-white shadow-sm overflow-hidden">
+        <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
           <table className="min-w-full divide-y divide-gray-100">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50/80 text-[10px] font-bold uppercase tracking-widest text-gray-400">
               <tr>
                 {[
                   "REQ-ID",
@@ -111,7 +111,7 @@ export default function TrainingRequestsListPage() {
                 ].map((h) => (
                   <th
                     key={h}
-                    className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-gray-500"
+                    className="px-6 py-4 text-left"
                   >
                     {h}
                   </th>
@@ -142,7 +142,7 @@ export default function TrainingRequestsListPage() {
                     key={req.id}
                     className="hover:bg-gray-50/80 transition-colors"
                   >
-                    <td className="px-6 py-4 text-xs font-black text-indigo-700">
+                    <td className="px-6 py-4 text-xs font-bold text-blue-600">
                       TRQ-{req.id.toString().slice(-6)}
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">
@@ -167,7 +167,7 @@ export default function TrainingRequestsListPage() {
                     <td className="px-6 py-4">
                       <button
                         onClick={() => setSelected(req)}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-indigo-600 hover:text-white transition-all"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 border border-gray-100 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
                       >
                         <Eye className="h-3.5 w-3.5" />
                         {t("view")}
@@ -183,14 +183,14 @@ export default function TrainingRequestsListPage() {
         {/* Detail Modal */}
         {selected && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-            <div className="relative w-full max-w-lg rounded-3xl bg-white shadow-2xl border-2 border-gray-100 overflow-hidden">
+            <div className="relative w-full max-w-lg rounded-xl bg-white shadow-2xl border border-gray-100 overflow-hidden">
               <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-                <h2 className="text-base font-black text-gray-900">
+                <h2 className="text-base font-bold text-gray-900 uppercase tracking-tight">
                   Request Detail — TRQ-{selected.id.toString().slice(-6)}
                 </h2>
                 <button
                   onClick={() => setSelected(null)}
-                  className="rounded-xl p-1.5 hover:bg-gray-100 transition-colors"
+                  className="rounded-lg p-1.5 hover:bg-gray-100 transition-colors"
                 >
                   <X className="h-4 w-4 text-gray-500" />
                 </button>
@@ -205,34 +205,34 @@ export default function TrainingRequestsListPage() {
                   { icon: MapPin, label: t("trainingLocation"), value: selected.trainingLocation },
                   { icon: FileText, label: t("budgetSource"), value: selected.budgetSource },
                 ].map(({ icon: Icon, label, value }) => (
-                  <div key={label} className="flex items-start gap-3">
-                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-indigo-50">
-                      <Icon className="h-4 w-4 text-indigo-600" />
+                  <div key={label} className="flex items-start gap-4">
+                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50">
+                      <Icon className="h-4 w-4 text-blue-600" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                         {label}
                       </p>
-                      <p className="text-sm font-semibold text-gray-900">
+                      <p className="text-sm font-bold text-gray-900">
                         {String(value || "—")}
                       </p>
                     </div>
                   </div>
                 ))}
                 {selected.specification && (
-                  <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">
+                  <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
                       {t("specification")}
                     </p>
-                    <p className="text-sm text-gray-700">{selected.specification}</p>
+                    <p className="text-sm text-gray-700 font-medium leading-relaxed">{selected.specification}</p>
                   </div>
                 )}
                 {selected.reviewNote && (
-                  <div className="rounded-xl border border-amber-100 bg-amber-50 p-3">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-1">
+                  <div className="rounded-lg border border-blue-100 bg-blue-50/50 p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-2">
                       {t("reviewNote")}
                     </p>
-                    <p className="text-sm text-gray-700">{selected.reviewNote}</p>
+                    <p className="text-sm text-gray-700 font-medium leading-relaxed">{selected.reviewNote}</p>
                   </div>
                 )}
               </div>

@@ -137,27 +137,32 @@ export default function CommitteeDecisionsPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Users className="h-6 w-6 text-blue-600" />
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
+            <Users className="h-6 w-6 text-white" />
+          </div>
+          <div>
             <h1 className="text-2xl font-bold text-gray-900">
               {t("committeeDecisions")}
             </h1>
+            <p className="text-sm text-gray-500 font-medium italic">
+              Review scored requests and finalize institutional decisions.
+            </p>
           </div>
         </div>
 
         {showForm && (
-          <div id="decision-form" className="rounded-xl border-2 border-blue-500 bg-white p-6 shadow-md">
-            <h2 className="mb-4 text-lg font-bold text-blue-900 flex items-center gap-2">
-              <ClipboardList className="h-5 w-5" />
+          <div id="decision-form" className="rounded-xl border border-gray-100 bg-white p-8 shadow-xl">
+            <h2 className="mb-6 text-sm font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2">
+              <ClipboardList className="h-4 w-4 text-blue-600" />
               {editId ? t("edit") || "Edit Decision" : "Review Participation & Decide"}
             </h2>
             <form
               onSubmit={handleSubmit}
               className="grid grid-cols-1 gap-4 md:grid-cols-2"
             >
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
                   {t("educationRequests")}
                 </label>
                 <select
@@ -165,7 +170,7 @@ export default function CommitteeDecisionsPage() {
                   disabled={!editId}
                   value={form.requestId}
                   onChange={(e) => handleRequestChange(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 bg-gray-50 focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all disabled:opacity-60"
                 >
                   <option value="">--</option>
                   {scoredRequests.map((r) => (
@@ -180,8 +185,8 @@ export default function CommitteeDecisionsPage() {
                   )}
                 </select>
               </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
                   {t("decision")}
                 </label>
                 <select
@@ -189,7 +194,7 @@ export default function CommitteeDecisionsPage() {
                   onChange={(e) =>
                     setForm({ ...form, decision: e.target.value })
                   }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                 >
                   <option value="APPROVED">{t("approve")}</option>
                   <option value="REJECTED">{t("reject")}</option>
@@ -197,33 +202,35 @@ export default function CommitteeDecisionsPage() {
               </div>
 
               {selectedScoring && (
-                <div className="md:col-span-2 rounded-lg bg-blue-50 p-4 border border-blue-100">
-                    <div className="flex items-center gap-2 mb-3 text-blue-800">
-                        <BarChart3 className="h-4 w-4" />
-                        <h3 className="text-sm font-bold uppercase tracking-wider">{t("cdcScoring")}</h3>
+                <div className="md:col-span-2 rounded-xl bg-blue-50/50 p-6 border border-blue-100">
+                    <div className="flex items-center gap-2 mb-4">
+                        <BarChart3 className="h-4 w-4 text-blue-600" />
+                        <h3 className="text-[10px] font-bold uppercase tracking-widest text-blue-600">{t("cdcScoring")}</h3>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
                         <div>
-                            <p className="text-[10px] uppercase text-blue-600 font-bold">{t("experienceScore")}</p>
-                            <p className="text-lg font-bold text-gray-900">{selectedScoring.experienceScore}</p>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">{t("experienceScore")}</p>
+                            <p className="text-base font-bold text-gray-900">{selectedScoring.experienceScore}</p>
                         </div>
                         <div>
-                            <p className="text-[10px] uppercase text-blue-600 font-bold">{t("performanceScore")}</p>
-                            <p className="text-lg font-bold text-gray-900">{selectedScoring.performanceScore}</p>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">{t("performanceScore")}</p>
+                            <p className="text-base font-bold text-gray-900">{selectedScoring.performanceScore}</p>
                         </div>
                         <div>
-                            <p className="text-[10px] uppercase text-blue-600 font-bold">{t("disciplineScore")}</p>
-                            <p className="text-lg font-bold text-gray-900">{selectedScoring.disciplineScore}</p>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">{t("disciplineScore")}</p>
+                            <p className="text-base font-bold text-gray-900">{selectedScoring.disciplineScore}</p>
                         </div>
-                        <div>
-                            <p className="text-[10px] uppercase text-blue-600 font-bold italic">{t("totalScore")}</p>
-                            <p className="text-2xl font-black text-blue-700">{selectedScoring.totalScore}%</p>
+                        <div className="flex items-end">
+                            <div className="rounded-lg bg-blue-600 px-3 py-1.5 shadow-md shadow-blue-200">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-blue-100 mb-0.5">{t("totalScore")}</p>
+                                <p className="text-xl font-bold text-white tracking-tight">{selectedScoring.totalScore}%</p>
+                            </div>
                         </div>
                     </div>
                 </div>
               )}
-              <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+              <div className="md:col-span-2 space-y-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
                   {t("comment")}
                 </label>
                 <textarea
@@ -232,14 +239,15 @@ export default function CommitteeDecisionsPage() {
                     setForm({ ...form, comment: e.target.value })
                   }
                   rows={3}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+                  placeholder="Enter committee remarks..."
                 />
               </div>
-              <div className="flex gap-2 md:col-span-2">
+              <div className="flex gap-4 pt-4 md:col-span-2">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                  className="rounded-lg bg-blue-600 px-8 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-200 hover:bg-blue-700 disabled:opacity-50 transition-all"
                 >
                   {loading ? t("loading") : t("submit")}
                 </button>
@@ -249,7 +257,7 @@ export default function CommitteeDecisionsPage() {
                     setShowForm(false);
                     setEditId(null);
                   }}
-                  className="rounded-lg border border-gray-300 px-6 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="rounded-lg border border-gray-200 px-8 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-all"
                 >
                   {t("cancel")}
                 </button>
@@ -258,43 +266,45 @@ export default function CommitteeDecisionsPage() {
           </div>
         )}
 
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <ClipboardList className="h-5 w-5 text-amber-500" />
-            {t("pendingDecisions")}
-          </h2>
+        <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+          <div className="border-b border-gray-50 bg-gray-50/30 px-6 py-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2">
+              <ClipboardList className="h-4 w-4 text-amber-500" />
+              {t("pendingDecisions")}
+            </h2>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b bg-gray-50 text-xs uppercase text-gray-500">
+              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
                 <tr>
-                  <th className="px-4 py-3">ID</th>
-                  <th className="px-4 py-3">Employee</th>
-                  <th className="px-4 py-3">Education</th>
-                  <th className="px-4 py-3">Department</th>
-                  <th className="px-4 py-3 font-bold text-blue-600">Total Score (%)</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
+                  <th className="px-6 py-4">ID</th>
+                  <th className="px-6 py-4">Employee</th>
+                  <th className="px-6 py-4">Education</th>
+                  <th className="px-6 py-4">Department</th>
+                  <th className="px-6 py-4 text-blue-600">Total Score (%)</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {scoredRequests.length > 0 ? (
                   scoredRequests.map((r) => (
-                    <tr key={r.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3">#{r.id}</td>
-                      <td className="px-4 py-3 font-medium text-gray-900">
+                    <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="px-6 py-4 text-xs font-bold text-blue-600">REQ-{r.id.toString().slice(-6)}</td>
+                      <td className="px-6 py-4 font-bold text-gray-900">
                         {r.employeeName}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-6 py-4 font-medium text-gray-700 text-xs italic">
                         {r.educationType} ({r.educationLevel})
                       </td>
-                      <td className="px-4 py-3">{r.employeeDepartment}</td>
-                      <td className="px-4 py-3 font-bold text-blue-700">
+                      <td className="px-6 py-4 font-medium text-gray-600">{r.employeeDepartment}</td>
+                      <td className="px-6 py-4 font-bold text-blue-700">
                         {r.totalScore ? `${r.totalScore}%` : "-"}
                       </td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-6 py-4 text-right">
                         <button
                           onClick={() => handleReview(r)}
                           disabled={loading}
-                          className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-1 ml-auto"
+                          className="rounded-lg bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow-sm shadow-blue-200 hover:bg-blue-700 transition-all flex items-center gap-1.5 ml-auto uppercase tracking-wider"
                         >
                           <Edit className="h-3 w-3" />
                           Review
@@ -314,23 +324,23 @@ export default function CommitteeDecisionsPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
-          <div className="border-b px-6 py-4 bg-gray-50">
-            <h2 className="text-lg font-semibold text-gray-900">
+        <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+          <div className="border-b border-gray-50 bg-gray-50/30 px-6 py-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400">
               {t("committeeDecisionsHistory") || "Decision History"}
             </h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b bg-gray-50 text-xs uppercase text-gray-500">
+              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
                 <tr>
-                  <th className="px-4 py-3">ID</th>
-                  <th className="px-4 py-3">{t("educationRequests")} ID</th>
-                  <th className="px-4 py-3 font-bold text-blue-600">Total Score (%)</th>
-                  <th className="px-4 py-3">{t("decision")}</th>
-                  <th className="px-4 py-3">{t("comment")}</th>
-                  <th className="px-4 py-3">{t("decidedBy")}</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
+                  <th className="px-6 py-4">ID</th>
+                  <th className="px-6 py-4">{t("educationRequests")} ID</th>
+                  <th className="px-6 py-4 text-blue-600">Total Score (%)</th>
+                  <th className="px-6 py-4">{t("decision")}</th>
+                  <th className="px-6 py-4">{t("comment")}</th>
+                  <th className="px-6 py-4">{t("decidedBy")}</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -338,34 +348,34 @@ export default function CommitteeDecisionsPage() {
                   decisions.map((d) => {
                     const req = allRequests[d.requestId];
                     return (
-                      <tr key={d.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3">{d.id}</td>
-                        <td className="px-4 py-3">#{d.requestId}</td>
-                        <td className="px-4 py-3 font-bold text-blue-700">
-                          {req?.totalScore ? `${req.totalScore}%` : "-"}
-                        </td>
-                        <td className="px-4 py-3">
+                    <tr key={d.id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="px-6 py-4 text-xs font-bold text-blue-600">DEC-{d.id.toString().slice(-6)}</td>
+                      <td className="px-6 py-4 text-xs font-bold text-gray-500">REQ-{d.requestId.toString().slice(-6)}</td>
+                      <td className="px-6 py-4 font-bold text-blue-700">
+                        {req?.totalScore ? `${req.totalScore}%` : "-"}
+                      </td>
+                      <td className="px-6 py-4">
                         <span
-                          className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${d.decision === "APPROVED" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+                          className={`rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider italic ${d.decision === "APPROVED" ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-red-50 text-red-600 border border-red-100"}`}
                         >
                           {d.decision === "APPROVED"
                             ? t("approve")
                             : t("reject")}
                         </span>
                       </td>
-                      <td className="px-4 py-3">{d.comment}</td>
-                      <td className="px-4 py-3">{d.decidedBy}</td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex justify-end gap-2">
+                      <td className="px-6 py-4 text-xs font-medium text-gray-600">{d.comment}</td>
+                      <td className="px-6 py-4 text-xs font-medium text-gray-400 italic">{d.decidedBy}</td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-3">
                           <button
                             onClick={() => handleEdit(d)}
-                            className="p-1 text-gray-500 hover:text-blue-600 transition-colors"
+                            className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors hover:bg-blue-50 rounded-lg"
                           >
                             <Edit className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(d.id)}
-                            className="p-1 text-gray-500 hover:text-red-600 transition-colors"
+                            className="p-1.5 text-gray-400 hover:text-red-600 transition-colors hover:bg-red-50 rounded-lg"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
