@@ -250,7 +250,7 @@ export default function Sidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="mt-4 flex-1 overflow-y-auto space-y-1 px-3 pb-4">
+      <nav className="mt-4 flex-1 overflow-y-auto custom-scrollbar space-y-1 px-3 pb-4">
         {/* System/General */}
         {filteredSystem.map(navLink)}
 
