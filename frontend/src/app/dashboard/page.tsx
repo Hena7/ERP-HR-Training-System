@@ -121,11 +121,29 @@ export default function DashboardPage() {
             {user?.role === "EMPLOYEE" || user?.role === "ADMIN" ? (
               <Link
                 href="/education-requests"
-                className="flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:bg-blue-700"
+                className="flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:bg-blue-700 active:scale-95"
               >
                 <Plus className="h-4 w-4" />
                 {t("newRequest")}
               </Link>
+            ) : null}
+            {user?.role === "PROCUREMENT" || user?.role === "ADMIN" ? (
+              <>
+                <Link
+                  href="/training/requests-list"
+                  className="flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:bg-blue-700 active:scale-95"
+                >
+                  <FileText className="h-4 w-4" />
+                  {t("navTrainingRequestLists")}
+                </Link>
+                <Link
+                  href="/training/procurement-review"
+                  className="flex items-center gap-2 rounded-lg bg-blue-50 border border-blue-100 px-6 py-2.5 text-sm font-bold text-blue-700 shadow-sm transition-all hover:bg-blue-100 active:scale-95"
+                >
+                  <ClipboardCheck className="h-4 w-4" />
+                  {t("navTrainingProcurement")}
+                </Link>
+              </>
             ) : null}
             <Link
               href="/education-requests"

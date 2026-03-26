@@ -269,6 +269,7 @@ export default function UsersPage() {
                     Cyber Development Center
                   </option>
                   <option value="COMMITTEE_MEMBER">Committee Member</option>
+                  <option value="PROCUREMENT">Procurement</option>
                   <option value="ADMIN">Admin</option>
                 </select>
               </div>
