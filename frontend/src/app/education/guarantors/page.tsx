@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { guarantorApi, witnessApi, contractApi } from "@/lib/api";
+import { guarantorApi, witnessApi, contractApi, userApi } from "@/lib/api";
 import { Guarantor, Witness, Contract } from "@/types";
 import { Shield, Plus, Trash2, Edit, Eye, X, Users } from "lucide-react";
 
@@ -13,6 +13,7 @@ export default function GuarantorsPage() {
   const [guarantors, setGuarantors] = useState<Guarantor[]>([]);
   const [witnesses, setWitnesses] = useState<Witness[]>([]);
   const [contracts, setContracts] = useState<Contract[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedContract, setSelectedContract] = useState("");
@@ -33,8 +34,12 @@ export default function GuarantorsPage() {
 
   const loadContracts = async () => {
     try {
-      const res = await contractApi.getAll(0, 50);
-      setContracts(res.data.content || []);
+      const [contractsRes, usersRes] = await Promise.all([
+        contractApi.getAll(0, 50),
+        userApi.getAll()
+      ]);
+      setContracts(contractsRes.data.content || []);
+      setUsers(usersRes.data || []);
     } catch {
       // API not available
     }
@@ -230,7 +235,9 @@ export default function GuarantorsPage() {
                     return (
                       <tr key={c.id} className="hover:bg-gray-50/50 transition-colors">
                         <td className="px-6 py-4 font-bold text-blue-600">CON-{c.id}</td>
-                        <td className="px-6 py-4 font-bold text-gray-900">{c.employeeName || `EMP-${c.employeeId}`}</td>
+                        <td className="px-6 py-4 font-bold text-gray-900">
+                          {c.employeeName || users.find(u => String(u.id) === String(c.employeeId))?.fullName || `EMP-${c.employeeId}`}
+                        </td>
                         <td className="px-6 py-4 font-medium text-gray-700">{c.university || "-"}</td>
                         <td className="px-6 py-4 font-medium text-gray-500">{c.program}</td>
                         <td className="px-6 py-4 text-right">
@@ -280,7 +287,7 @@ export default function GuarantorsPage() {
                   {t("contracts")}
                 </label>
                 <div className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 font-bold text-gray-900">
-                  {contracts.find((c) => String(c.id) === form.contractId)?.employeeName || `CON-${form.contractId}`}
+                  {contracts.find((c) => String(c.id) === form.contractId)?.employeeName || users.find(u => String(u.id) === String(contracts.find((c) => String(c.id) === form.contractId)?.employeeId))?.fullName || `CON-${form.contractId}`}
                 </div>
               </div>
               <div>

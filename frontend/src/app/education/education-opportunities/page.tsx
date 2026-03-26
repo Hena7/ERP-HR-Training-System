@@ -280,7 +280,9 @@ export default function EducationOpportunitiesPage() {
         {isDepartmentHead && !isCenterUser && userDepartment && (
           <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-800">
             Your department:{" "}
-            <span className="font-semibold text-blue-900">{userDepartment}</span>
+            <span className="font-semibold text-blue-900">
+              {userDepartment}
+            </span>
           </div>
         )}
 
@@ -489,12 +491,19 @@ export default function EducationOpportunitiesPage() {
                         : [];
 
                   return (
-                    <tr key={opp.id} className="hover:bg-gray-50/50 transition-colors group">
+                    <tr
+                      key={opp.id}
+                      className="hover:bg-gray-50/50 transition-colors group"
+                    >
                       <td className="px-6 py-5 font-bold text-gray-900 uppercase tracking-tight">
                         {opp.educationType}
                       </td>
-                      <td className="px-6 py-5 font-medium text-gray-600 italic text-xs">{opp.educationLevel}</td>
-                      <td className="px-6 py-5 font-medium text-gray-800">{opp.institution}</td>
+                      <td className="px-6 py-5 font-medium text-gray-600 italic text-xs">
+                        {opp.educationLevel}
+                      </td>
+                      <td className="px-6 py-5 font-medium text-gray-800">
+                        {opp.institution}
+                      </td>
                       <td className="px-6 py-5">
                         <div className="flex flex-wrap gap-2">
                           {targets.map((department) => (
@@ -516,7 +525,7 @@ export default function EducationOpportunitiesPage() {
 
                       {isCenterUser && (
                         <td className="px-6 py-5 text-right">
-                          <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex justify-end gap-3">
                             <button
                               onClick={() => handleEdit(opp)}
                               className="rounded-lg p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all"

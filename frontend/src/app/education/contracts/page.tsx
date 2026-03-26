@@ -52,11 +52,29 @@ export default function ContractsPage() {
     const req = approvedRequests.find((r) => r.id === Number(requestId));
     if (req) {
       setEditId(null);
+
+      // Attempt to parse city/country from location if comma-separated
+      let country = "";
+      let city = "";
+      if (req.location) {
+        const parts = req.location.split(",");
+        if (parts.length > 1) {
+          city = parts[0].trim();
+          country = parts[1].trim();
+        } else {
+          country = req.location.trim(); // default to country if only one value
+        }
+      }
+
       setForm({
         ...form,
         requestId,
         employeeId: String(req.employeeId),
         university: req.institution || "",
+        program: req.fieldOfStudy || req.educationType || "",
+        studyCountry: country,
+        studyCity: city,
+        durationYears: req.duration ? String(req.duration) : "",
         estimatedCost: "",
         contractSignedDate: "",
         scannedDocument: null,

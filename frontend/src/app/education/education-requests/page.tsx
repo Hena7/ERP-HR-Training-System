@@ -73,7 +73,8 @@ export default function EducationRequestsPage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [showCandidateModal, setShowCandidateModal] = useState(false);
   const [showEducationModal, setShowEducationModal] = useState(false);
-  const [selectedRequest, setSelectedRequest] = useState<EducationRequest | null>(null);
+  const [selectedRequest, setSelectedRequest] =
+    useState<EducationRequest | null>(null);
 
   // Edit State for candidate modal
   const [currentCandidate, setCurrentCandidate] = useState<Partial<Candidate>>(
@@ -435,15 +436,15 @@ export default function EducationRequestsPage() {
                   </h2>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
-                    <div className="relative group">
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 transition-colors group-focus-within:text-blue-500" />
-                      <input
-                        type="text"
-                        placeholder="Search employee by name or ID..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-72 rounded-xl border border-gray-100 bg-gray-50 pl-11 py-2.5 text-sm font-medium transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 placeholder:text-gray-400 outline-none"
-                      />
+                  <div className="relative group">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 transition-colors group-focus-within:text-blue-500" />
+                    <input
+                      type="text"
+                      placeholder="Search employee by name or ID..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-72 rounded-xl border border-gray-100 bg-gray-50 pl-11 py-2.5 text-sm font-medium transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 placeholder:text-gray-400 outline-none"
+                    />
 
                     {searchTerm && (
                       <div className="absolute right-0 z-20 mt-2 w-80 origin-top-right rounded-2xl border border-gray-100 bg-white p-2 shadow-2xl ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-200">
@@ -495,13 +496,13 @@ export default function EducationRequestsPage() {
 
                   <div className="h-10 w-[1px] bg-gray-100 hidden md:block"></div>
 
-                    <button
-                      onClick={handleManualAdd}
-                      className="flex items-center gap-2 rounded-xl border border-blue-100 bg-blue-50 px-6 py-2.5 text-sm font-bold text-blue-700 transition-all hover:bg-blue-100 hover:shadow-md active:scale-95"
-                    >
-                      <UserPlus className="h-4 w-4" />
-                      Manual Add
-                    </button>
+                  <button
+                    onClick={handleManualAdd}
+                    className="flex items-center gap-2 rounded-xl border border-blue-100 bg-blue-50 px-6 py-2.5 text-sm font-bold text-blue-700 transition-all hover:bg-blue-100 hover:shadow-md active:scale-95"
+                  >
+                    <UserPlus className="h-4 w-4" />
+                    Manual Add
+                  </button>
                 </div>
               </div>
 
@@ -602,19 +603,19 @@ export default function EducationRequestsPage() {
                 >
                   {t("cancel")}
                 </button>
-                  <button
-                    onClick={handleSubmitBatch}
-                    disabled={loading || candidates.length === 0}
-                    className="flex items-center gap-2.5 rounded-lg bg-blue-600 px-10 py-3 text-sm font-bold text-white shadow-md transition-all hover:bg-blue-700 hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
-                  >
-                    {loading ? (
-                      t("loading")
-                    ) : (
-                      <>
-                        <Send className="h-4 w-4" /> {t("submit")}
-                      </>
-                    )}
-                  </button>
+                <button
+                  onClick={handleSubmitBatch}
+                  disabled={loading || candidates.length === 0}
+                  className="flex items-center gap-2.5 rounded-lg bg-blue-600 px-10 py-3 text-sm font-bold text-white shadow-md transition-all hover:bg-blue-700 hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
+                >
+                  {loading ? (
+                    t("loading")
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4" /> {t("submit")}
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>
@@ -659,7 +660,9 @@ export default function EducationRequestsPage() {
                     </td>
                     <td className="px-8 py-5 text-gray-900">
                       <div className="flex flex-col">
-                        <span className="font-bold text-gray-900">{req.employeeName}</span>
+                        <span className="font-bold text-gray-900">
+                          {req.employeeName}
+                        </span>
                         <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">
                           {req.candidateId || req.employeeId}
                         </span>
@@ -1117,13 +1120,14 @@ export default function EducationRequestsPage() {
                     {selectedRequest.employeeDepartment || "-"}
                   </p>
                 </div>
-                
+
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
                     {t("educationOpportunity")}
                   </p>
                   <p className="text-sm font-bold text-gray-900">
-                    {selectedRequest.fieldOfStudy || selectedRequest.educationType}
+                    {selectedRequest.fieldOfStudy ||
+                      selectedRequest.educationType}
                   </p>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
                     {selectedRequest.educationLevel}
@@ -1143,8 +1147,12 @@ export default function EducationRequestsPage() {
                     {t("duration")} & {t("budgetYear")}
                   </p>
                   <p className="text-sm font-bold text-gray-900">
-                    {selectedRequest.duration ? `${selectedRequest.duration} Years` : "-"} 
-                    {selectedRequest.budgetYear ? ` • Yr ${selectedRequest.budgetYear}` : ""}
+                    {selectedRequest.duration
+                      ? `${selectedRequest.duration} Years`
+                      : "-"}
+                    {selectedRequest.budgetYear
+                      ? ` • Yr ${selectedRequest.budgetYear}`
+                      : ""}
                   </p>
                 </div>
                 <div>
@@ -1152,30 +1160,33 @@ export default function EducationRequestsPage() {
                     Program & Location
                   </p>
                   <p className="text-sm font-bold text-gray-900">
-                    {selectedRequest.programTime || "Regular"} • {selectedRequest.location || "Local"}
+                    {selectedRequest.programTime || "Regular"} •{" "}
+                    {selectedRequest.location || "Local"}
                   </p>
                 </div>
               </div>
 
-              {((selectedRequest as any).remark || selectedRequest.description) && (
+              {((selectedRequest as any).remark ||
+                selectedRequest.description) && (
                 <div className="rounded-xl border border-gray-100 bg-gray-50 p-5 mt-4">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-2">
-                     <FileText className="h-3.5 w-3.5 text-gray-400" />
-                     Description / Remark
+                    <FileText className="h-3.5 w-3.5 text-gray-400" />
+                    Description / Remark
                   </p>
                   <p className="text-sm text-gray-700 font-medium leading-relaxed">
-                    {(selectedRequest as any).remark || selectedRequest.description}
+                    {(selectedRequest as any).remark ||
+                      selectedRequest.description}
                   </p>
                 </div>
               )}
             </div>
             <div className="bg-gray-50/80 px-6 py-4 border-t border-gray-100 flex justify-end">
-                <button
-                  onClick={() => setSelectedRequest(null)}
-                  className="rounded-lg bg-gray-900 px-6 py-2.5 text-sm font-bold text-white shadow-md hover:bg-gray-800 transition-colors"
-                >
-                  Close
-                </button>
+              <button
+                onClick={() => setSelectedRequest(null)}
+                className="rounded-lg bg-gray-900 px-6 py-2.5 text-sm font-bold text-white shadow-md hover:bg-gray-800 transition-colors"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
