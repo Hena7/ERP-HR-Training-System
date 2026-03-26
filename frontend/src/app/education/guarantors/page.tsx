@@ -206,22 +206,58 @@ export default function GuarantorsPage() {
           </button>
         </div>
 
-        <div className="rounded-xl border bg-white p-4 shadow-sm">
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            {t("contracts")}
-          </label>
-          <select
-            value={selectedContract}
-            onChange={(e) => handleContractChange(e.target.value)}
-            className="w-full max-w-md rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
-          >
-            <option value="">-- {t("contracts")} --</option>
-            {contracts.map((c) => (
-              <option key={c.id} value={c.id}>
-                #{c.id} - {c.employeeName} - {c.university}
-              </option>
-            ))}
-          </select>
+        <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden mb-6">
+          <div className="border-b border-gray-50 bg-gray-50/30 px-6 py-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400">
+              Active Contracts (Select to Manage)
+            </h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                <tr>
+                  <th className="px-6 py-4">ID</th>
+                  <th className="px-6 py-4">{t("fullName")}</th>
+                  <th className="px-6 py-4">{t("university")}</th>
+                  <th className="px-6 py-4">{t("program")}</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y text-xs">
+                {contracts.length > 0 ? (
+                  contracts.map((c) => {
+                    const isSelected = selectedContract === String(c.id);
+                    return (
+                      <tr key={c.id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-6 py-4 font-bold text-blue-600">CON-{c.id}</td>
+                        <td className="px-6 py-4 font-bold text-gray-900">{c.employeeName || `EMP-${c.employeeId}`}</td>
+                        <td className="px-6 py-4 font-medium text-gray-700">{c.university || "-"}</td>
+                        <td className="px-6 py-4 font-medium text-gray-500">{c.program}</td>
+                        <td className="px-6 py-4 text-right">
+                          <button
+                            onClick={() => handleContractChange(String(c.id))}
+                            className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
+                              isSelected
+                                ? "bg-blue-600 text-white shadow-blue-200"
+                                : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
+                            }`}
+                          >
+                            {isSelected ? "Selected" : "Manage"}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                      {t("noData")}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {showForm && (
@@ -243,21 +279,9 @@ export default function GuarantorsPage() {
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   {t("contracts")}
                 </label>
-                <select
-                  required
-                  value={form.contractId}
-                  onChange={(e) =>
-                    setForm({ ...form, contractId: e.target.value })
-                  }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
-                >
-                  <option value="">--</option>
-                  {contracts.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      #{c.id} - {c.employeeName}
-                    </option>
-                  ))}
-                </select>
+                <div className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 font-bold text-gray-900">
+                  {contracts.find((c) => String(c.id) === form.contractId)?.employeeName || `CON-${form.contractId}`}
+                </div>
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">

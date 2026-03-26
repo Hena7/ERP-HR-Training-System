@@ -25,6 +25,8 @@ import {
   Calendar,
   Clock,
   UserPlus,
+  Eye,
+  X,
 } from "lucide-react";
 import StatusBadge from "@/components/StatusBadge";
 
@@ -71,6 +73,7 @@ export default function EducationRequestsPage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [showCandidateModal, setShowCandidateModal] = useState(false);
   const [showEducationModal, setShowEducationModal] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<EducationRequest | null>(null);
 
   // Edit State for candidate modal
   const [currentCandidate, setCurrentCandidate] = useState<Partial<Candidate>>(
@@ -680,6 +683,13 @@ export default function EducationRequestsPage() {
                     </td>
                     <td className="px-8 py-5 text-right">
                       <div className="flex justify-end gap-3">
+                        <button
+                          onClick={() => setSelectedRequest(req)}
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 border border-gray-100 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                          {t("view") || "View"}
+                        </button>
                         {req.status === "SUBMITTED" &&
                           (isCenter || isAdmin) && (
                             <button
@@ -1063,6 +1073,109 @@ export default function EducationRequestsPage() {
               >
                 {t("save")}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Request Detail Modal */}
+      {selectedRequest && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-3">
+                <div className="rounded-lg bg-blue-100 p-2">
+                  <FileText className="h-5 w-5 text-blue-600" />
+                </div>
+                Request Detail — REQ-{selectedRequest.id}
+              </h2>
+              <button
+                onClick={() => setSelectedRequest(null)}
+                className="rounded-lg p-2 hover:bg-gray-100 transition-colors"
+              >
+                <X className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+              </button>
+            </div>
+            <div className="p-6 space-y-6">
+              <div className="grid grid-cols-2 gap-x-8 gap-y-6">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                    {t("fullName")}
+                  </p>
+                  <p className="text-sm font-bold text-gray-900">
+                    {selectedRequest.employeeName}
+                  </p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
+                    {selectedRequest.candidateId || selectedRequest.employeeId}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                    {t("department")}
+                  </p>
+                  <p className="text-sm font-bold text-gray-900">
+                    {selectedRequest.employeeDepartment || "-"}
+                  </p>
+                </div>
+                
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                    {t("educationOpportunity")}
+                  </p>
+                  <p className="text-sm font-bold text-gray-900">
+                    {selectedRequest.fieldOfStudy || selectedRequest.educationType}
+                  </p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
+                    {selectedRequest.educationLevel}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                    {t("institution")}
+                  </p>
+                  <p className="text-sm font-bold text-gray-900">
+                    {selectedRequest.institution || "-"}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                    {t("duration")} & {t("budgetYear")}
+                  </p>
+                  <p className="text-sm font-bold text-gray-900">
+                    {selectedRequest.duration ? `${selectedRequest.duration} Years` : "-"} 
+                    {selectedRequest.budgetYear ? ` • Yr ${selectedRequest.budgetYear}` : ""}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                    Program & Location
+                  </p>
+                  <p className="text-sm font-bold text-gray-900">
+                    {selectedRequest.programTime || "Regular"} • {selectedRequest.location || "Local"}
+                  </p>
+                </div>
+              </div>
+
+              {((selectedRequest as any).remark || selectedRequest.description) && (
+                <div className="rounded-xl border border-gray-100 bg-gray-50 p-5 mt-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-2">
+                     <FileText className="h-3.5 w-3.5 text-gray-400" />
+                     Description / Remark
+                  </p>
+                  <p className="text-sm text-gray-700 font-medium leading-relaxed">
+                    {(selectedRequest as any).remark || selectedRequest.description}
+                  </p>
+                </div>
+              )}
+            </div>
+            <div className="bg-gray-50/80 px-6 py-4 border-t border-gray-100 flex justify-end">
+                <button
+                  onClick={() => setSelectedRequest(null)}
+                  className="rounded-lg bg-gray-900 px-6 py-2.5 text-sm font-bold text-white shadow-md hover:bg-gray-800 transition-colors"
+                >
+                  Close
+                </button>
             </div>
           </div>
         </div>

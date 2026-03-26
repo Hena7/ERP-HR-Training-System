@@ -257,24 +257,45 @@ export default function CDCScoringPage() {
 
           {selectedRequest ? (
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 gap-6 rounded-xl border border-blue-100 bg-blue-50/30 p-6 md:grid-cols-3">
-                <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100">
-                        <Info className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">{t("fullName")}</p>
-                        <p className="text-sm font-bold text-gray-900">{selectedRequest.employeeName}</p>
-                    </div>
+              <div className="flex flex-col gap-5 rounded-xl border border-blue-100 bg-blue-50/30 p-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+                  <div className="flex items-start gap-4">
+                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100">
+                          <Info className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">{t("fullName")}</p>
+                          <p className="text-sm font-bold text-gray-900">{selectedRequest.employeeName}</p>
+                      </div>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">{t("educationOpportunity")}</p>
+                    <p className="text-sm font-bold text-gray-900">
+                        {selectedRequest.educationType} ({selectedRequest.educationLevel})
+                    </p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
+                        @ {selectedRequest.institution || "-"}
+                    </p>
+                  </div>
+                  <div>
+                     <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">{t("workExperience")}</p>
+                     <p className="text-sm font-bold text-gray-900">{selectedRequest.workExperience} {t("years") || "Years"}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">{t("averageScore")} (HR)</p>
+                    <p className="text-sm font-bold text-gray-900">{hrVerifications[selectedRequest.id]?.averageScore || "-"}</p>
+                  </div>
                 </div>
-                <div>
-                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">{t("workExperience")}</p>
-                   <p className="text-sm font-bold text-gray-900">{selectedRequest.workExperience} {t("years") || "Years"}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">{t("averageScore")} (HR)</p>
-                  <p className="text-sm font-bold text-gray-900">{hrVerifications[selectedRequest.id]?.averageScore || "-"}</p>
-                </div>
+                {((selectedRequest as any).remark || selectedRequest.description) && (
+                  <div className="border-t border-blue-200/50 pt-4 mt-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                      Description / Remark
+                    </p>
+                    <p className="text-sm font-medium text-gray-700 leading-relaxed">
+                      {(selectedRequest as any).remark || selectedRequest.description}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 gap-5 md:grid-cols-3">

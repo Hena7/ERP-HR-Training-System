@@ -51,6 +51,7 @@ export default function ContractsPage() {
   const handleRequestSelect = (requestId: string) => {
     const req = approvedRequests.find((r) => r.id === Number(requestId));
     if (req) {
+      setEditId(null);
       setForm({
         ...form,
         requestId,
@@ -60,6 +61,7 @@ export default function ContractsPage() {
         contractSignedDate: "",
         scannedDocument: null,
       });
+      setShowForm(true);
     }
   };
 
@@ -78,8 +80,10 @@ export default function ContractsPage() {
     e.preventDefault();
     setLoading(true);
     try {
+      const selectedReq = approvedRequests.find((r) => r.id === Number(form.requestId));
       const payload = {
         employeeId: Number(form.employeeId),
+        employeeName: selectedReq?.employeeName || "",
         requestId: Number(form.requestId),
         university: form.university,
         program: form.program,
@@ -184,6 +188,62 @@ export default function ContractsPage() {
           </button>
         </div>
 
+        <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+          <div className="border-b border-gray-50 bg-gray-50/30 px-6 py-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400">
+              Approved Education Requests (Pending Contracts)
+            </h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                <tr>
+                  <th className="px-6 py-4">ID</th>
+                  <th className="px-6 py-4">{t("fullName")}</th>
+                  <th className="px-6 py-4">{t("educationOpportunity")}</th>
+                  <th className="px-6 py-4">{t("institution")}</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y text-xs">
+                {approvedRequests.length > 0 ? (
+                  approvedRequests.map((request) => {
+                    const isSelected = form.requestId === String(request.id);
+                    return (
+                      <tr key={request.id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-6 py-4 font-bold text-blue-600">REQ-{request.id}</td>
+                        <td className="px-6 py-4 font-bold text-gray-900">{request.employeeName}</td>
+                        <td className="px-6 py-4 font-medium text-gray-700 italic">
+                          {request.fieldOfStudy || request.educationType} ({request.educationLevel})
+                        </td>
+                        <td className="px-6 py-4 font-medium text-gray-500">{request.institution || "-"}</td>
+                        <td className="px-6 py-4 text-right">
+                          <button
+                            onClick={() => handleRequestSelect(String(request.id))}
+                            className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
+                              isSelected && showForm
+                                ? "bg-blue-600 text-white shadow-blue-200"
+                                : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
+                            }`}
+                          >
+                            {isSelected && showForm ? "Selected" : "Contract"}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                      {t("noData")}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         {showForm && (
           <div className="rounded-xl border bg-white p-6 shadow-sm">
             <h2 className="mb-4 text-lg font-semibold">
@@ -195,21 +255,11 @@ export default function ContractsPage() {
             >
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
-                  {t("educationRequests")}
+                  {t("fullName")}
                 </label>
-                <select
-                  required
-                  value={form.requestId}
-                  onChange={(e) => handleRequestSelect(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
-                >
-                  <option value="">--</option>
-                  {approvedRequests.map((r) => (
-                    <option key={r.id} value={r.id}>
-                      #{r.id} - {r.employeeName}
-                    </option>
-                  ))}
-                </select>
+                <div className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 font-bold text-gray-900">
+                  {approvedRequests.find((r) => String(r.id) === form.requestId)?.employeeName || "-"}
+                </div>
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -381,7 +431,7 @@ export default function ContractsPage() {
                     <tr key={c.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3">{c.id}</td>
                       <td className="px-4 py-3 font-medium">
-                        {c.employeeName}
+                        {c.employeeName || approvedRequests.find((r) => r.id === c.requestId)?.employeeName || `EMP-${c.employeeId}`}
                       </td>
                       <td className="px-4 py-3">{c.university}</td>
                       <td className="px-4 py-3">{c.program}</td>

@@ -250,32 +250,52 @@ export default function HRVerificationsPage() {
 
           {selectedRequest ? (
             <form className="space-y-6">
-              <div className="grid grid-cols-1 gap-6 rounded-xl border border-gray-100 bg-gray-50/30 p-6 md:grid-cols-3">
-                <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                    {t("fullName")}
-                  </p>
-                  <p className="font-bold text-gray-900">
-                    {selectedRequest.employeeName}
-                  </p>
+              <div className="flex flex-col gap-6 rounded-xl border border-gray-100 bg-gray-50/30 p-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                      {t("fullName")}
+                    </p>
+                    <p className="font-bold text-gray-900">
+                      {selectedRequest.employeeName}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                      {t("department")}
+                    </p>
+                    <p className="font-bold text-gray-900">
+                      {selectedRequest.employeeDepartment}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                      {t("educationOpportunity")}
+                    </p>
+                    <p className="font-bold text-gray-900">
+                      {selectedRequest.educationType} (
+                      {selectedRequest.educationLevel})
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                      {t("institution")} & {t("budgetYear")}
+                    </p>
+                    <p className="font-bold text-gray-900">
+                      {selectedRequest.institution || "-"} {selectedRequest.budgetYear ? `(Yr ${selectedRequest.budgetYear})` : ""}
+                    </p>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                    {t("department")}
-                  </p>
-                  <p className="font-bold text-gray-900">
-                    {selectedRequest.employeeDepartment}
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                    {t("educationOpportunity")}
-                  </p>
-                  <p className="font-bold text-gray-900">
-                    {selectedRequest.educationType} (
-                    {selectedRequest.educationLevel})
-                  </p>
-                </div>
+                {((selectedRequest as any).remark || selectedRequest.description) && (
+                  <div className="space-y-1 border-t border-gray-200/60 pt-4 mt-2">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                      Description / Remark
+                    </p>
+                    <p className="text-sm font-medium text-gray-700 leading-relaxed">
+                      {(selectedRequest as any).remark || selectedRequest.description}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

@@ -5,7 +5,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { committeeDecisionApi, educationRequestApi, cdcScoringApi } from "@/lib/api";
 import { CommitteeDecision, EducationRequest, CDCScoring } from "@/types";
-import { Users, Edit, Trash2, BarChart3, ClipboardList } from "lucide-react";
+import { Users, Edit, Trash2, BarChart3, ClipboardList, FileText } from "lucide-react";
 
 export default function CommitteeDecisionsPage() {
   const { t } = useLanguage();
@@ -200,6 +200,58 @@ export default function CommitteeDecisionsPage() {
                   <option value="REJECTED">{t("reject")}</option>
                 </select>
               </div>
+
+              {form.requestId && allRequests[Number(form.requestId)] && (
+                <div className="md:col-span-2 flex flex-col gap-5 rounded-xl border border-gray-100 bg-gray-50/50 p-6">
+                  <div className="flex items-center gap-2 mb-1 border-b border-gray-200/60 pb-3">
+                    <FileText className="h-4 w-4 text-gray-500" />
+                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Request Information</h3>
+                  </div>
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">{t("fullName")}</p>
+                      <p className="text-sm font-bold text-gray-900">{allRequests[Number(form.requestId)].employeeName}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Education & Institution</p>
+                      <p className="text-sm font-bold text-gray-900">
+                        {allRequests[Number(form.requestId)].fieldOfStudy || allRequests[Number(form.requestId)].educationType}
+                      </p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
+                        @ {allRequests[Number(form.requestId)].institution || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Level & Program</p>
+                      <p className="text-sm font-bold text-gray-900">
+                        {allRequests[Number(form.requestId)].educationLevel}
+                      </p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
+                        {allRequests[Number(form.requestId)].programTime || "Regular"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Duration & Budget Year</p>
+                      <p className="text-sm font-bold text-gray-900">
+                        {allRequests[Number(form.requestId)].duration ? `${allRequests[Number(form.requestId)].duration} Years` : "-"}
+                      </p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
+                        Yr {allRequests[Number(form.requestId)].budgetYear || "-"}
+                      </p>
+                    </div>
+                  </div>
+                  {((allRequests[Number(form.requestId)] as any).remark || allRequests[Number(form.requestId)].description) && (
+                    <div className="border-t border-gray-200/60 pt-4 mt-1">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                        Description / Remark
+                      </p>
+                      <p className="text-sm font-medium text-gray-700 leading-relaxed">
+                        {(allRequests[Number(form.requestId)] as any).remark || allRequests[Number(form.requestId)].description}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {selectedScoring && (
                 <div className="md:col-span-2 rounded-xl bg-blue-50/50 p-6 border border-blue-100">
