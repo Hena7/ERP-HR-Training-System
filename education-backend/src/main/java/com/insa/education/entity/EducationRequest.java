@@ -41,7 +41,7 @@ public class EducationRequest {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private RequestStatus status = RequestStatus.PENDING;
+    private RequestStatus status = RequestStatus.PENDING_DEPARTMENT_SUBMISSION;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
