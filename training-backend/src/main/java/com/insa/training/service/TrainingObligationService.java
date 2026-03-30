@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,8 +25,8 @@ public class TrainingObligationService {
         TrainingObligation obligation = TrainingObligation.builder()
                 .contractId(dto.getContractId())
                 .employeeName(dto.getEmployeeName())
-                .startDate(LocalDateTime.parse(dto.getStartDate()))
-                .endDate(LocalDateTime.parse(dto.getEndDate()))
+                .startDate(LocalDate.parse(dto.getStartDate()).atStartOfDay())
+                .endDate(LocalDate.parse(dto.getEndDate()).atStartOfDay())
                 .obligationMonths(dto.getObligationMonths())
                 .status(ContractStatus.ACTIVE)
                 .build();
