@@ -45,7 +45,17 @@ export function useAuth() {
     user,
     token: (session as any)?.accessToken || null,
     login: () => signIn("keycloak", { callbackUrl: "/dashboard" }),
-    logout: () => signOut({ callbackUrl: "/login" }),
+    logout: async () => {
+      const idToken = (session as any)?.idToken;
+      await signOut({ redirect: false });
+      if (idToken) {
+        const issuer = "http://localhost:8080/realms/erp-system";
+        const redirectUri = encodeURIComponent(window.location.origin + "/login");
+        window.location.href = `${issuer}/protocol/openid-connect/logout?id_token_hint=${idToken}&post_logout_redirect_uri=${redirectUri}`;
+      } else {
+        window.location.href = "/login";
+      }
+    },
     isAuthenticated: status === "authenticated",
     isLoading: status === "loading",
   };

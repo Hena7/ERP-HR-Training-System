@@ -21,6 +21,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }: any) {
       // Send properties to the client, like an access_token and user id from a provider.
       session.accessToken = token.accessToken;
+      session.idToken = token.idToken;
       
       // Decode JWT token to extract roles and department if needed
       if (token.accessToken) {

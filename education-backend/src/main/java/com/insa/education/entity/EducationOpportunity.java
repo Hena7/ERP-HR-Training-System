@@ -59,6 +59,13 @@ public class EducationOpportunity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private String status = "OPEN";
+
+    @Column
+    private LocalDateTime deadline;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

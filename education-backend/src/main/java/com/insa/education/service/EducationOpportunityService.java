@@ -13,10 +13,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -43,6 +48,8 @@ public class EducationOpportunityService {
                 .department(resolveLegacyDepartment(dto, normalizedTargets))
                 .targetDepartments(normalizedTargets)
                 .description(dto.getDescription())
+                .status(dto.getStatus() != null ? dto.getStatus() : "OPEN")
+                .deadline(parseDeadline(dto.getDeadline()))
                 .build();
 
         EducationOpportunity saved = repository.save(opportunity);
@@ -66,6 +73,10 @@ public class EducationOpportunityService {
         opportunity.setDepartment(resolveLegacyDepartment(dto, normalizedTargets));
         opportunity.setTargetDepartments(normalizedTargets);
         opportunity.setDescription(dto.getDescription());
+        if (dto.getStatus() != null) {
+            opportunity.setStatus(dto.getStatus());
+        }
+        opportunity.setDeadline(parseDeadline(dto.getDeadline()));
 
         EducationOpportunity saved = repository.save(opportunity);
         return mapToResponse(saved);
@@ -99,17 +110,11 @@ public class EducationOpportunityService {
             return repository.findAll(pageable).map(this::mapToResponse);
         }
 
-        Employee currentEmployee = findCurrentEmployee(authentication);
-        if (currentEmployee == null) {
+        if (isPrivilegedUser(authentication)) {
             return repository.findAll(pageable).map(this::mapToResponse);
         }
 
-        String role = currentEmployee.getRole().name();
-        if (isPrivilegedRole(role)) {
-            return repository.findAll(pageable).map(this::mapToResponse);
-        }
-
-        String department = normalizeDepartment(currentEmployee.getDepartment());
+        String department = resolveUserDepartment(authentication);
         if (department == null) {
             return Page.empty(pageable);
         }
@@ -125,17 +130,11 @@ public class EducationOpportunityService {
             return true;
         }
 
-        Employee currentEmployee = findCurrentEmployee(authentication);
-        if (currentEmployee == null) {
+        if (isPrivilegedUser(authentication)) {
             return true;
         }
 
-        String role = currentEmployee.getRole().name();
-        if (isPrivilegedRole(role)) {
-            return true;
-        }
-
-        String userDepartment = normalizeDepartment(currentEmployee.getDepartment());
+        String userDepartment = resolveUserDepartment(authentication);
         if (userDepartment == null) {
             return false;
         }
@@ -153,12 +152,32 @@ public class EducationOpportunityService {
                 .anyMatch(userDepartment::equals);
     }
 
-    private boolean isPrivilegedRole(String role) {
-        return "ADMIN".equals(role)
-                || "CYBER_DEVELOPMENT_CENTER".equals(role)
-                || "HR_OFFICER".equals(role)
-                || "COMMITTEE_MEMBER".equals(role)
-                || "DIRECTOR".equals(role);
+    private boolean isPrivilegedUser(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(auth -> auth.equals("ROLE_ADMIN")
+                        || auth.equals("ROLE_CYBER_DEVELOPMENT_CENTER")
+                        || auth.equals("ROLE_HR_OFFICER")
+                        || auth.equals("ROLE_COMMITTEE_MEMBER")
+                        || auth.equals("ROLE_DIRECTOR"));
+    }
+
+    private String resolveUserDepartment(Authentication authentication) {
+        // 1. Try to get from JWT claims if possible
+        if (authentication instanceof JwtAuthenticationToken jwtToken) {
+            Jwt jwt = jwtToken.getToken();
+            if (jwt.hasClaim("department")) {
+                return normalizeDepartment(jwt.getClaimAsString("department"));
+            }
+        }
+
+        // 2. Fallback to Employee record in database
+        Employee employee = findCurrentEmployee(authentication);
+        if (employee != null) {
+            return normalizeDepartment(employee.getDepartment());
+        }
+
+        return null;
     }
 
     private boolean isUnauthenticated(Authentication authentication) {
@@ -207,6 +226,29 @@ public class EducationOpportunityService {
         return value.trim().toLowerCase(Locale.ROOT);
     }
 
+    private LocalDateTime parseDeadline(String deadline) {
+        if (deadline == null || deadline.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            // Check if it's already a full ISO-8601 string or just a date
+            if (deadline.contains("T")) {
+                return LocalDateTime.parse(deadline, DateTimeFormatter.ISO_DATE_TIME);
+            } else {
+                return java.time.LocalDate.parse(deadline).atStartOfDay();
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String formatDeadline(LocalDateTime deadline) {
+        if (deadline == null) {
+            return "";
+        }
+        return deadline.format(DateTimeFormatter.ISO_DATE_TIME);
+    }
+
     private EducationOpportunityResponse mapToResponse(EducationOpportunity opportunity) {
         return EducationOpportunityResponse.builder()
                 .id(opportunity.getId())
@@ -216,6 +258,8 @@ public class EducationOpportunityService {
                 .department(opportunity.getDepartment())
                 .targetDepartments(opportunity.getTargetDepartments())
                 .description(opportunity.getDescription())
+                .status(opportunity.getStatus())
+                .deadline(formatDeadline(opportunity.getDeadline()))
                 .createdAt(opportunity.getCreatedAt())
                 .updatedAt(opportunity.getUpdatedAt())
                 .build();

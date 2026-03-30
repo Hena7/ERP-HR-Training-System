@@ -17,6 +17,8 @@ public class EducationOpportunityResponse {
     private String department;
     private List<String> targetDepartments;
     private String description;
+    private String status;
+    private String deadline;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

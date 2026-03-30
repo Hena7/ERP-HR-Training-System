@@ -32,4 +32,8 @@ public class EducationOpportunityDto {
     private List<@NotBlank(message = "Target department cannot be blank") String> targetDepartments;
 
     private String description;
+    
+    private String status;
+
+    private String deadline;
 }
