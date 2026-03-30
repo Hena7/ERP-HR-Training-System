@@ -98,19 +98,20 @@ export default function EducationOpportunitiesPage() {
 
   const fetchDepartments = async () => {
     try {
-      const response = await userApi.getAll();
-      const users = (response.data as any[]) || [];
-      const departments: string[] = Array.from(
-        new Set(
-          users
-            .map((item: { department?: string }) =>
-              (item.department || "").trim(),
-            )
-            .filter(Boolean),
-        ),
-      ).sort((a, b) => a.localeCompare(b));
+      // In a Keycloak-driven user system, departments should either be fetched from Keycloak Admin API
+      // or managed as predefined categories. For now, we use a standard list of departments.
+      const standardDepartments = [
+        "Cyber Development Center",
+        "HR & Training",
+        "Finance",
+        "Operations",
+        "Engineering",
+        "Legal",
+        "Research & Development",
+        "IT Support"
+      ].sort((a, b) => a.localeCompare(b));
 
-      setDepartmentOptions(departments);
+      setDepartmentOptions(standardDepartments);
     } catch (error) {
       console.error("Failed to load departments", error);
       setDepartmentOptions([]);

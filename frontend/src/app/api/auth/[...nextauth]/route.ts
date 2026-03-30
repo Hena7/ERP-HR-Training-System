@@ -22,7 +22,7 @@ export const authOptions: NextAuthOptions = {
       // Send properties to the client, like an access_token and user id from a provider.
       session.accessToken = token.accessToken;
       
-      // Decode JWT token to extract roles if needed
+      // Decode JWT token to extract roles and department if needed
       if (token.accessToken) {
         try {
           const payloadBase64 = String(token.accessToken).split('.')[1];
@@ -31,6 +31,9 @@ export const authOptions: NextAuthOptions = {
           
           if (decoded.realm_access && decoded.realm_access.roles) {
             session.user.roles = decoded.realm_access.roles;
+          }
+          if (decoded.department) {
+            session.user.department = decoded.department;
           }
         } catch (e) {
           console.error("Failed to parse token payload", e);

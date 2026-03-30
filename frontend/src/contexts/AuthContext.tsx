@@ -14,19 +14,32 @@ export function useAuth() {
 
   // Extract roles injected into the NextAuth session via the custom jwt callback
   const roles = (session as any)?.user?.roles || [];
-  
+
   // Backward compatibility: Find the first relevant role that matches the old expected backend roles
-  const primaryRole = roles.find((r: string) => 
-    ["CYBER_DEVELOPMENT_CENTER", "DEPARTMENT_HEAD", "HR_OFFICER", "COMMITTEE_MEMBER", "ADMIN", "EMPLOYEE"].includes(r)
-  ) || roles[0] || "EMPLOYEE";
+  const primaryRole =
+    roles.find((r: string) =>
+      [
+        "CYBER_DEVELOPMENT_CENTER",
+        "DEPARTMENT_HEAD",
+        " ",
+        "COMMITTEE_MEMBER",
+        "ADMIN",
+        "EMPLOYEE",
+      ].includes(r),
+    ) ||
+    roles[0] ||
+    "EMPLOYEE";
 
   // Map standard Keycloak claims to the legacy AuthResponse object
-  const user: AuthResponse | null = session ? {
-    token: (session as any).accessToken || "",
-    role: primaryRole as any,
-    fullName: session.user?.name || "Keycloak User",
-    email: session.user?.email || "user@example.com",
-  } : null;
+  const user: AuthResponse | null = session
+    ? {
+        token: (session as any).accessToken || "",
+        role: primaryRole as any,
+        fullName: session.user?.name || "Keycloak User",
+        email: session.user?.email || "user@example.com",
+        department: (session as any).user?.department || "",
+      }
+    : null;
 
   return {
     user,
