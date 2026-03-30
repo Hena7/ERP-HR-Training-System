@@ -2,6 +2,7 @@ import axios from "axios";
 
 // Changed to match the modern backend microservice port (8081)
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081";
+const TRAINING_API_URL = process.env.NEXT_PUBLIC_TRAINING_URL || "http://localhost:8082";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -10,9 +11,27 @@ const api = axios.create({
   },
 });
 
+export const trainingApi = axios.create({
+  baseURL: TRAINING_API_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
 api.interceptors.request.use(async (config) => {
   if (typeof window !== "undefined") {
     // Dynamically retrieve the active NextAuth session containing the Keycloak token
+    const { getSession } = await import("next-auth/react");
+    const session = await getSession();
+    if (session && (session as any).accessToken) {
+      config.headers.Authorization = `Bearer ${(session as any).accessToken}`;
+    }
+  }
+  return config;
+});
+
+trainingApi.interceptors.request.use(async (config) => {
+  if (typeof window !== "undefined") {
     const { getSession } = await import("next-auth/react");
     const session = await getSession();
     if (session && (session as any).accessToken) {
