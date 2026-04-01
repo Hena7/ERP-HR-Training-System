@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import StatusBadge from "@/components/StatusBadge";
 import { trainingRequestApi } from "@/app/training/services/trainingApi";
 import { TrainingRequest } from "@/types/training";
@@ -30,6 +31,7 @@ const STATUS_OPTIONS = [
 
 export default function TrainingRequestsListPage() {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const [requests, setRequests] = useState<TrainingRequest[]>([]);
   const [filtered, setFiltered] = useState<TrainingRequest[]>([]);
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -37,12 +39,26 @@ export default function TrainingRequestsListPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    trainingRequestApi.getAll().then(({ data }) => {
-      setRequests(data);
-      setFiltered(data);
-      setLoading(false);
-    });
-  }, []);
+    const fetchRequests = async () => {
+      try {
+        const isEmployeeOnly = user?.role === "EMPLOYEE" && !["DEPARTMENT_HEAD", "ADMIN"].includes(user?.role);
+        const { data } = isEmployeeOnly && user?.employeeId
+          ? await trainingRequestApi.getMyRequests(user.employeeId)
+          : await trainingRequestApi.getAll();
+        
+        setRequests(data);
+        setFiltered(data);
+      } catch (err) {
+        console.error("Failed to fetch requests", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchRequests();
+    }
+  }, [user]);
 
   useEffect(() => {
     if (statusFilter === "ALL") {

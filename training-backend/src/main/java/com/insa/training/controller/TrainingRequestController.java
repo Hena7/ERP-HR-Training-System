@@ -25,9 +25,15 @@ public class TrainingRequestController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('HR_OFFICER', 'ADMIN', 'DEPARTMENT_HEAD')")
+    @PreAuthorize("hasAnyRole('HR_OFFICER', 'ADMIN', 'DEPARTMENT_HEAD', 'EMPLOYEE')")
     public ResponseEntity<List<TrainingRequestResponse>> getAll() {
         return ResponseEntity.ok(service.getAll());
+    }
+
+    @GetMapping("/my-requests")
+    @PreAuthorize("hasAnyRole('EMPLOYEE', 'DEPARTMENT_HEAD', 'ADMIN')")
+    public ResponseEntity<List<TrainingRequestResponse>> getMyRequests(@RequestParam String requesterId) {
+        return ResponseEntity.ok(service.getByRequester(requesterId));
     }
 
     @GetMapping("/{id}")

@@ -50,6 +50,18 @@ public class TrainingRequest {
     @Column(name = "requester_id")
     private String requesterId;
 
+    @Column(name = "requester_email")
+    private String requesterEmail;
+
+    @Column(name = "requester_phone")
+    private String requesterPhone;
+
+    @Column(name = "requester_gender")
+    private String requesterGender;
+
+    @Column(name = "requester_position")
+    private String requesterPosition;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default

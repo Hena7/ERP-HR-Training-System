@@ -38,6 +38,10 @@ export function useAuth() {
         fullName: session.user?.name || "Keycloak User",
         email: session.user?.email || "user@example.com",
         department: (session as any).user?.department || "",
+        employeeId: (session as any).user?.employeeId || "",
+        phone: (session as any).user?.phone || "",
+        gender: (session as any).user?.gender || "",
+        position: (session as any).user?.position || "",
       }
     : null;
 

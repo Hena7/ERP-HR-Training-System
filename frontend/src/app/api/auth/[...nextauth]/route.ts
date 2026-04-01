@@ -33,9 +33,12 @@ export const authOptions: NextAuthOptions = {
           if (decoded.realm_access && decoded.realm_access.roles) {
             session.user.roles = decoded.realm_access.roles;
           }
-          if (decoded.department) {
-            session.user.department = decoded.department;
-          }
+          // Extract Keycloak custom attributes
+          if (decoded.employee_id) session.user.employeeId = decoded.employee_id;
+          if (decoded.department) session.user.department = decoded.department;
+          if (decoded.phone) session.user.phone = decoded.phone;
+          if (decoded.gender) session.user.gender = decoded.gender;
+          if (decoded.position) session.user.position = decoded.position;
         } catch (e) {
           console.error("Failed to parse token payload", e);
         }

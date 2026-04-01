@@ -56,7 +56,11 @@ export default function TrainingRequestFormPage() {
         estimatedCost: parseFloat(form.estimatedCost),
         numTrainees: parseInt(form.numTrainees),
         requesterName: user?.fullName || user?.email,
-        requesterId: user?.id,
+        requesterId: user?.employeeId || user?.id,
+        requesterEmail: user?.email,
+        requesterPhone: user?.phone,
+        requesterGender: user?.gender,
+        requesterPosition: user?.position,
       });
       setSuccess(true);
       setForm({

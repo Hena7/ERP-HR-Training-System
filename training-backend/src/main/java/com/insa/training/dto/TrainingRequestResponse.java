@@ -22,6 +22,10 @@ public class TrainingRequestResponse {
     private String specification;
     private String requesterName;
     private String requesterId;
+    private String requesterEmail;
+    private String requesterPhone;
+    private String requesterGender;
+    private String requesterPosition;
     private TrainingStatus status;
     private String reviewNote;
     private Long contractId;

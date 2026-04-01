@@ -21,4 +21,8 @@ public class TrainingRequestDto {
     private String specification;
     private String requesterName;
     private String requesterId;
+    private String requesterEmail;
+    private String requesterPhone;
+    private String requesterGender;
+    private String requesterPosition;
 }

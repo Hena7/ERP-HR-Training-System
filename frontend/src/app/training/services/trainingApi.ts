@@ -7,6 +7,8 @@ export const trainingRequestApi = {
   create: (data: any) => trainingApi.post("/api/training-requests", data),
 
   getAll: () => trainingApi.get("/api/training-requests"),
+  
+  getMyRequests: (requesterId: string) => trainingApi.get("/api/training-requests/my-requests", { params: { requesterId } }),
 
   getById: (id: number) => trainingApi.get(`/api/training-requests/${id}`),
 

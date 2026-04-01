@@ -32,6 +32,10 @@ public class TrainingRequestService {
                 .specification(dto.getSpecification())
                 .requesterName(dto.getRequesterName())
                 .requesterId(dto.getRequesterId())
+                .requesterEmail(dto.getRequesterEmail())
+                .requesterPhone(dto.getRequesterPhone())
+                .requesterGender(dto.getRequesterGender())
+                .requesterPosition(dto.getRequesterPosition())
                 .status(TrainingStatus.SUBMITTED)
                 .build();
 
@@ -41,6 +45,13 @@ public class TrainingRequestService {
     @Transactional(readOnly = true)
     public List<TrainingRequestResponse> getAll() {
         return repository.findAll().stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<TrainingRequestResponse> getByRequester(String requesterId) {
+        return repository.findByRequesterId(requesterId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -77,6 +88,10 @@ public class TrainingRequestService {
                 .specification(request.getSpecification())
                 .requesterName(request.getRequesterName())
                 .requesterId(request.getRequesterId())
+                .requesterEmail(request.getRequesterEmail())
+                .requesterPhone(request.getRequesterPhone())
+                .requesterGender(request.getRequesterGender())
+                .requesterPosition(request.getRequesterPosition())
                 .status(request.getStatus())
                 .reviewNote(request.getReviewNote())
                 .contractId(request.getContractId())

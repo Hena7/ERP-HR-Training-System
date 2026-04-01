@@ -31,8 +31,11 @@ export interface AuthResponse {
   email: string;
   fullName: string;
   role: UserRole;
-  employeeId?: number;
+  employeeId?: string;
   department?: string;
+  phone?: string;
+  gender?: string;
+  position?: string;
 }
 
 export interface EducationRequest {
