@@ -47,9 +47,18 @@ public class EducationRequestController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('DEPARTMENT_HEAD', 'HR_OFFICER', 'CYBER_DEVELOPMENT_CENTER', 'COMMITTEE_MEMBER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('DEPARTMENT_HEAD', 'HR_OFFICER', 'CYBER_DEVELOPMENT_CENTER', 'COMMITTEE_MEMBER', 'ADMIN', 'EMPLOYEE')")
     public ResponseEntity<Page<EducationRequestResponse>> getAll(Pageable pageable) {
         return ResponseEntity.ok(requestService.getAll(pageable));
+    }
+
+    @GetMapping("/my-requests")
+    @PreAuthorize("hasAnyRole('EMPLOYEE', 'DEPARTMENT_HEAD', 'ADMIN')")
+    public ResponseEntity<Page<EducationRequestResponse>> getMyRequests(
+            @RequestParam String employeeId,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(requestService.getByEmployeeEmployeeId(employeeId, pageable));
     }
 
     @GetMapping("/employee/{employeeId}")

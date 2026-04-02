@@ -96,10 +96,16 @@ export default function EducationRequestsPage() {
 
   const loadRequests = async () => {
     try {
-      const res = await educationRequestApi.getAll(0, 100);
+      const isRegularEmployee = user?.role === "EMPLOYEE" && 
+                                !["DEPARTMENT_HEAD", "ADMIN", "HR_OFFICER", "CYBER_DEVELOPMENT_CENTER", "COMMITTEE_MEMBER"].includes(user?.role);
+      
+      const res = isRegularEmployee && user?.employeeId
+        ? await educationRequestApi.getMyRequests(user.employeeId, 0, 100)
+        : await educationRequestApi.getAll(0, 100);
+        
       setRequests(res.data.content || []);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to load education requests", err);
     }
   };
 

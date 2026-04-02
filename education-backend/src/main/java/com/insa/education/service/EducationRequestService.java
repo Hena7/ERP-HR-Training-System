@@ -129,6 +129,12 @@ public class EducationRequestService {
     }
 
     @Transactional(readOnly = true)
+    public Page<EducationRequestResponse> getByEmployeeEmployeeId(String employeeId, Pageable pageable) {
+        return requestRepository.findByEmployee_EmployeeId(employeeId, pageable)
+                .map(mapper::toEducationRequestResponse);
+    }
+
+    @Transactional(readOnly = true)
     public Page<EducationRequestResponse> getByStatus(RequestStatus status, Pageable pageable) {
         return requestRepository.findByStatus(status, pageable)
                 .map(mapper::toEducationRequestResponse);

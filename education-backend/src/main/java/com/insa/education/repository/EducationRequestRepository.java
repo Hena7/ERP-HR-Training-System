@@ -12,6 +12,9 @@ import java.util.List;
 @Repository
 public interface EducationRequestRepository extends JpaRepository<EducationRequest, Long> {
     Page<EducationRequest> findByEmployeeId(Long employeeId, Pageable pageable);
+    
+    Page<EducationRequest> findByEmployee_EmployeeId(String employeeId, Pageable pageable);
+    
     Page<EducationRequest> findByStatus(RequestStatus status, Pageable pageable);
     List<EducationRequest> findByEmployeeIdAndStatus(Long employeeId, RequestStatus status);
 }

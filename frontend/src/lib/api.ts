@@ -83,6 +83,7 @@ export const educationRequestApi = {
   createBulk: (data: any) => api.post("/api/education-requests/bulk", data),
   getById: (id: number) => api.get(`/api/education-requests/${id}`),
   getAll: (page = 0, size = 10) => api.get(`/api/education-requests?page=${page}&size=${size}`),
+  getMyRequests: (employeeId: string, page = 0, size = 10) => api.get("/api/education-requests/my-requests", { params: { employeeId, page, size } }),
   getByEmployee: (employeeId: number, page = 0, size = 10) => api.get(`/api/education-requests/employee/${employeeId}?page=${page}&size=${size}`),
   getByStatus: (status: string | string[], page = 0, size = 10) => {
     const statusParam = Array.isArray(status) ? status.join(',') : status;
