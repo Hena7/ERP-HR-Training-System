@@ -2,7 +2,6 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useRouter } from "next/navigation";
 import LanguageToggle from "./LanguageToggle";
 import { LogOut, User } from "lucide-react";
 
@@ -18,11 +17,9 @@ type HeaderRole =
 export default function Header() {
   const { user, logout } = useAuth();
   const { t } = useLanguage();
-  const router = useRouter();
 
-  const handleLogout = () => {
-    logout();
-    router.push("/login");
+  const handleLogout = async () => {
+    await logout();
   };
 
   const roleLabel = (role: string) => {

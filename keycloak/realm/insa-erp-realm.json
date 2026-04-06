@@ -1,0 +1,114 @@
+{
+  "realm": "insa-erp",
+  "enabled": true,
+  "displayName": "INSA ERP Realm",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "roles": {
+    "realm": [
+      { "name": "EMPLOYEE" },
+      { "name": "DEPARTMENT_HEAD" },
+      { "name": "HR_OFFICER" },
+      { "name": "CYBER_DEVELOPMENT_CENTER" },
+      { "name": "COMMITTEE_MEMBER" },
+      { "name": "DIRECTOR" },
+      { "name": "PROCUREMENT" },
+      { "name": "ADMIN" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "erp-frontend",
+      "name": "ERP Frontend",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "directAccessGrantsEnabled": false,
+      "standardFlowEnabled": true,
+      "redirectUris": [
+        "http://localhost:3000/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "admin.user",
+      "enabled": true,
+      "firstName": "System",
+      "lastName": "Admin",
+      "email": "admin@insa.local",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "username": "hr.officer",
+      "enabled": true,
+      "firstName": "HR",
+      "lastName": "Officer",
+      "email": "hr@insa.local",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "HR_OFFICER"
+      ]
+    },
+    {
+      "username": "department.head",
+      "enabled": true,
+      "firstName": "Department",
+      "lastName": "Head",
+      "email": "department-head@insa.local",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "DEPARTMENT_HEAD"
+      ]
+    },
+    {
+      "username": "cdc.user",
+      "enabled": true,
+      "firstName": "CDC",
+      "lastName": "Officer",
+      "email": "cdc@insa.local",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "CYBER_DEVELOPMENT_CENTER"
+      ]
+    }
+  ]
+}

@@ -3,6 +3,7 @@ package com.insa.education.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -10,26 +11,31 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-
-    private final JwtAuthFilter jwtAuthFilter;
-
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
-        this.jwtAuthFilter = jwtAuthFilter;
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -78,9 +84,59 @@ public class SecurityConfig {
 
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .oauth2ResourceServer(oauth2 ->
+                oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
 
         return http.build();
+    }
+
+    @Bean
+    public Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter scopesConverter = new JwtGrantedAuthoritiesConverter();
+
+        return jwt -> {
+            Set<GrantedAuthority> authorities = new HashSet<>();
+            Collection<GrantedAuthority> scopeAuthorities = scopesConverter.convert(jwt);
+            if (scopeAuthorities != null) {
+                authorities.addAll(scopeAuthorities);
+            }
+
+            authorities.addAll(extractRolesFromAccessClaim(jwt.getClaims().get("realm_access")));
+
+            Object resourceAccessClaim = jwt.getClaims().get("resource_access");
+            if (resourceAccessClaim instanceof Map<?, ?> resourceAccessMap) {
+                for (Object clientAccess : resourceAccessMap.values()) {
+                    authorities.addAll(extractRolesFromAccessClaim(clientAccess));
+                }
+            }
+
+            String principalName = jwt.getClaimAsString("preferred_username");
+            if (principalName == null || principalName.isBlank()) {
+                principalName = jwt.getSubject();
+            }
+
+            return new JwtAuthenticationToken(jwt, authorities, principalName);
+        };
+    }
+
+    private Set<GrantedAuthority> extractRolesFromAccessClaim(Object accessClaim) {
+        if (!(accessClaim instanceof Map<?, ?> accessMap)) {
+            return Set.of();
+        }
+
+        Object roles = accessMap.get("roles");
+        if (!(roles instanceof Collection<?> roleList)) {
+            return Set.of();
+        }
+
+        return roleList.stream()
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(role -> !role.isBlank())
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                .collect(Collectors.toSet());
     }
 
     @Bean
