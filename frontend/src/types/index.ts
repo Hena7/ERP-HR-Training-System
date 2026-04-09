@@ -83,6 +83,7 @@ export interface HRVerification {
   disciplineSubScore?: number;
   affirmativeBonus?: number;
   totalCalculatedScore?: number;
+  gender?: string;
 }
 
 export interface CommitteeDecision {

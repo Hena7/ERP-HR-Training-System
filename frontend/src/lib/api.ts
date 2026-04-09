@@ -601,6 +601,7 @@ export const hrVerificationApi = {
       disciplineSubScore: Number(data.disciplineSubScore || 0),
       affirmativeBonus: Number(data.affirmativeBonus || 0),
       totalCalculatedScore: Number(data.totalCalculatedScore || 0),
+      gender: data.gender || "Male",
       status,
       id: Date.now(),
       verifiedAt: new Date().toISOString(),

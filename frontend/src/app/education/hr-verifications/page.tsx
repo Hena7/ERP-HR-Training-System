@@ -19,6 +19,7 @@ interface VerificationFormState {
   experienceYears: string;
   experienceMonths: string;
   isDisabled: boolean;
+  gender: string;
 }
 
 const initialForm: VerificationFormState = {
@@ -30,6 +31,7 @@ const initialForm: VerificationFormState = {
   experienceYears: "",
   experienceMonths: "",
   isDisabled: false,
+  gender: "Male",
 };
 
 export default function HRVerificationsPage() {
@@ -78,7 +80,7 @@ export default function HRVerificationsPage() {
   }, [form.semester1Score, form.semester2Score]);
 
   const scoringResult = useMemo(() => {
-    if (!form.requestId || !selectedEmployee) return null;
+    if (!form.requestId) return null;
 
     return calculateEducationScore({
       experienceYears: Number(form.experienceYears) || 0,
@@ -86,10 +88,19 @@ export default function HRVerificationsPage() {
       performance1: Number(form.semester1Score) || 0,
       performance2: Number(form.semester2Score) || 0,
       hasDiscipline: form.hasDiscipline,
-      gender: selectedEmployee.gender || "Male",
+      gender: form.gender,
       isDisabled: form.isDisabled,
     });
-  }, [form, selectedEmployee]);
+  }, [
+    form.requestId,
+    form.experienceYears,
+    form.experienceMonths,
+    form.semester1Score,
+    form.semester2Score,
+    form.hasDiscipline,
+    form.gender,
+    form.isDisabled,
+  ]);
 
   const resetForm = () => {
     setForm(initialForm);
@@ -102,14 +113,17 @@ export default function HRVerificationsPage() {
       ...initialForm,
       requestId: request.id,
       experienceYears: request.workExperience?.toString() || "",
+      gender: "Male", // Default
     });
 
-    // Fetch employee details for gender
+    // Fetch employee details for gender fallback
     try {
       const empRes = await employeeApi.getById(request.employeeId);
+      if (empRes.data.gender) {
+        setForm(f => ({ ...f, gender: empRes.data.gender }));
+      }
       setSelectedEmployee(empRes.data);
     } catch {
-      // Fallback
       setSelectedEmployee({ gender: "Male" } as any);
     }
   };
@@ -157,6 +171,7 @@ export default function HRVerificationsPage() {
         experienceYears: Number(form.experienceYears),
         experienceMonths: Number(form.experienceMonths),
         isDisabled: form.isDisabled,
+        gender: form.gender,
         experienceSubScore: scoringResult?.experienceScore,
         performanceSubScore: scoringResult?.performanceScore,
         disciplineSubScore: scoringResult?.disciplineScore,
@@ -438,19 +453,44 @@ export default function HRVerificationsPage() {
                       />
                     </div>
                   </div>
-                  <div className="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Disability Status</span>
-                    <button
-                      type="button"
-                      onClick={() => setForm(f => ({ ...f, isDisabled: !f.isDisabled }))}
-                      className={`rounded-lg px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm ${
-                        form.isDisabled 
-                          ? "bg-amber-100 text-amber-700 border border-amber-200 hover:bg-amber-200" 
-                          : "bg-gray-100 text-gray-500 border border-gray-200 hover:bg-gray-200"
-                      }`}
-                    >
-                      {form.isDisabled ? "Disabled" : "Not Disabled"}
-                    </button>
+                  <div className="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between gap-4">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Gender</span>
+                      <div className="flex rounded-lg border border-gray-200 bg-white p-1">
+                        <button
+                          type="button"
+                          onClick={() => setForm(f => ({ ...f, gender: "Male" }))}
+                          className={`rounded-md px-3 py-1 text-[10px] font-bold uppercase transition-all ${
+                            form.gender === "Male" ? "bg-blue-600 text-white shadow-sm" : "text-gray-500 hover:bg-gray-50"
+                          }`}
+                        >
+                          Male
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setForm(f => ({ ...f, gender: "Female" }))}
+                          className={`rounded-md px-3 py-1 text-[10px] font-bold uppercase transition-all ${
+                            form.gender === "Female" ? "bg-pink-600 text-white shadow-sm" : "text-gray-500 hover:bg-gray-50"
+                          }`}
+                        >
+                          Female
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Status</span>
+                      <button
+                        type="button"
+                        onClick={() => setForm(f => ({ ...f, isDisabled: !f.isDisabled }))}
+                        className={`rounded-lg px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm ${
+                          form.isDisabled 
+                            ? "bg-amber-100 text-amber-700 border border-amber-200 hover:bg-amber-200" 
+                            : "bg-gray-100 text-gray-500 border border-gray-200 hover:bg-gray-200"
+                        }`}
+                      >
+                        {form.isDisabled ? "Disabled" : "Not Disabled"}
+                      </button>
+                    </div>
                   </div>
                 </div>
 

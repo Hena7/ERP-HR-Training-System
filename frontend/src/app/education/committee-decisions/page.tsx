@@ -254,29 +254,35 @@ export default function CommitteeDecisionsPage() {
               )}
 
               {selectedScoring && (
-                <div className="md:col-span-2 rounded-xl bg-blue-50/50 p-6 border border-blue-100">
-                    <div className="flex items-center gap-2 mb-4">
-                        <BarChart3 className="h-4 w-4 text-blue-600" />
-                        <h3 className="text-[10px] font-bold uppercase tracking-widest text-blue-600">{t("cdcScoring")}</h3>
+                <div className="md:col-span-2 rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50/50 to-white p-6 shadow-sm">
+                    <div className="flex items-center gap-2 mb-6">
+                        <BarChart3 className="h-5 w-5 text-blue-600" />
+                        <h3 className="text-sm font-bold uppercase tracking-widest text-blue-800">Automated Scoring Result</h3>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-                        <div>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">{t("experienceScore")}</p>
-                            <p className="text-base font-bold text-gray-900">{selectedScoring.experienceScore}</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                        <div className="space-y-1">
+                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Experience</p>
+                            <p className="text-lg font-bold text-gray-900">{selectedScoring.experienceScore.toFixed(2)}</p>
                         </div>
-                        <div>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">{t("performanceScore")}</p>
-                            <p className="text-base font-bold text-gray-900">{selectedScoring.performanceScore}</p>
+                        <div className="space-y-1">
+                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Performance</p>
+                            <p className="text-lg font-bold text-gray-900">{selectedScoring.performanceScore.toFixed(2)}</p>
                         </div>
-                        <div>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">{t("disciplineScore")}</p>
-                            <p className="text-base font-bold text-gray-900">{selectedScoring.disciplineScore}</p>
+                        <div className="space-y-1">
+                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Discipline</p>
+                            <p className="text-lg font-bold text-gray-900">{selectedScoring.disciplineScore.toFixed(2)}</p>
                         </div>
-                        <div className="flex items-end">
-                            <div className="rounded-lg bg-blue-600 px-3 py-1.5 shadow-md shadow-blue-200">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-blue-100 mb-0.5">{t("totalScore")}</p>
-                                <p className="text-xl font-bold text-white tracking-tight">{selectedScoring.totalScore}%</p>
-                            </div>
+                        <div className="space-y-1">
+                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Bonus</p>
+                            <p className="text-lg font-bold text-indigo-600">
+                                +{(selectedScoring.totalScore - (selectedScoring.experienceScore + selectedScoring.performanceScore + selectedScoring.disciplineScore)).toFixed(2)}
+                            </p>
+                        </div>
+                        <div className="flex flex-col items-end justify-center sm:border-l sm:border-blue-100 sm:pl-4">
+                            <p className="text-[9px] font-bold uppercase tracking-widest text-blue-600 mb-0.5">Final Score</p>
+                            <span className="rounded-lg bg-blue-600 px-4 py-1.5 text-2xl font-black text-white shadow-md shadow-blue-100">
+                                {selectedScoring.totalScore}%
+                            </span>
                         </div>
                     </div>
                 </div>
