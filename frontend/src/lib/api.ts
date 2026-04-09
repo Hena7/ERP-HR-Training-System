@@ -751,13 +751,14 @@ export const cdcScoringApi = {
       throw new Error("All scores must be numbers between 0 and 100");
     }
 
-    // Weighted formula: Dynamic weights from config
-    const totalScore =
-      Math.round(
-        (experienceScore * config.experienceWeight + 
-         performanceScore * config.performanceWeight + 
-         disciplineScore * config.disciplineWeight) * 100,
-      ) / 100;
+    // Use provided totalScore if available, otherwise recalculate using config weights
+    const totalScore = (data.totalScore !== undefined) 
+      ? Number(data.totalScore)
+      : Math.round(
+          (experienceScore * config.experienceWeight + 
+           performanceScore * config.performanceWeight + 
+           disciplineScore * config.disciplineWeight) * 100,
+        ) / 100;
 
     const user = typeof window !== "undefined"
       ? JSON.parse(localStorage.getItem("user") || "{}")

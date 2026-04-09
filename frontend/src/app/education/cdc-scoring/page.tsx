@@ -88,6 +88,7 @@ export default function CDCScoringPage() {
         experienceScore: hrVer.experienceSubScore || 0,
         performanceScore: hrVer.performanceSubScore || hrVer.averageScore || 0,
         disciplineScore: hrVer.disciplineSubScore || 10,
+        totalScore: hrVer.totalCalculatedScore || 0,
       });
 
       await loadData();

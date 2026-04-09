@@ -275,7 +275,7 @@ export default function CommitteeDecisionsPage() {
                         <div className="space-y-1">
                             <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Bonus</p>
                             <p className="text-lg font-bold text-indigo-600">
-                                +{(selectedScoring.totalScore - (selectedScoring.experienceScore + selectedScoring.performanceScore + selectedScoring.disciplineScore)).toFixed(2)}
+                                +{Math.max(0, selectedScoring.totalScore - (selectedScoring.experienceScore + selectedScoring.performanceScore + selectedScoring.disciplineScore)).toFixed(2)}
                             </p>
                         </div>
                         <div className="flex flex-col items-end justify-center sm:border-l sm:border-blue-100 sm:pl-4">
