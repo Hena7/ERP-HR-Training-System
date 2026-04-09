@@ -96,13 +96,12 @@ export default function CDCScoringPage() {
   };
 
   const handleRequestSelect = (request: EducationRequest) => {
-    // Pre-fill performance score from HR average if available
     const hrVer = hrVerifications[request.id];
     setForm({
       requestId: request.id,
-      experienceScore: "",
-      performanceScore: hrVer ? hrVer.averageScore.toString() : "",
-      disciplineScore: "",
+      experienceScore: hrVer?.experienceSubScore?.toString() || "",
+      performanceScore: hrVer?.performanceSubScore?.toString() || hrVer?.averageScore?.toString() || "",
+      disciplineScore: hrVer?.disciplineSubScore?.toString() || "",
     });
   };
 
@@ -197,7 +196,7 @@ export default function CDCScoringPage() {
                   <th className="px-6 py-4">ID</th>
                   <th className="px-6 py-4">{t("fullName")}</th>
                   <th className="px-6 py-4">{t("workExperience")}</th>
-                  <th className="px-6 py-4">{t("averageScore")} (HR)</th>
+                  <th className="px-6 py-4">Auto-Score (HR)</th>
                   <th className="px-6 py-4">{t("disciplineRecord")}</th>
                   <th className="px-6 py-4 text-right">{t("actions")}</th>
                 </tr>
@@ -215,8 +214,8 @@ export default function CDCScoringPage() {
                           {request.employeeName}
                         </td>
                         <td className="px-6 py-4 font-medium text-gray-700">{request.workExperience} Years</td>
-                        <td className="px-6 py-4 font-bold text-gray-900">
-                          {hrVer ? hrVer.averageScore : "-"}
+                        <td className="px-6 py-4 font-black text-indigo-600">
+                          {hrVer?.totalCalculatedScore?.toFixed(2) || hrVer?.averageScore || "-"}
                         </td>
                         <td className="px-6 py-4">
                             <span className={`inline-flex rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${request.description?.toLowerCase().includes("discipline") ? "bg-red-50 text-red-600 border border-red-100" : "bg-emerald-50 text-emerald-600 border border-emerald-100"}`}>
@@ -282,8 +281,8 @@ export default function CDCScoringPage() {
                      <p className="text-sm font-bold text-gray-900">{selectedRequest.workExperience} {t("years") || "Years"}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">{t("averageScore")} (HR)</p>
-                    <p className="text-sm font-bold text-gray-900">{hrVerifications[selectedRequest.id]?.averageScore || "-"}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Automated HR Score</p>
+                    <p className="text-sm font-black text-indigo-600">{hrVerifications[selectedRequest.id]?.totalCalculatedScore?.toFixed(2) || "-"}</p>
                   </div>
                 </div>
                 {((selectedRequest as any).remark || selectedRequest.description) && (

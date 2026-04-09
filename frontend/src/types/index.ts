@@ -74,6 +74,15 @@ export interface HRVerification {
   status: "VERIFIED" | "REJECTED";
   verifiedBy: string;
   verifiedAt: string;
+  // New scoring fields
+  experienceYears?: number;
+  experienceMonths?: number;
+  isDisabled?: boolean;
+  experienceSubScore?: number;
+  performanceSubScore?: number;
+  disciplineSubScore?: number;
+  affirmativeBonus?: number;
+  totalCalculatedScore?: number;
 }
 
 export interface CommitteeDecision {

@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { educationRequestApi, hrVerificationApi } from "@/lib/api";
-import { EducationRequest, HRVerification } from "@/types";
-import { CheckCircle2, ClipboardCheck, XCircle, RotateCcw } from "lucide-react";
+import { educationRequestApi, hrVerificationApi, employeeApi } from "@/lib/api";
+import { EducationRequest, HRVerification, Employee } from "@/types";
+import { CheckCircle2, ClipboardCheck, XCircle, RotateCcw, Calculator, Award, User, AlertCircle } from "lucide-react";
+import { calculateEducationScore } from "@/lib/scoring";
 
 type VerificationStatus = "VERIFIED" | "REJECTED" | "RETURNED_TO_DEPT";
 
@@ -15,6 +16,9 @@ interface VerificationFormState {
   semester2Score: string;
   hasDiscipline: boolean;
   disciplineDescription: string;
+  experienceYears: string;
+  experienceMonths: string;
+  isDisabled: boolean;
 }
 
 const initialForm: VerificationFormState = {
@@ -23,6 +27,9 @@ const initialForm: VerificationFormState = {
   semester2Score: "",
   hasDiscipline: false,
   disciplineDescription: "",
+  experienceYears: "",
+  experienceMonths: "",
+  isDisabled: false,
 };
 
 export default function HRVerificationsPage() {
@@ -30,6 +37,7 @@ export default function HRVerificationsPage() {
 
   const [requests, setRequests] = useState<EducationRequest[]>([]);
   const [verifications, setVerifications] = useState<HRVerification[]>([]);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [form, setForm] = useState<VerificationFormState>(initialForm);
   const [loading, setLoading] = useState(false);
   const [submittingStatus, setSubmittingStatus] =
@@ -69,19 +77,41 @@ export default function HRVerificationsPage() {
     return ((semester1 + semester2) / 2).toFixed(2);
   }, [form.semester1Score, form.semester2Score]);
 
+  const scoringResult = useMemo(() => {
+    if (!form.requestId || !selectedEmployee) return null;
+
+    return calculateEducationScore({
+      experienceYears: Number(form.experienceYears) || 0,
+      experienceMonths: Number(form.experienceMonths) || 0,
+      performance1: Number(form.semester1Score) || 0,
+      performance2: Number(form.semester2Score) || 0,
+      hasDiscipline: form.hasDiscipline,
+      gender: selectedEmployee.gender || "Male",
+      isDisabled: form.isDisabled,
+    });
+  }, [form, selectedEmployee]);
+
   const resetForm = () => {
     setForm(initialForm);
+    setSelectedEmployee(null);
     setSubmittingStatus(null);
   };
 
-  const handleRequestSelect = (requestId: number) => {
+  const handleRequestSelect = async (request: EducationRequest) => {
     setForm({
-      requestId,
-      semester1Score: "",
-      semester2Score: "",
-      hasDiscipline: false,
-      disciplineDescription: "",
+      ...initialForm,
+      requestId: request.id,
+      experienceYears: request.workExperience?.toString() || "",
     });
+
+    // Fetch employee details for gender
+    try {
+      const empRes = await employeeApi.getById(request.employeeId);
+      setSelectedEmployee(empRes.data);
+    } catch {
+      // Fallback
+      setSelectedEmployee({ gender: "Male" } as any);
+    }
   };
 
   const handleSubmit = async (
@@ -124,6 +154,14 @@ export default function HRVerificationsPage() {
         averageScore: Number(averageScore),
         hasDiscipline: form.hasDiscipline,
         disciplineDescription: form.disciplineDescription,
+        experienceYears: Number(form.experienceYears),
+        experienceMonths: Number(form.experienceMonths),
+        isDisabled: form.isDisabled,
+        experienceSubScore: scoringResult?.experienceScore,
+        performanceSubScore: scoringResult?.performanceScore,
+        disciplineSubScore: scoringResult?.disciplineScore,
+        affirmativeBonus: scoringResult?.affirmativeBonus,
+        totalCalculatedScore: scoringResult?.finalTotalScore,
         status,
       });
 
@@ -215,7 +253,7 @@ export default function HRVerificationsPage() {
                         <td className="px-6 py-4 font-medium text-gray-500">{request.institution}</td>
                         <td className="px-6 py-4 text-right">
                           <button
-                            onClick={() => handleRequestSelect(request.id)}
+                            onClick={() => handleRequestSelect(request)}
                             className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
                               isSelected
                                 ? "bg-blue-600 text-white shadow-blue-200"
@@ -298,66 +336,165 @@ export default function HRVerificationsPage() {
                 )}
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                    {t("semester1Score")}
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.01"
-                    required
-                    value={form.semester1Score}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        semester1Score: e.target.value,
-                      }))
-                    }
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                    {t("semester2Score")}
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.01"
-                    required
-                    value={form.semester2Score}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        semester2Score: e.target.value,
-                      }))
-                    }
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                    {t("averageScore")}
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      readOnly
-                      value={averageScore}
-                      className="w-full rounded-lg border border-gray-100 bg-blue-50 px-4 py-2.5 text-sm font-bold text-blue-700 focus:outline-none italic"
-                      placeholder="Auto-calculated"
-                    />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-blue-400 uppercase">AVG</div>
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+                {/* Performance Inputs */}
+                <div className="flex flex-col space-y-4 rounded-xl border border-gray-100 bg-gray-50/20 p-5 transition-shadow hover:shadow-md">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Award className="h-4 w-4 text-emerald-600" />
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-600">Performance Data</h3>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap">
+                        Performance 1 (%)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.01"
+                        required
+                        value={form.semester1Score}
+                        onChange={(e) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            semester1Score: e.target.value,
+                          }))
+                        }
+                        className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap">
+                        Performance 2 (%)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.01"
+                        required
+                        value={form.semester2Score}
+                        onChange={(e) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            semester2Score: e.target.value,
+                          }))
+                        }
+                        className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Avg. Performance</span>
+                    <span className="text-sm font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg border border-blue-100">
+                      {averageScore || "0.00"}%
+                    </span>
                   </div>
                 </div>
-              </div>
+
+                {/* Experience & Disability Inputs */}
+                <div className="flex flex-col space-y-4 rounded-xl border border-gray-100 bg-gray-50/20 p-5 transition-shadow hover:shadow-md">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Calculator className="h-4 w-4 text-blue-600" />
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-600">Work Exp & Status</h3>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap">
+                        Exp. Years
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        required
+                        value={form.experienceYears}
+                        onChange={(e) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            experienceYears: e.target.value,
+                          }))
+                        }
+                        className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap">
+                        Exp. Months
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="11"
+                        required
+                        value={form.experienceMonths}
+                        onChange={(e) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            experienceMonths: e.target.value,
+                          }))
+                        }
+                        className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Disability Status</span>
+                    <button
+                      type="button"
+                      onClick={() => setForm(f => ({ ...f, isDisabled: !f.isDisabled }))}
+                      className={`rounded-lg px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm ${
+                        form.isDisabled 
+                          ? "bg-amber-100 text-amber-700 border border-amber-200 hover:bg-amber-200" 
+                          : "bg-gray-100 text-gray-500 border border-gray-200 hover:bg-gray-200"
+                      }`}
+                    >
+                      {form.isDisabled ? "Disabled" : "Not Disabled"}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Real-time Scoring Preview */}
+                {scoringResult && (
+                  <div className="flex flex-col rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50/30 p-6 shadow-sm shadow-blue-50/50 xl:col-span-1 lg:col-span-2">
+                    <div className="flex items-center gap-2 mb-4 text-blue-800">
+                      <Calculator className="h-5 w-5" />
+                      <h3 className="text-sm font-bold uppercase tracking-widest">Score Breakdown</h3>
+                    </div>
+                    <div className="grid grid-cols-2 gap-y-4 gap-x-4 sm:grid-cols-4 lg:grid-cols-4">
+                      <div className="space-y-1">
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Exp (30%)</p>
+                        <p className="text-lg font-bold text-gray-900">{scoringResult.experienceScore.toFixed(2)}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Perf (60%)</p>
+                        <p className="text-lg font-bold text-gray-900">{scoringResult.performanceScore.toFixed(2)}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Disc (10%)</p>
+                        <p className="text-lg font-bold text-gray-900">{scoringResult.disciplineScore.toFixed(2)}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Bonus</p>
+                        <p className="text-lg font-bold text-indigo-600">+{scoringResult.affirmativeBonus.toFixed(2)}</p>
+                      </div>
+                    </div>
+                    <div className="mt-auto pt-6 border-t border-blue-100 flex items-center justify-between">
+                      <div className="flex flex-col">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600">Final Total Score</p>
+                        <p className="text-3xl font-black text-blue-900 tracking-tighter">
+                          {scoringResult.finalTotalScore.toFixed(2)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 bg-white/60 px-2.5 py-1.5 rounded-lg border border-blue-100 backdrop-blur-sm">
+                        <User className="h-3 w-3 text-blue-400" />
+                        <span className="text-[9px] font-bold uppercase text-blue-500 tracking-wider">
+                          {selectedEmployee?.gender || "Unknown"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-4 rounded-xl border border-gray-100 bg-gray-50/30 p-6">
@@ -484,6 +621,7 @@ export default function HRVerificationsPage() {
                   <th className="px-6 py-4">{t("semester1Score")}</th>
                   <th className="px-6 py-4">{t("semester2Score")}</th>
                   <th className="px-6 py-4 text-blue-600">{t("averageScore")}</th>
+                  <th className="px-6 py-4">Calc. Score</th>
                   <th className="px-6 py-4">{t("disciplineRecord")}</th>
                   <th className="px-6 py-4">{t("status")}</th>
                   <th className="px-6 py-4">{t("verifiedBy")}</th>
@@ -499,6 +637,7 @@ export default function HRVerificationsPage() {
                       <td className="px-6 py-4 font-medium text-gray-700">{verification.semester1Score}</td>
                       <td className="px-6 py-4 font-medium text-gray-700">{verification.semester2Score}</td>
                       <td className="px-6 py-4 font-bold text-blue-700 tracking-tight">{verification.averageScore}%</td>
+                      <td className="px-6 py-4 font-black text-indigo-700">{verification.totalCalculatedScore?.toFixed(2) || "-"}</td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col gap-1">
                           <span className={`inline-flex w-fit rounded-lg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${verification.hasDiscipline ? "bg-red-50 text-red-600 border border-red-100" : "bg-emerald-50 text-emerald-600 border border-emerald-100"}`}>

@@ -593,6 +593,14 @@ export const hrVerificationApi = {
       averageScore,
       hasDiscipline: !!data.hasDiscipline,
       disciplineDescription: data.disciplineDescription || "",
+      experienceYears: Number(data.experienceYears || 0),
+      experienceMonths: Number(data.experienceMonths || 0),
+      isDisabled: !!data.isDisabled,
+      experienceSubScore: Number(data.experienceSubScore || 0),
+      performanceSubScore: Number(data.performanceSubScore || 0),
+      disciplineSubScore: Number(data.disciplineSubScore || 0),
+      affirmativeBonus: Number(data.affirmativeBonus || 0),
+      totalCalculatedScore: Number(data.totalCalculatedScore || 0),
       status,
       id: Date.now(),
       verifiedAt: new Date().toISOString(),
@@ -605,6 +613,8 @@ export const hrVerificationApi = {
       if (idx !== -1) {
         if (status === "VERIFIED") {
           requests[idx].status = "HR_VERIFIED";
+          // We also save the total score to the request for committee review
+          requests[idx].totalScore = Number(data.totalCalculatedScore || 0);
         } else {
           requests[idx].status = "REJECTED";
         }
