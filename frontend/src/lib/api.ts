@@ -496,6 +496,33 @@ export const educationRequestApi = {
     saveMockData("educationRequests", requests);
     return { data: { success: true } };
   },
+
+  committeeReport: async (requestIds: number[]) => {
+    await delay(500);
+    const requests = getMockData("educationRequests");
+    requestIds.forEach(id => {
+      const idx = requests.findIndex((r: any) => r.id == id);
+      if (idx !== -1) {
+        requests[idx].status = "COMMITTEE_REPORTED";
+        requests[idx].updatedAt = new Date().toISOString();
+      }
+    });
+    saveMockData("educationRequests", requests);
+    return { data: { success: true } };
+  },
+
+  finalApproval: async (id: number) => {
+    await delay(300);
+    const requests = getMockData("educationRequests");
+    const idx = requests.findIndex((r: any) => r.id == id);
+    if (idx !== -1) {
+      requests[idx].status = "APPROVED";
+      requests[idx].updatedAt = new Date().toISOString();
+      saveMockData("educationRequests", requests);
+      return { data: requests[idx] };
+    }
+    throw new Error("Request not found");
+  },
 };
 
 export const employeeApi = {
