@@ -97,6 +97,24 @@ export default function CompletionsPage() {
     }
   };
 
+  const handleNotifyHr = async (id: number) => {
+    try {
+      await completionApi.update(id, { sentToHr: true });
+      loadData();
+    } catch {
+      alert("Failed to notify HR");
+    }
+  };
+
+  const handleNotifyKmc = async (id: number) => {
+    try {
+      await completionApi.update(id, { notifiedKmc: true });
+      loadData();
+    } catch {
+      alert("Failed to notify KMC");
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -258,7 +276,7 @@ export default function CompletionsPage() {
                   <th className="px-4 py-3">{t("completionDate")}</th>
                   <th className="px-4 py-3">{t("returnToWorkDate")}</th>
                   <th className="px-4 py-3">{t("researchPresentationDate")}</th>
-                  <th className="px-4 py-3 text-right">{t("actions")}</th>
+                  <th className="px-4 py-3 text-right">Notifications / Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -271,7 +289,30 @@ export default function CompletionsPage() {
                       <td className="px-4 py-3">{c.returnToWorkDate || "—"}</td>
                       <td className="px-4 py-3">{c.researchPresentationDate || "—"}</td>
                       <td className="px-4 py-3 text-right">
-                        <div className="flex justify-end gap-2">
+                        <div className="flex justify-end items-center gap-2">
+                          {!c.sentToHr ? (
+                            <button
+                              onClick={() => handleNotifyHr(c.id)}
+                              className="rounded-md bg-green-50 border border-green-100 px-2 py-1 text-[10px] font-bold text-green-700 hover:bg-green-100 uppercase tracking-wide"
+                            >
+                              Send to HR
+                            </button>
+                          ) : (
+                            <span className="text-[10px] text-green-600 font-bold uppercase mr-1">HR ✓</span>
+                          )}
+                          
+                          {!c.notifiedKmc ? (
+                            <button
+                              onClick={() => handleNotifyKmc(c.id)}
+                              className="rounded-md bg-purple-50 border border-purple-100 px-2 py-1 text-[10px] font-bold text-purple-700 hover:bg-purple-100 uppercase tracking-wide"
+                            >
+                              Notify KMC
+                            </button>
+                          ) : (
+                            <span className="text-[10px] text-purple-600 font-bold uppercase">KMC ✓</span>
+                          )}
+                          
+                          <div className="w-px h-4 bg-gray-200 mx-1"></div>
                           <button
                             onClick={() => handleEdit(c)}
                             className="p-1 text-gray-500 hover:text-blue-600 transition-colors"

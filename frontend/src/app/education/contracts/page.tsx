@@ -26,6 +26,8 @@ export default function ContractsPage() {
     studyMode: "ON_JOB",
     estimatedCost: "",
     contractSignedDate: "",
+    educationStartDate: "",
+    educationEndDate: "",
     scannedDocument: "" as string | null,
   });
   const [viewDoc, setViewDoc] = useState<string | null>(null);
@@ -77,6 +79,8 @@ export default function ContractsPage() {
         durationYears: req.duration ? String(req.duration) : "",
         estimatedCost: "",
         contractSignedDate: "",
+        educationStartDate: "",
+        educationEndDate: "",
         scannedDocument: null,
       });
       setShowForm(true);
@@ -111,6 +115,8 @@ export default function ContractsPage() {
         studyMode: form.studyMode,
         estimatedCost: Number(form.estimatedCost) || null,
         contractSignedDate: form.contractSignedDate || null,
+        educationStartDate: form.educationStartDate || null,
+        educationEndDate: form.educationEndDate || null,
         scannedDocument: form.scannedDocument,
       };
 
@@ -132,6 +138,8 @@ export default function ContractsPage() {
         studyMode: "ON_JOB",
         estimatedCost: "",
         contractSignedDate: "",
+        educationStartDate: "",
+        educationEndDate: "",
         scannedDocument: null,
       });
       loadData();
@@ -154,6 +162,8 @@ export default function ContractsPage() {
       studyMode: c.studyMode || "ON_JOB",
       estimatedCost: String(c.estimatedCost || ""),
       contractSignedDate: c.contractSignedDate || "",
+      educationStartDate: c.educationStartDate || "",
+      educationEndDate: c.educationEndDate || "",
       scannedDocument: c.scannedDocument || null,
     });
     setEditId(c.id);
@@ -195,6 +205,8 @@ export default function ContractsPage() {
                 studyMode: "ON_JOB",
                 estimatedCost: "",
                 contractSignedDate: "",
+                educationStartDate: "",
+                educationEndDate: "",
                 scannedDocument: null,
               });
               setShowForm(!showForm);
@@ -386,6 +398,32 @@ export default function ContractsPage() {
                   value={form.contractSignedDate}
                   onChange={(e) =>
                     setForm({ ...form, contractSignedDate: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Education Start Date
+                </label>
+                <input
+                  type="date"
+                  value={form.educationStartDate}
+                  onChange={(e) =>
+                    setForm({ ...form, educationStartDate: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Education End Date
+                </label>
+                <input
+                  type="date"
+                  value={form.educationEndDate}
+                  onChange={(e) =>
+                    setForm({ ...form, educationEndDate: e.target.value })
                   }
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
                 />

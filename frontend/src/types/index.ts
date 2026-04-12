@@ -119,6 +119,8 @@ export interface Contract {
   studyMode: string;
   estimatedCost: number;
   contractSignedDate: string;
+  educationStartDate?: string;
+  educationEndDate?: string;
   scannedDocument?: string;
   createdAt: string;
 }
@@ -159,6 +161,10 @@ export interface EducationCompletion {
   completionDate: string;
   returnToWorkDate: string;
   researchPresentationDate: string;
+  sentToHr?: boolean;
+  notifiedKmc?: boolean;
+  hrAcknowledged?: boolean;
+  kmcAcknowledged?: boolean;
   createdAt: string;
 }
 
