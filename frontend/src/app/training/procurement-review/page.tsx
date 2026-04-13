@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-const THRESHOLD = 50000;
+const THRESHOLD = 200000;
 
 export default function ProcurementReviewPage() {
   const { t } = useLanguage();
@@ -77,7 +77,7 @@ export default function ProcurementReviewPage() {
         <div className="flex items-center gap-3 rounded-xl bg-blue-50/50 border border-blue-100 px-5 py-4">
           <AlertTriangle className="h-5 w-5 text-blue-600 flex-shrink-0" />
           <p className="text-sm font-bold text-blue-900">
-            Cost &lt; 50,000 Birr → Approve Directly &nbsp;|&nbsp; Cost ≥ 50,000 Birr
+            Cost &lt; 200,000 Birr → Approve Directly &nbsp;|&nbsp; Cost ≥ 200,000 Birr
             → Require Contract
           </p>
         </div>

@@ -31,6 +31,7 @@ export default function ContractsPage() {
     contractSignedDate: "",
     educationStartDate: "",
     educationEndDate: "",
+    award: "",
     scannedDocument: "" as string | null,
   });
   const [viewDoc, setViewDoc] = useState<string | null>(null);
@@ -87,6 +88,7 @@ export default function ContractsPage() {
         contractSignedDate: "",
         educationStartDate: "",
         educationEndDate: "",
+        award: req.award || "",
         scannedDocument: null,
       });
       setShowForm(true);
@@ -123,6 +125,7 @@ export default function ContractsPage() {
         contractSignedDate: form.contractSignedDate || null,
         educationStartDate: form.educationStartDate || null,
         educationEndDate: form.educationEndDate || null,
+        award: form.award || null,
         scannedDocument: form.scannedDocument,
       };
 
@@ -149,6 +152,7 @@ export default function ContractsPage() {
         contractSignedDate: "",
         educationStartDate: "",
         educationEndDate: "",
+        award: "",
         scannedDocument: null,
       });
       loadData();
@@ -176,6 +180,7 @@ export default function ContractsPage() {
       contractSignedDate: c.contractSignedDate || "",
       educationStartDate: c.educationStartDate || "",
       educationEndDate: c.educationEndDate || "",
+      award: c.award || "",
       scannedDocument: c.scannedDocument || null,
     });
     setEditId(c.id);
@@ -223,6 +228,7 @@ export default function ContractsPage() {
                   contractSignedDate: "",
                   educationStartDate: "",
                   educationEndDate: "",
+                  award: "",
                   scannedDocument: null,
                 });
                 setShowForm(true);
@@ -251,6 +257,7 @@ export default function ContractsPage() {
                   contractSignedDate: "",
                   educationStartDate: "",
                   educationEndDate: "",
+                  award: "",
                   scannedDocument: null,
                 });
                 setShowForm(!showForm);
@@ -442,6 +449,20 @@ export default function ContractsPage() {
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Education Award (Title/Desc)
+                </label>
+                <input
+                  type="text"
+                  value={form.award}
+                  onChange={(e) =>
+                    setForm({ ...form, award: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  placeholder="e.g. Masters Excellence Award"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
                   {t("durationYears")}
                 </label>
                 <input
@@ -565,8 +586,8 @@ export default function ContractsPage() {
                 <tr>
                   <th className="px-4 py-3">ID</th>
                   <th className="px-4 py-3">{t("fullName")}</th>
+                  <th className="px-4 py-3">Award / Program</th>
                   <th className="px-4 py-3">{t("university")}</th>
-                  <th className="px-4 py-3">{t("program")}</th>
                   <th className="px-4 py-3">{t("studyCountry")}</th>
                   <th className="px-4 py-3">{t("durationYears")}</th>
                   <th className="px-4 py-3">{t("studyMode")}</th>
@@ -582,8 +603,17 @@ export default function ContractsPage() {
                       <td className="px-4 py-3 font-medium">
                         {c.employeeName || approvedRequests.find((r) => r.id === c.requestId)?.employeeName || `EMP-${c.employeeId}`}
                       </td>
+                      <td className="px-4 py-3">
+                        {c.award ? (
+                          <div className="flex flex-col">
+                            <span className="text-[10px] font-bold text-amber-600 uppercase tracking-tight">Award: {c.award}</span>
+                            <span className="font-medium">{c.program}</span>
+                          </div>
+                        ) : (
+                          c.program
+                        )}
+                      </td>
                       <td className="px-4 py-3">{c.university}</td>
-                      <td className="px-4 py-3">{c.program}</td>
                       <td className="px-4 py-3">{c.studyCountry}</td>
                       <td className="px-4 py-3">{c.durationYears}</td>
                       <td className="px-4 py-3">

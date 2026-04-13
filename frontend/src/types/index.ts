@@ -119,6 +119,7 @@ export interface Contract {
   studyMode: string;
   estimatedCost: number;
   contractSignedDate: string;
+  award?: string;
   educationStartDate?: string;
   educationEndDate?: string;
   scannedDocument?: string;
