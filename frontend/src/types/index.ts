@@ -132,6 +132,7 @@ export interface Guarantor {
   nationalId: string;
   phone: string;
   address: string;
+  guarantorType?: "INTERNAL" | "EXTERNAL";
   scannedDocument?: string;
   createdAt: string;
 }

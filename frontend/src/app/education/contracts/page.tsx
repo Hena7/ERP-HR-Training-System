@@ -279,6 +279,9 @@ export default function ContractsPage() {
             <h2 className="mb-4 text-lg font-semibold">
               {editId ? t("edit") || "Edit Contract" : t("createContract")}
             </h2>
+            <div className="mb-6 rounded-lg bg-blue-50 p-4 text-sm text-blue-800 border border-blue-100">
+              <strong>Note:</strong> Employees studying <em>Abroad</em> are entitled to receive half salary, whereas employees studying <em>Locally</em> will receive their full salary during the commitment period.
+            </div>
             <form
               onSubmit={handleSubmit}
               className="grid grid-cols-1 gap-4 md:grid-cols-2"
