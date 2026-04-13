@@ -17,7 +17,10 @@ export default function ContractsPage() {
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     employeeId: "",
+    employeeName: "",
     requestId: "",
+    isAward: false,
+    studyLocation: "LOCAL",
     university: "",
     program: "",
     studyCountry: "",
@@ -72,6 +75,9 @@ export default function ContractsPage() {
         ...form,
         requestId,
         employeeId: String(req.employeeId),
+        employeeName: req.employeeName || "",
+        isAward: false,
+        studyLocation: "LOCAL",
         university: req.institution || "",
         program: req.fieldOfStudy || req.educationType || "",
         studyCountry: country,
@@ -102,11 +108,11 @@ export default function ContractsPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const selectedReq = approvedRequests.find((r) => r.id === Number(form.requestId));
+      const selectedReq = !form.isAward ? approvedRequests.find((r) => r.id === Number(form.requestId)) : null;
       const payload = {
         employeeId: Number(form.employeeId),
-        employeeName: selectedReq?.employeeName || "",
-        requestId: Number(form.requestId),
+        employeeName: form.isAward ? form.employeeName : (selectedReq?.employeeName || ""),
+        requestId: form.isAward ? 0 : Number(form.requestId),
         university: form.university,
         program: form.program,
         studyCountry: form.studyCountry,
@@ -129,7 +135,10 @@ export default function ContractsPage() {
       setEditId(null);
       setForm({
         employeeId: "",
+        employeeName: "",
         requestId: "",
+        isAward: false,
+        studyLocation: "LOCAL",
         university: "",
         program: "",
         studyCountry: "",
@@ -153,7 +162,10 @@ export default function ContractsPage() {
   const handleEdit = (c: Contract) => {
     setForm({
       employeeId: String(c.employeeId),
+      employeeName: c.employeeName || "",
       requestId: String(c.requestId),
+      isAward: c.requestId === 0,
+      studyLocation: "LOCAL",
       university: c.university || "",
       program: c.program || "",
       studyCountry: c.studyCountry || "",
@@ -191,31 +203,64 @@ export default function ContractsPage() {
               {t("contracts")}
             </h1>
           </div>
-          <button
-            onClick={() => {
-              setEditId(null);
-              setForm({
-                employeeId: "",
-                requestId: "",
-                university: "",
-                program: "",
-                studyCountry: "",
-                studyCity: "",
-                durationYears: "",
-                studyMode: "ON_JOB",
-                estimatedCost: "",
-                contractSignedDate: "",
-                educationStartDate: "",
-                educationEndDate: "",
-                scannedDocument: null,
-              });
-              setShowForm(!showForm);
-            }}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            {t("createContract")}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                setEditId(null);
+                setForm({
+                  employeeId: "",
+                  employeeName: "",
+                  requestId: "",
+                  isAward: true,
+                  studyLocation: "LOCAL",
+                  university: "",
+                  program: "",
+                  studyCountry: "",
+                  studyCity: "",
+                  durationYears: "",
+                  studyMode: "ON_JOB",
+                  estimatedCost: "",
+                  contractSignedDate: "",
+                  educationStartDate: "",
+                  educationEndDate: "",
+                  scannedDocument: null,
+                });
+                setShowForm(true);
+              }}
+              className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-bold text-white hover:bg-green-700 transition-colors shadow-sm"
+            >
+              <Plus className="h-4 w-4" />
+              Create from Award
+            </button>
+            <button
+              onClick={() => {
+                setEditId(null);
+                setForm({
+                  employeeId: "",
+                  employeeName: "",
+                  requestId: "",
+                  isAward: false,
+                  studyLocation: "LOCAL",
+                  university: "",
+                  program: "",
+                  studyCountry: "",
+                  studyCity: "",
+                  durationYears: "",
+                  studyMode: "ON_JOB",
+                  estimatedCost: "",
+                  contractSignedDate: "",
+                  educationStartDate: "",
+                  educationEndDate: "",
+                  scannedDocument: null,
+                });
+                setShowForm(!showForm);
+              }}
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700 transition-colors shadow-sm"
+            >
+              <Plus className="h-4 w-4" />
+              {t("createContract")}
+            </button>
+          </div>
         </div>
 
         <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
@@ -279,9 +324,15 @@ export default function ContractsPage() {
             <h2 className="mb-4 text-lg font-semibold">
               {editId ? t("edit") || "Edit Contract" : t("createContract")}
             </h2>
-            <div className="mb-6 rounded-lg bg-blue-50 p-4 text-sm text-blue-800 border border-blue-100">
-              <strong>Note:</strong> Employees studying <em>Abroad</em> are entitled to receive half salary, whereas employees studying <em>Locally</em> will receive their full salary during the commitment period.
-            </div>
+            {form.studyLocation === "ABROAD" ? (
+              <div className="mb-6 rounded-lg bg-orange-50 p-4 text-sm text-orange-800 border border-orange-100">
+                <strong>Note:</strong> Employees studying <em>Abroad</em> are entitled to receive <strong>half salary</strong> during the commitment period.
+              </div>
+            ) : (
+              <div className="mb-6 rounded-lg bg-green-50 p-4 text-sm text-green-800 border border-green-100">
+                <strong>Note:</strong> Employees studying <em>Locally</em> will receive their <strong>full salary</strong> during the commitment period.
+              </div>
+            )}
             <form
               onSubmit={handleSubmit}
               className="grid grid-cols-1 gap-4 md:grid-cols-2"
@@ -290,9 +341,48 @@ export default function ContractsPage() {
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   {t("fullName")}
                 </label>
-                <div className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 font-bold text-gray-900">
-                  {approvedRequests.find((r) => String(r.id) === form.requestId)?.employeeName || "-"}
+                {form.isAward ? (
+                  <input
+                    type="text"
+                    required
+                    value={form.employeeName}
+                    onChange={(e) => setForm({ ...form, employeeName: e.target.value })}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 font-bold focus:border-blue-500 focus:outline-none bg-yellow-50/30"
+                    placeholder="Enter full name"
+                  />
+                ) : (
+                  <div className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 font-bold text-gray-900">
+                    {approvedRequests.find((r) => String(r.id) === form.requestId)?.employeeName || "-"}
+                  </div>
+                )}
+              </div>
+              {form.isAward && (
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Employee ID
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={form.employeeId}
+                    onChange={(e) => setForm({ ...form, employeeId: e.target.value })}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 font-bold focus:border-blue-500 focus:outline-none bg-yellow-50/30"
+                    placeholder="e.g. 1001"
+                  />
                 </div>
+              )}
+              <div className={form.isAward ? "md:col-span-2" : ""}>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Study Location Rule
+                </label>
+                <select
+                  value={form.studyLocation}
+                  onChange={(e) => setForm({ ...form, studyLocation: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 font-bold text-blue-700 bg-blue-50/50 focus:border-blue-500 focus:outline-none"
+                >
+                  <option value="LOCAL">Local Study (Full Salary)</option>
+                  <option value="ABROAD">Study Abroad (Half Salary)</option>
+                </select>
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
