@@ -1,5 +1,6 @@
 package com.insa.education.entity;
 
+import com.insa.education.enums.GuarantorType;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;

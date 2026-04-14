@@ -29,4 +29,10 @@ public class BulkEducationRequestDto {
     private Double performanceScore;
 
     private String description;
+ 
+    private String commitmentSource;
+ 
+    private Double totalScore;
+ 
+    private String candidateId;
 }

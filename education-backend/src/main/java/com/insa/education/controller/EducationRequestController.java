@@ -143,6 +143,8 @@ public class EducationRequestController {
                         "Forwarded to HR by Cyber Development Center"
                 )
         );
+    }
+
     /**
      * Committee members report their selection results to CDC.
      * Workflow:

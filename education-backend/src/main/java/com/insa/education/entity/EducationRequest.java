@@ -1,6 +1,7 @@
 package com.insa.education.entity;
 
 import com.insa.education.enums.RequestStatus;
+import com.insa.education.enums.CommitmentSource;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
