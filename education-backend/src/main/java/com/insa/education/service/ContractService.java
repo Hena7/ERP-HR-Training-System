@@ -48,8 +48,8 @@ public class ContractService {
         EducationRequest request = requestRepository.findById(dto.getRequestId())
                 .orElseThrow(() -> new ResourceNotFoundException("Education request not found with id: " + dto.getRequestId()));
 
-        if (request.getStatus() != RequestStatus.APPROVED) {
-            throw new BadRequestException("Request must be APPROVED before creating contract");
+        if (request.getStatus() != RequestStatus.APPROVED && request.getStatus() != RequestStatus.CDC_APPROVED) {
+            throw new BadRequestException("Request must be APPROVED or CDC_APPROVED before creating contract");
         }
 
         if (contractRepository.existsByRequestId(dto.getRequestId())) {

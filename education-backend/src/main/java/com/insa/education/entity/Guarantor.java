@@ -33,6 +33,13 @@ public class Guarantor {
     @Column(columnDefinition = "TEXT")
     private String address;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "guarantor_type")
+    private GuarantorType guarantorType;
+
+    @Column(name = "scanned_document", columnDefinition = "TEXT")
+    private String scannedDocument;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

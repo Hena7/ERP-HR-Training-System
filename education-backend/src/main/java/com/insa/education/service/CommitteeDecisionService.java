@@ -56,13 +56,14 @@ public class CommitteeDecisionService {
                 .request(request)
                 .decision(dto.getDecision())
                 .comment(dto.getComment())
+                .quota(dto.getQuota())
                 .decidedBy(decidedBy)
                 .build();
 
         CommitteeDecision saved = decisionRepository.save(decision);
 
         if (dto.getDecision() == DecisionStatus.APPROVED) {
-            request.setStatus(RequestStatus.APPROVED);
+            request.setStatus(RequestStatus.COMMITTEE_REVIEW);
         } else {
             request.setStatus(RequestStatus.REJECTED);
         }

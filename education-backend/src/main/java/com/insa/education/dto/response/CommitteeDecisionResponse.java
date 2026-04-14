@@ -15,6 +15,7 @@ public class CommitteeDecisionResponse {
     private Long requestId;
     private DecisionStatus decision;
     private String comment;
+    private Integer quota;
     private String decidedBy;
     private LocalDateTime decisionDate;
 }

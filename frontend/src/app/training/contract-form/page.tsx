@@ -70,11 +70,11 @@ export default function TrainingContractFormPage() {
       await trainingContractApi.create({
         ...form,
         requestId: selectedRequest.id,
-        employeeId: selectedRequest.employeeId,
-        employeeName: selectedRequest.employeeName,
+        employeeId: String(selectedRequest.requesterId),
+        employeeName: selectedRequest.requesterName || "",
         employeeDepartment: selectedRequest.department,
-        email: selectedRequest.email,
-        phone: selectedRequest.phone,
+        email: selectedRequest.requesterEmail || "",
+        phone: selectedRequest.requesterPhone || "",
         totalCost: parseFloat(form.totalCost),
         contractDurationMonths: parseInt(form.contractDurationMonths),
       });
@@ -138,7 +138,7 @@ export default function TrainingContractFormPage() {
                   return (
                     <tr key={r.id} className={`transition-colors ${isSelected ? "bg-blue-50/60" : "hover:bg-gray-50/50"}`}>
                       <td className="px-6 py-4 text-xs font-bold text-blue-600">TRQ-{r.id.toString().slice(-6)}</td>
-                      <td className="px-6 py-4 font-bold text-gray-900">{r.employeeName}</td>
+                      <td className="px-6 py-4 font-bold text-gray-900">{r.requesterName || "—"}</td>
                       <td className="px-6 py-4 font-medium text-gray-600">{r.department || "—"}</td>
                       <td className="px-6 py-4 font-medium text-gray-700 text-xs italic">{r.trainingTitle}</td>
                       <td className="px-6 py-4 text-right">
@@ -187,7 +187,7 @@ export default function TrainingContractFormPage() {
             <div className="flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 px-5 py-3">
               <div className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0" />
               <p className="text-sm font-bold text-blue-800">
-                Drafting contract for: <span className="text-blue-600">TRQ-{selectedRequest.id.toString().slice(-6)}</span> — {selectedRequest.employeeName}
+                Drafting contract for: <span className="text-blue-600">TRQ-{selectedRequest.id.toString().slice(-6)}</span> — {selectedRequest.requesterName}
               </p>
             </div>
 
@@ -198,10 +198,10 @@ export default function TrainingContractFormPage() {
                 <h2 className="text-xs font-bold uppercase tracking-widest text-gray-700">Trainee Summary</h2>
               </div>
               <div className="grid grid-cols-2 gap-y-4 text-sm md:grid-cols-4">
-                <div><p className={labelClass}>{t("employeeId")}</p><p className="font-bold">{selectedRequest.employeeId}</p></div>
-                <div><p className={labelClass}>{t("fullName")}</p><p className="font-bold">{selectedRequest.employeeName}</p></div>
+                <div><p className={labelClass}>{t("employeeId")}</p><p className="font-bold">{selectedRequest.requesterId}</p></div>
+                <div><p className={labelClass}>{t("fullName")}</p><p className="font-bold">{selectedRequest.requesterName}</p></div>
                 <div><p className={labelClass}>{t("department")}</p><p className="font-bold">{selectedRequest.department}</p></div>
-                <div><p className={labelClass}>{t("phone")}</p><p className="font-bold">{selectedRequest.phone}</p></div>
+                <div><p className={labelClass}>{t("phone")}</p><p className="font-bold">{selectedRequest.requesterPhone}</p></div>
               </div>
             </div>
 

@@ -49,6 +49,16 @@ public class EducationRequest {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "commitment_source")
+    private CommitmentSource commitmentSource;
+
+    @Column(name = "total_score")
+    private Double totalScore;
+
+    @Column(name = "candidate_id", length = 50)
+    private String candidateId;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

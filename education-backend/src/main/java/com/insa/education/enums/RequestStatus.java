@@ -8,6 +8,8 @@ public enum RequestStatus {
     HR_VERIFIED,
     SCORED,
     COMMITTEE_REVIEW,
+    COMMITTEE_REPORTED,
+    CDC_APPROVED,
     APPROVED,
     REJECTED,
     CONTRACT_CREATED

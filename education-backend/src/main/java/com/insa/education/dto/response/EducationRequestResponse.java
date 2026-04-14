@@ -25,6 +25,9 @@ public class EducationRequestResponse {
     private String employeeDepartment;
     private String description;
     private RequestStatus status;
+    private String commitmentSource;
+    private Double totalScore;
+    private String candidateId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

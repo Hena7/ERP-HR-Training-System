@@ -18,4 +18,6 @@ public class CommitteeDecisionDto {
     private DecisionStatus decision;
 
     private String comment;
+
+    private Integer quota;
 }

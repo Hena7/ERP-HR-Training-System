@@ -143,5 +143,31 @@ public class EducationRequestController {
                         "Forwarded to HR by Cyber Development Center"
                 )
         );
+    /**
+     * Committee members report their selection results to CDC.
+     * Workflow:
+     * COMMITTEE_REVIEW -> COMMITTEE_REPORTED
+     */
+    @PatchMapping("/{id}/report-by-committee")
+    @PreAuthorize("hasAnyRole('COMMITTEE_MEMBER', 'ADMIN')")
+    public ResponseEntity<EducationRequestResponse> reportByCommittee(@PathVariable Long id) {
+        return ResponseEntity.ok(requestService.reportByCommittee(id));
+    }
+
+    @PostMapping("/committee-report")
+    @PreAuthorize("hasAnyRole('COMMITTEE_MEMBER', 'ADMIN')")
+    public ResponseEntity<List<EducationRequestResponse>> reportByCommitteeBulk(@RequestBody List<Long> ids) {
+        return ResponseEntity.ok(requestService.reportByCommitteeBulk(ids));
+    }
+
+    /**
+     * CDC provides final sign-off on committee selections.
+     * Workflow:
+     * COMMITTEE_REPORTED -> CDC_APPROVED
+     */
+    @PatchMapping("/{id}/final-approval")
+    @PreAuthorize("hasAnyRole('CYBER_DEVELOPMENT_CENTER', 'ADMIN')")
+    public ResponseEntity<EducationRequestResponse> finalApproval(@PathVariable Long id) {
+        return ResponseEntity.ok(requestService.finalApproval(id));
     }
 }

@@ -29,6 +29,9 @@ public class CommitteeDecision {
     @Column(columnDefinition = "TEXT")
     private String comment;
 
+    @Column
+    private Integer quota;
+
     @Column(name = "decided_by", length = 100)
     private String decidedBy;
 

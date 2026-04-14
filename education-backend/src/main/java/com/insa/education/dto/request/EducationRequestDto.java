@@ -25,4 +25,10 @@ public class EducationRequestDto {
     private Double performanceScore;
 
     private String description;
+
+    private String commitmentSource;
+
+    private Double totalScore;
+
+    private String candidateId;
 }

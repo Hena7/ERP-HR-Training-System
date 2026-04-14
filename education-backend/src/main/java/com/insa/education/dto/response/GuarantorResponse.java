@@ -16,5 +16,7 @@ public class GuarantorResponse {
     private String nationalId;
     private String phone;
     private String address;
+    private String guarantorType;
+    private String scannedDocument;
     private LocalDateTime createdAt;
 }

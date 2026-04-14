@@ -24,6 +24,9 @@ public class EducationMapper {
                 .employeeDepartment(entity.getEmployee().getDepartment())
                 .description(entity.getDescription())
                 .status(entity.getStatus())
+                .commitmentSource(entity.getCommitmentSource() != null ? entity.getCommitmentSource().name() : null)
+                .totalScore(entity.getTotalScore())
+                .candidateId(entity.getCandidateId())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
@@ -48,6 +51,7 @@ public class EducationMapper {
                 .requestId(entity.getRequest().getId())
                 .decision(entity.getDecision())
                 .comment(entity.getComment())
+                .quota(entity.getQuota())
                 .decidedBy(entity.getDecidedBy())
                 .decisionDate(entity.getDecisionDate())
                 .build();
@@ -92,6 +96,8 @@ public class EducationMapper {
                 .nationalId(entity.getNationalId())
                 .phone(entity.getPhone())
                 .address(entity.getAddress())
+                .guarantorType(entity.getGuarantorType() != null ? entity.getGuarantorType().name() : null)
+                .scannedDocument(entity.getScannedDocument())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }

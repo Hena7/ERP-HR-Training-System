@@ -6,6 +6,7 @@ import com.insa.education.dto.response.EducationRequestResponse;
 import com.insa.education.entity.EducationOpportunity;
 import com.insa.education.entity.EducationRequest;
 import com.insa.education.entity.Employee;
+import com.insa.education.enums.CommitmentSource;
 import com.insa.education.enums.RequestStatus;
 import com.insa.education.exception.BadRequestException;
 import com.insa.education.exception.ResourceNotFoundException;
@@ -68,6 +69,8 @@ public class EducationRequestService {
                 .performanceScore(dto.getPerformanceScore())
                 .description(dto.getDescription())
                 .status(RequestStatus.PENDING_DEPARTMENT_SUBMISSION)
+                .commitmentSource(dto.getCommitmentSource() != null ? CommitmentSource.valueOf(dto.getCommitmentSource()) : CommitmentSource.STANDARD)
+                .candidateId(dto.getCandidateId())
                 .build();
 
         EducationRequest saved = requestRepository.save(request);
@@ -98,6 +101,8 @@ public class EducationRequestService {
                     .performanceScore(dto.getPerformanceScore())
                     .description(dto.getDescription())
                     .status(RequestStatus.PENDING_DEPARTMENT_SUBMISSION)
+                    .commitmentSource(dto.getCommitmentSource() != null ? CommitmentSource.valueOf(dto.getCommitmentSource()) : CommitmentSource.STANDARD)
+                    .candidateId(dto.getCandidateId())
                     .build();
 
             EducationRequest saved = requestRepository.save(request);
@@ -213,6 +218,41 @@ public class EducationRequestService {
     }
 
     /**
+     * COMMITTEE step:
+     * COMMITTEE_REVIEW -> COMMITTEE_REPORTED
+     */
+    @Transactional
+    public EducationRequestResponse reportByCommittee(Long requestId) {
+        return transitionStatus(
+                requestId,
+                RequestStatus.COMMITTEE_REVIEW,
+                RequestStatus.COMMITTEE_REPORTED,
+                "Reported by Committee for final CDC sign-off"
+        );
+    }
+
+    /**
+     * CYBER_DEVELOPMENT_CENTER (Final) step:
+     * COMMITTEE_REPORTED -> CDC_APPROVED
+     */
+    @Transactional
+    public EducationRequestResponse finalApproval(Long requestId) {
+        return transitionStatus(
+                requestId,
+                RequestStatus.COMMITTEE_REPORTED,
+                RequestStatus.CDC_APPROVED,
+                "Final approval granted by CDC"
+        );
+    }
+
+    @Transactional
+    public List<EducationRequestResponse> reportByCommitteeBulk(List<Long> requestIds) {
+        return requestIds.stream()
+                .map(this::reportByCommittee)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Generic guarded status transition helper.
      */
     @Transactional
@@ -242,6 +282,8 @@ public class EducationRequestService {
     private boolean isLockedForEdit(RequestStatus status) {
         return status == RequestStatus.HR_VERIFIED
                 || status == RequestStatus.COMMITTEE_REVIEW
+                || status == RequestStatus.COMMITTEE_REPORTED
+                || status == RequestStatus.CDC_APPROVED
                 || status == RequestStatus.APPROVED
                 || status == RequestStatus.REJECTED
                 || status == RequestStatus.CONTRACT_CREATED;
