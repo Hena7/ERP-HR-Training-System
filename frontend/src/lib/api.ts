@@ -44,11 +44,21 @@ trainingApi.interceptors.request.use(async (config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // If Keycloak returns Unauthorized, force re-authentication
+    // If we get a 401, it might be a temporary token expiry.
+    // We let the next request (which will call getSession again) handle the refresh.
+    // Only logged-in pages will redirect via DashboardLayout if the session truly fails.
     if (error.response?.status === 401) {
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
-      }
+      console.warn("Unauthorized API call detected.");
+    }
+    return Promise.reject(error);
+  }
+);
+
+trainingApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      console.warn("Unauthorized Training API call detected.");
     }
     return Promise.reject(error);
   }
