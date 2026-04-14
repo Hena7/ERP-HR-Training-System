@@ -77,6 +77,16 @@ export interface HRVerification {
   status: "VERIFIED" | "REJECTED";
   verifiedBy: string;
   verifiedAt: string;
+  // New scoring fields
+  experienceYears?: number;
+  experienceMonths?: number;
+  isDisabled?: boolean;
+  experienceSubScore?: number;
+  performanceSubScore?: number;
+  disciplineSubScore?: number;
+  affirmativeBonus?: number;
+  totalCalculatedScore?: number;
+  gender?: string;
 }
 
 export interface CommitteeDecision {
@@ -112,6 +122,9 @@ export interface Contract {
   studyMode: string;
   estimatedCost: number;
   contractSignedDate: string;
+  award?: string;
+  educationStartDate?: string;
+  educationEndDate?: string;
   scannedDocument?: string;
   createdAt: string;
 }
@@ -123,6 +136,7 @@ export interface Guarantor {
   nationalId: string;
   phone: string;
   address: string;
+  guarantorType?: "INTERNAL" | "EXTERNAL";
   scannedDocument?: string;
   createdAt: string;
 }
@@ -152,6 +166,10 @@ export interface EducationCompletion {
   completionDate: string;
   returnToWorkDate: string;
   researchPresentationDate: string;
+  sentToHr?: boolean;
+  notifiedKmc?: boolean;
+  hrAcknowledged?: boolean;
+  kmcAcknowledged?: boolean;
   createdAt: string;
 }
 

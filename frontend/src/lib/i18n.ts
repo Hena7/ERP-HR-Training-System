@@ -170,7 +170,7 @@ export const translations = {
     noDocument: "No Document Uploaded",
     witnesses: "Witnesses",
     addWitness: "Add Witness",
-    maxWitnesses: "Maximum 4 witnesses per Commitment",
+    maxWitnesses: "Maximum 2 witnesses per Commitment",
     budgetYear: "Budget Year",
     award: "Award",
     duration: "Duration (Years)",
@@ -231,7 +231,7 @@ export const translations = {
     navOpportunities: "Education Opportunities",
     navRequests: "Education Requests",
     navVerifications: "HR Verifications",
-    navCdcScoring: "CDC Scoring",
+    navCdcApproval: "CDC Approval",
     navEmployees: "Employees",
     navDecisions: "Committee Decisions",
     navContracts: "Commitments",
@@ -348,7 +348,7 @@ export const translations = {
     editEmployee: "ሰራተኛ አርም",
 
     // Education Opportunities
-    educationOpportunities: "የትምህርት ፍላጎት (እድሎች)",
+    educationOpportunities: "የትምህርት ፍላጎት",
     educationOpportunity: "የትምህርት እድል",
     newOpportunity: "አዲስ እድል",
     educationType: "የትምህርት አይነት",
@@ -457,7 +457,7 @@ export const translations = {
     noDocument: "ምንም ሰነድ አልተሰቀለም",
     witnesses: "ምስክሮች",
     addWitness: "ምስክር ጨምር",
-    maxWitnesses: "በአንድ ውል ቢበዛ 4 ምስክሮች",
+    maxWitnesses: "በአንድ ውል ቢበዛ 2 ምስክሮች",
     budgetYear: "የበጀት ዓመት",
     award: "ሽልማት/ዲግሪ",
     duration: "ቆይታ (ዓመታት)",
@@ -515,10 +515,10 @@ export const translations = {
 
     // Navigation — Education
     navDashboard: "ዳሽቦርድ",
-    navOpportunities: "የትምህርት ፍላጎት (እድሎች)",
+    navOpportunities: "የትምህርት ፍላጎት",
     navRequests: "የትምህርት ጥያቄዎች",
     navVerifications: "የHR ማረጋገጫዎች",
-    navCdcScoring: "CDC ውጤት አሰጣጥ",
+    navCdcApproval: "የልህቀት ማእከል ፈቃድ",
     navEmployees: "ሰራተኞች",
     navDecisions: "የኮሚቴ ውሳኔዎች",
     navContracts: "ውሎች",

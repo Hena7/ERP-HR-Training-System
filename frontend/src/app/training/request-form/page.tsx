@@ -16,8 +16,7 @@ import {
   Send,
   CheckCircle2,
 } from "lucide-react";
-
-const COST_THRESHOLD = 50000;
+const COST_THRESHOLD = 200000;
 
 export default function TrainingRequestFormPage() {
   const { t } = useLanguage();
@@ -224,7 +223,9 @@ export default function TrainingRequestFormPage() {
                 <div>
                   <label className={labelClass}>{t("estimatedCost")}</label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 h-6 w-4 text-gray-400">
+                      ETB
+                    </span>{" "}
                     <input
                       name="estimatedCost"
                       type="number"
@@ -239,7 +240,7 @@ export default function TrainingRequestFormPage() {
                   {form.estimatedCost &&
                     parseFloat(form.estimatedCost) >= COST_THRESHOLD && (
                       <p className="mt-1.5 text-[10px] font-bold text-amber-600 flex items-center gap-1">
-                        ⚠ Cost ≥ 50,000 Birr — Contract will be required
+                        ⚠ Cost ≥ 200,000 Birr — Contract will be required
                       </p>
                     )}
                 </div>

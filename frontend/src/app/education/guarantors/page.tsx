@@ -23,6 +23,7 @@ export default function GuarantorsPage() {
     nationalId: "",
     phone: "",
     address: "",
+    guarantorType: "INTERNAL",
     scannedDocument: "" as string | null,
   });
   const [viewDoc, setViewDoc] = useState<string | null>(null);
@@ -85,6 +86,7 @@ export default function GuarantorsPage() {
         nationalId: form.nationalId,
         phone: form.phone,
         address: form.address,
+        guarantorType: activeTab === "guarantors" ? form.guarantorType : undefined,
         scannedDocument: form.scannedDocument,
       };
 
@@ -109,6 +111,7 @@ export default function GuarantorsPage() {
         nationalId: "",
         phone: "",
         address: "",
+        guarantorType: "INTERNAL",
         scannedDocument: null,
       });
       loadItems(selectedContract);
@@ -119,13 +122,14 @@ export default function GuarantorsPage() {
     }
   };
 
-  const handleEdit = (g: Guarantor) => {
+  const handleEdit = (g: any) => {
     setForm({
       contractId: String(g.contractId),
       fullName: g.fullName || "",
       nationalId: g.nationalId || "",
       phone: g.phone || "",
       address: g.address || "",
+      guarantorType: g.guarantorType || "INTERNAL",
       scannedDocument: g.scannedDocument || null,
     });
     setEditId(g.id);
@@ -161,7 +165,7 @@ export default function GuarantorsPage() {
               <button
                 onClick={() => {
                   const currentCount = activeTab === "guarantors" ? guarantors.length : witnesses.length;
-                  const max = activeTab === "guarantors" ? 2 : 4;
+                  const max = 2;
                   if (currentCount >= max) {
                     alert(activeTab === "guarantors" ? t("maxGuarantors") : t("maxWitnesses"));
                     return;
@@ -173,6 +177,7 @@ export default function GuarantorsPage() {
                     nationalId: "",
                     phone: "",
                     address: "",
+                    guarantorType: "INTERNAL",
                     scannedDocument: null,
                   });
                   setShowForm(true);
@@ -207,7 +212,7 @@ export default function GuarantorsPage() {
             }`}
           >
             <Users className="mr-2 inline-block h-4 w-4" />
-            {t("witnesses")} ({witnesses.length}/4)
+            {t("witnesses")} ({witnesses.length}/2)
           </button>
         </div>
 
@@ -330,6 +335,21 @@ export default function GuarantorsPage() {
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
                 />
               </div>
+              {activeTab === "guarantors" && (
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Affiliation
+                  </label>
+                  <select
+                    value={form.guarantorType}
+                    onChange={(e) => setForm({ ...form, guarantorType: e.target.value })}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  >
+                    <option value="INTERNAL">Inside INSA</option>
+                    <option value="EXTERNAL">Outside Company</option>
+                  </select>
+                </div>
+              )}
               <div className="md:col-span-2">
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   {t("address")}
@@ -389,6 +409,7 @@ export default function GuarantorsPage() {
                 <tr>
                   <th className="px-4 py-3">ID</th>
                   <th className="px-4 py-3">{t("fullName")}</th>
+                  {activeTab === "guarantors" && <th className="px-4 py-3">Affiliation</th>}
                   <th className="px-4 py-3">{t("nationalId")}</th>
                   <th className="px-4 py-3">{t("phone")}</th>
                   <th className="px-4 py-3">{t("address")}</th>
@@ -404,6 +425,13 @@ export default function GuarantorsPage() {
                     <tr key={item.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3">{item.id}</td>
                       <td className="px-4 py-3 font-medium">{item.fullName}</td>
+                      {activeTab === "guarantors" && (
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-1 text-[10px] font-bold rounded-full ${item.guarantorType === 'EXTERNAL' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'}`}>
+                            {item.guarantorType === 'EXTERNAL' ? 'External' : 'Inside INSA'}
+                          </span>
+                        </td>
+                      )}
                       <td className="px-4 py-3">{item.nationalId}</td>
                       <td className="px-4 py-3">{item.phone}</td>
                       <td className="px-4 py-3">{item.address}</td>
@@ -443,7 +471,7 @@ export default function GuarantorsPage() {
                 ) : (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={activeTab === "guarantors" ? 8 : 7}
                       className="px-4 py-8 text-center text-gray-500"
                     >
                       {selectedContract ? t("noData") : t("contracts") + "..."}
