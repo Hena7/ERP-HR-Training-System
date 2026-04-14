@@ -5,7 +5,16 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { educationRequestApi, hrVerificationApi, employeeApi } from "@/lib/api";
 import { EducationRequest, HRVerification, Employee } from "@/types";
-import { CheckCircle2, ClipboardCheck, XCircle, RotateCcw, Calculator, Award, User, AlertCircle } from "lucide-react";
+import {
+  CheckCircle2,
+  ClipboardCheck,
+  XCircle,
+  RotateCcw,
+  Calculator,
+  Award,
+  User,
+  AlertCircle,
+} from "lucide-react";
 import { calculateEducationScore } from "@/lib/scoring";
 
 type VerificationStatus = "VERIFIED" | "REJECTED" | "RETURNED_TO_DEPT";
@@ -39,7 +48,9 @@ export default function HRVerificationsPage() {
 
   const [requests, setRequests] = useState<EducationRequest[]>([]);
   const [verifications, setVerifications] = useState<HRVerification[]>([]);
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null,
+  );
   const [form, setForm] = useState<VerificationFormState>(initialForm);
   const [loading, setLoading] = useState(false);
   const [submittingStatus, setSubmittingStatus] =
@@ -52,7 +63,11 @@ export default function HRVerificationsPage() {
   const loadData = async () => {
     try {
       const [requestRes, verificationRes] = await Promise.all([
-        educationRequestApi.getByStatus(["CDC_APPROVED", "FORWARDED_TO_HR"], 0, 100),
+        educationRequestApi.getByStatus(
+          ["CDC_APPROVED", "FORWARDED_TO_HR"],
+          0,
+          100,
+        ),
         hrVerificationApi.getAll(0, 100),
       ]);
 
@@ -120,7 +135,7 @@ export default function HRVerificationsPage() {
     try {
       const empRes = await employeeApi.getById(request.employeeId);
       if (empRes.data.gender) {
-        setForm(f => ({ ...f, gender: empRes.data.gender }));
+        setForm((f) => ({ ...f, gender: empRes.data.gender }));
       }
       setSelectedEmployee(empRes.data);
     } catch {
@@ -224,7 +239,8 @@ export default function HRVerificationsPage() {
               {t("hrVerifications")}
             </h1>
             <p className="text-sm text-gray-500 font-medium italic">
-              HR reviews employees forwarded by the Cyber Development Center and records semester-based performance scores.
+              HR reviews employees forwarded by the Cyber Development Center and
+              records semester-based performance scores.
             </p>
           </div>
         </div>
@@ -254,8 +270,13 @@ export default function HRVerificationsPage() {
                     const isSelected = form.requestId === request.id;
 
                     return (
-                      <tr key={request.id} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="px-6 py-4 text-xs font-bold text-blue-600">REQ-{request.id.toString().slice(-6)}</td>
+                      <tr
+                        key={request.id}
+                        className="hover:bg-gray-50/50 transition-colors"
+                      >
+                        <td className="px-6 py-4 text-xs font-bold text-blue-600">
+                          REQ-{request.id.toString().slice(-6)}
+                        </td>
                         <td className="px-6 py-4 font-bold text-gray-900">
                           {request.employeeName}
                         </td>
@@ -265,7 +286,9 @@ export default function HRVerificationsPage() {
                         <td className="px-6 py-4 font-medium text-gray-700 text-xs italic">
                           {request.educationType} ({request.educationLevel})
                         </td>
-                        <td className="px-6 py-4 font-medium text-gray-500">{request.institution}</td>
+                        <td className="px-6 py-4 font-medium text-gray-500">
+                          {request.institution}
+                        </td>
                         <td className="px-6 py-4 text-right">
                           <button
                             onClick={() => handleRequestSelect(request)}
@@ -335,17 +358,22 @@ export default function HRVerificationsPage() {
                       {t("institution")} & {t("budgetYear")}
                     </p>
                     <p className="font-bold text-gray-900">
-                      {selectedRequest.institution || "-"} {selectedRequest.budgetYear ? `(Yr ${selectedRequest.budgetYear})` : ""}
+                      {selectedRequest.institution || "-"}{" "}
+                      {selectedRequest.budgetYear
+                        ? `(Yr ${selectedRequest.budgetYear})`
+                        : ""}
                     </p>
                   </div>
                 </div>
-                {((selectedRequest as any).remark || selectedRequest.description) && (
+                {((selectedRequest as any).remark ||
+                  selectedRequest.description) && (
                   <div className="space-y-1 border-t border-gray-200/60 pt-4 mt-2">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                       Description / Remark
                     </p>
                     <p className="text-sm font-medium text-gray-700 leading-relaxed">
-                      {(selectedRequest as any).remark || selectedRequest.description}
+                      {(selectedRequest as any).remark ||
+                        selectedRequest.description}
                     </p>
                   </div>
                 )}
@@ -356,7 +384,9 @@ export default function HRVerificationsPage() {
                 <div className="flex flex-col space-y-4 rounded-xl border border-gray-100 bg-gray-50/20 p-5 transition-shadow hover:shadow-md">
                   <div className="flex items-center gap-2 mb-2">
                     <Award className="h-4 w-4 text-emerald-600" />
-                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-600">Performance Data</h3>
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-600">
+                      Performance Data
+                    </h3>
                   </div>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
@@ -401,7 +431,9 @@ export default function HRVerificationsPage() {
                     </div>
                   </div>
                   <div className="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Avg. Performance</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                      Avg. Performance
+                    </span>
                     <span className="text-sm font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg border border-blue-100">
                       {averageScore || "0.00"}%
                     </span>
@@ -412,7 +444,9 @@ export default function HRVerificationsPage() {
                 <div className="flex flex-col space-y-4 rounded-xl border border-gray-100 bg-gray-50/20 p-5 transition-shadow hover:shadow-md">
                   <div className="flex items-center gap-2 mb-2">
                     <Calculator className="h-4 w-4 text-blue-600" />
-                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-600">Work Exp & Status</h3>
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-600">
+                      Work Exp & Status
+                    </h3>
                   </div>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
@@ -455,22 +489,32 @@ export default function HRVerificationsPage() {
                   </div>
                   <div className="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between gap-4">
                     <div className="flex flex-col gap-1">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Gender</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                        Gender
+                      </span>
                       <div className="flex rounded-lg border border-gray-200 bg-white p-1">
                         <button
                           type="button"
-                          onClick={() => setForm(f => ({ ...f, gender: "Male" }))}
+                          onClick={() =>
+                            setForm((f) => ({ ...f, gender: "Male" }))
+                          }
                           className={`rounded-md px-3 py-1 text-[10px] font-bold uppercase transition-all ${
-                            form.gender === "Male" ? "bg-blue-600 text-white shadow-sm" : "text-gray-500 hover:bg-gray-50"
+                            form.gender === "Male"
+                              ? "bg-blue-600 text-white shadow-sm"
+                              : "text-gray-500 hover:bg-gray-50"
                           }`}
                         >
                           Male
                         </button>
                         <button
                           type="button"
-                          onClick={() => setForm(f => ({ ...f, gender: "Female" }))}
+                          onClick={() =>
+                            setForm((f) => ({ ...f, gender: "Female" }))
+                          }
                           className={`rounded-md px-3 py-1 text-[10px] font-bold uppercase transition-all ${
-                            form.gender === "Female" ? "bg-pink-600 text-white shadow-sm" : "text-gray-500 hover:bg-gray-50"
+                            form.gender === "Female"
+                              ? "bg-pink-600 text-white shadow-sm"
+                              : "text-gray-500 hover:bg-gray-50"
                           }`}
                         >
                           Female
@@ -478,13 +522,17 @@ export default function HRVerificationsPage() {
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Status</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                        Status
+                      </span>
                       <button
                         type="button"
-                        onClick={() => setForm(f => ({ ...f, isDisabled: !f.isDisabled }))}
+                        onClick={() =>
+                          setForm((f) => ({ ...f, isDisabled: !f.isDisabled }))
+                        }
                         className={`rounded-lg px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm ${
-                          form.isDisabled 
-                            ? "bg-amber-100 text-amber-700 border border-amber-200 hover:bg-amber-200" 
+                          form.isDisabled
+                            ? "bg-amber-100 text-amber-700 border border-amber-200 hover:bg-amber-200"
                             : "bg-gray-100 text-gray-500 border border-gray-200 hover:bg-gray-200"
                         }`}
                       >
@@ -499,39 +547,54 @@ export default function HRVerificationsPage() {
                   <div className="flex flex-col rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50/30 p-6 shadow-sm shadow-blue-50/50 xl:col-span-1 lg:col-span-2">
                     <div className="flex items-center gap-2 mb-4 text-blue-800">
                       <Calculator className="h-5 w-5" />
-                      <h3 className="text-sm font-bold uppercase tracking-widest">Score Breakdown</h3>
+                      <h3 className="text-sm font-bold uppercase tracking-widest">
+                        Score Breakdown
+                      </h3>
                     </div>
                     <div className="grid grid-cols-2 gap-y-4 gap-x-4 sm:grid-cols-4 lg:grid-cols-4">
                       <div className="space-y-1">
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Exp (30%)</p>
-                        <p className="text-lg font-bold text-gray-900">{scoringResult.experienceScore.toFixed(2)}</p>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                          Exp (30%)
+                        </p>
+                        <p className="text-lg font-bold text-gray-900">
+                          {scoringResult.experienceScore.toFixed(2)}
+                        </p>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Perf (60%)</p>
-                        <p className="text-lg font-bold text-gray-900">{scoringResult.performanceScore.toFixed(2)}</p>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                          Perf (60%)
+                        </p>
+                        <p className="text-lg font-bold text-gray-900">
+                          {scoringResult.performanceScore.toFixed(2)}
+                        </p>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Disc (10%)</p>
-                        <p className="text-lg font-bold text-gray-900">{scoringResult.disciplineScore.toFixed(2)}</p>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                          Disc (10%)
+                        </p>
+                        <p className="text-lg font-bold text-gray-900">
+                          {scoringResult.disciplineScore.toFixed(2)}
+                        </p>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Bonus</p>
-                        <p className="text-lg font-bold text-indigo-600">+{scoringResult.affirmativeBonus.toFixed(2)}</p>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                          Bonus
+                        </p>
+                        <p className="text-lg font-bold text-indigo-600">
+                          +{scoringResult.affirmativeBonus.toFixed(2)}
+                        </p>
                       </div>
                     </div>
                     <div className="mt-auto pt-6 border-t border-blue-100 flex items-center justify-between">
                       <div className="flex flex-col">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600">Final Total Score</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
+                          Final Total Score
+                        </p>
                         <p className="text-3xl font-black text-blue-900 tracking-tighter">
                           {scoringResult.finalTotalScore.toFixed(2)}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2 bg-white/60 px-2.5 py-1.5 rounded-lg border border-blue-100 backdrop-blur-sm">
-                        <User className="h-3 w-3 text-blue-400" />
-                        <span className="text-[9px] font-bold uppercase text-blue-500 tracking-wider">
-                          {selectedEmployee?.gender || "Unknown"}
-                        </span>
-                      </div>
+                      <div className="flex items-center gap-2 bg-white/60 px-2.5 py-1.5 rounded-lg border border-blue-100 backdrop-blur-sm"></div>
                     </div>
                   </div>
                 )}
@@ -660,7 +723,9 @@ export default function HRVerificationsPage() {
                   <th className="px-6 py-4">{t("educationRequests")} ID</th>
                   <th className="px-6 py-4">{t("semester1Score")}</th>
                   <th className="px-6 py-4">{t("semester2Score")}</th>
-                  <th className="px-6 py-4 text-blue-600">{t("averageScore")}</th>
+                  <th className="px-6 py-4 text-blue-600">
+                    {t("averageScore")}
+                  </th>
                   <th className="px-6 py-4">Calc. Score</th>
                   <th className="px-6 py-4">{t("disciplineRecord")}</th>
                   <th className="px-6 py-4">{t("status")}</th>
@@ -671,16 +736,33 @@ export default function HRVerificationsPage() {
               <tbody className="divide-y">
                 {verifications.length > 0 ? (
                   verifications.map((verification) => (
-                    <tr key={verification.id} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="px-6 py-4 text-xs font-bold text-blue-600 uppercase">VER-{verification.id.toString().slice(-6)}</td>
-                      <td className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">REQ-{verification.requestId.toString().slice(-6)}</td>
-                      <td className="px-6 py-4 font-medium text-gray-700">{verification.semester1Score}</td>
-                      <td className="px-6 py-4 font-medium text-gray-700">{verification.semester2Score}</td>
-                      <td className="px-6 py-4 font-bold text-blue-700 tracking-tight">{verification.averageScore}%</td>
-                      <td className="px-6 py-4 font-black text-indigo-700">{verification.totalCalculatedScore?.toFixed(2) || "-"}</td>
+                    <tr
+                      key={verification.id}
+                      className="hover:bg-gray-50/50 transition-colors"
+                    >
+                      <td className="px-6 py-4 text-xs font-bold text-blue-600 uppercase">
+                        VER-{verification.id.toString().slice(-6)}
+                      </td>
+                      <td className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">
+                        REQ-{verification.requestId.toString().slice(-6)}
+                      </td>
+                      <td className="px-6 py-4 font-medium text-gray-700">
+                        {verification.semester1Score}
+                      </td>
+                      <td className="px-6 py-4 font-medium text-gray-700">
+                        {verification.semester2Score}
+                      </td>
+                      <td className="px-6 py-4 font-bold text-blue-700 tracking-tight">
+                        {verification.averageScore}%
+                      </td>
+                      <td className="px-6 py-4 font-black text-indigo-700">
+                        {verification.totalCalculatedScore?.toFixed(2) || "-"}
+                      </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col gap-1">
-                          <span className={`inline-flex w-fit rounded-lg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${verification.hasDiscipline ? "bg-red-50 text-red-600 border border-red-100" : "bg-emerald-50 text-emerald-600 border border-emerald-100"}`}>
+                          <span
+                            className={`inline-flex w-fit rounded-lg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${verification.hasDiscipline ? "bg-red-50 text-red-600 border border-red-100" : "bg-emerald-50 text-emerald-600 border border-emerald-100"}`}
+                          >
                             {verification.hasDiscipline ? t("yes") : t("no")}
                           </span>
                         </div>
@@ -688,8 +770,12 @@ export default function HRVerificationsPage() {
                       <td className="px-6 py-4">
                         {renderVerificationStatus(verification.status)}
                       </td>
-                      <td className="px-6 py-4 text-xs font-medium text-gray-500 italic">{verification.verifiedBy}</td>
-                      <td className="px-6 py-4 text-xs font-medium text-gray-400">{verification.verifiedAt}</td>
+                      <td className="px-6 py-4 text-xs font-medium text-gray-500 italic">
+                        {verification.verifiedBy}
+                      </td>
+                      <td className="px-6 py-4 text-xs font-medium text-gray-400">
+                        {verification.verifiedAt}
+                      </td>
                     </tr>
                   ))
                 ) : (

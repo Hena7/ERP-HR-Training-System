@@ -231,7 +231,7 @@ export const translations = {
     navOpportunities: "Education Opportunities",
     navRequests: "Education Requests",
     navVerifications: "HR Verifications",
-    navCdcScoring: "CDC Scoring",
+    navCdcApproval: "CDC Approval",
     navEmployees: "Employees",
     navDecisions: "Committee Decisions",
     navContracts: "Commitments",
@@ -348,7 +348,7 @@ export const translations = {
     editEmployee: "ሰራተኛ አርም",
 
     // Education Opportunities
-    educationOpportunities: "የትምህርት ፍላጎት (እድሎች)",
+    educationOpportunities: "የትምህርት ፍላጎት",
     educationOpportunity: "የትምህርት እድል",
     newOpportunity: "አዲስ እድል",
     educationType: "የትምህርት አይነት",
@@ -515,10 +515,10 @@ export const translations = {
 
     // Navigation — Education
     navDashboard: "ዳሽቦርድ",
-    navOpportunities: "የትምህርት ፍላጎት (እድሎች)",
+    navOpportunities: "የትምህርት ፍላጎት",
     navRequests: "የትምህርት ጥያቄዎች",
     navVerifications: "የHR ማረጋገጫዎች",
-    navCdcScoring: "CDC ውጤት አሰጣጥ",
+    navCdcApproval: "የልህቀት ማእከል ፈቃድ",
     navEmployees: "ሰራተኞች",
     navDecisions: "የኮሚቴ ውሳኔዎች",
     navContracts: "ውሎች",

@@ -95,8 +95,8 @@ const eduNavItems: NavItem[] = [
     roles: ["HR_OFFICER", "ADMIN"],
   },
   {
-    href: "/education/cdc-scoring",
-    labelKey: "navCdcScoring",
+    href: "/education/cdc-approval",
+    labelKey: "navCdcApproval",
     icon: <BarChart3 className="h-5 w-5" />,
     roles: ["CYBER_DEVELOPMENT_CENTER", "ADMIN"],
   },

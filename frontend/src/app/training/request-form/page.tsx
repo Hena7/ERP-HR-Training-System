@@ -219,7 +219,9 @@ export default function TrainingRequestFormPage() {
                 <div>
                   <label className={labelClass}>{t("estimatedCost")}</label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 h-6 w-4 text-gray-400">
+                      ETB
+                    </span>{" "}
                     <input
                       name="estimatedCost"
                       type="number"
