@@ -12,7 +12,9 @@ import {
   DollarSign,
   Calendar,
   CheckCircle2,
+  AlertTriangle,
 } from "lucide-react";
+import { calculateObligation } from "@/app/training/services/obligationCalculator";
 
 export default function TrainingContractFormPage() {
   const { t } = useLanguage();
@@ -59,7 +61,18 @@ export default function TrainingContractFormPage() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    // Auto-calculate service obligation when totalCost changes
+    if (name === "totalCost" && value) {
+      const obl = calculateObligation(parseFloat(value));
+      setForm((prev) => ({
+        ...prev,
+        totalCost: value,
+        contractDurationMonths: obl.requiresContract ? String(obl.months) : prev.contractDurationMonths,
+      }));
+    } else {
+      setForm({ ...form, [name]: value });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -356,18 +369,27 @@ export default function TrainingContractFormPage() {
                       placeholder="0.00"
                     />
                   </div>
+                  {form.totalCost && parseFloat(form.totalCost) >= 200000 && (() => {
+                    const obl = calculateObligation(parseFloat(form.totalCost));
+                    return (
+                      <p className="mt-1.5 text-[10px] font-bold text-blue-700">
+                        Auto-obligation: {obl.label} ({obl.months} months)
+                      </p>
+                    );
+                  })()}
                 </div>
                 <div>
-                  <label className={labelClass}>{t("contractDuration")}</label>
+                  <label className={labelClass}>{t("contractDuration")} (Months)</label>
                   <input
                     name="contractDurationMonths"
                     type="number"
                     value={form.contractDurationMonths}
                     onChange={handleChange}
                     required
-                    className={fieldClass}
-                    placeholder="e.g. 24"
+                    className={fieldClass + " bg-blue-50/40 font-black text-blue-900"}
+                    placeholder="Auto-filled from cost"
                   />
+                  <p className="mt-1 text-[10px] text-gray-400">Auto-calculated per INSA obligation schedule. You may adjust manually.</p>
                 </div>
                 <div>
                   <label className={labelClass}>{t("contractSignedDate")}</label>
@@ -383,6 +405,17 @@ export default function TrainingContractFormPage() {
                     />
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Procurement Letter Reminder */}
+            <div className="flex items-start gap-3 rounded-xl bg-amber-50 border border-amber-200 px-5 py-4">
+              <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-bold text-amber-900">Procurement Department Notification Required</p>
+                <p className="text-xs text-amber-700 mt-0.5">
+                  Once this contract is signed, a formal letter must be sent to the Procurement Department confirming that the trainee has signed the service obligation agreement.
+                </p>
               </div>
             </div>
 

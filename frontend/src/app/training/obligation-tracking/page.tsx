@@ -16,6 +16,7 @@ import {
   RefreshCw,
   Calendar,
 } from "lucide-react";
+import { calculateObligation } from "@/app/training/services/obligationCalculator";
 
 export default function ObligationTrackingPage() {
   const { t } = useLanguage();
@@ -49,11 +50,14 @@ export default function ObligationTrackingPage() {
   useEffect(load, []);
 
   const handleContractSelect = (c: TrainingContract) => {
+    const cost = (c as any).estimatedCost || 0;
+    const obl = calculateObligation(cost);
     setSelectedContract(c);
     setForm((prev) => ({
       ...prev,
       contractId: String(c.id),
       employeeName: c.employeeName || "",
+      obligationMonths: obl.requiresContract ? String(obl.months) : "",
     }));
   };
 
@@ -177,16 +181,32 @@ export default function ObligationTrackingPage() {
 
               {/* Form Fields */}
               <form onSubmit={handleCreate} className="p-6 space-y-4">
-                {selectedContract && (
-                  <div className="rounded-lg border border-blue-100 bg-blue-50/40 px-4 py-3">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-blue-500 mb-0.5">
-                      Selected Contract
-                    </p>
-                    <p className="text-sm font-bold text-gray-900">
-                      CTR-{selectedContract.id.toString().slice(-6)} — {selectedContract.employeeName}
-                    </p>
-                  </div>
-                )}
+                {selectedContract && (() => {
+                  const cost = (selectedContract as any).estimatedCost || 0;
+                  const obl = calculateObligation(cost);
+                  return (
+                    <div className="rounded-lg border border-blue-100 bg-blue-50/40 px-4 py-3 space-y-1">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-blue-500">
+                        Selected Contract
+                      </p>
+                      <p className="text-sm font-bold text-gray-900">
+                        CTR-{selectedContract.id.toString().slice(-6)} — {selectedContract.employeeName}
+                      </p>
+                      {obl.requiresContract ? (
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <span className="rounded-full bg-amber-100 px-3 py-0.5 text-[10px] font-bold text-amber-800">
+                            Cost: {cost.toLocaleString()} ETB
+                          </span>
+                          <span className="rounded-full bg-blue-100 px-3 py-0.5 text-[10px] font-bold text-blue-800">
+                            Auto-calculated: {obl.label} ({obl.months} months)
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-[10px] text-emerald-600 font-bold">Cost below threshold — no obligation required</span>
+                      )}
+                    </div>
+                  );
+                })()}
                 <div>
                   <label className={labelClass}>{t("fullName")}</label>
                   <input
@@ -227,8 +247,11 @@ export default function ObligationTrackingPage() {
                     onChange={(e) => setForm({ ...form, obligationMonths: e.target.value })}
                     required
                     className={fieldClass}
-                    placeholder="e.g. 24"
+                    placeholder="Auto-filled from cost — or enter manually"
                   />
+                  <p className="mt-1 text-[10px] text-gray-400">
+                    Auto-calculated from contract cost based on INSA obligation schedule.
+                  </p>
                 </div>
                 <div className="flex gap-3">
                   <button
