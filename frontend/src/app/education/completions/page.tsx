@@ -201,15 +201,46 @@ export default function CompletionsPage() {
             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className={labelClass}>{t("completionDate")}</label>
-                <input type="date" required value={form.completionDate} onChange={(e) => setForm({ ...form, completionDate: e.target.value })} className={fieldClass} />
+                <input
+                  type="date"
+                  name="completionDate"
+                  autoComplete="off"
+                  required
+                  value={form.completionDate}
+                  onChange={(e) =>
+                    setForm({ ...form, completionDate: e.target.value })
+                  }
+                  className={fieldClass}
+                />
               </div>
               <div>
                 <label className={labelClass}>{t("returnToWorkDate")}</label>
-                <input type="date" value={form.returnToWorkDate} onChange={(e) => setForm({ ...form, returnToWorkDate: e.target.value })} className={fieldClass} />
+                <input
+                  type="date"
+                  name="returnToWorkDate"
+                  autoComplete="off"
+                  value={form.returnToWorkDate}
+                  onChange={(e) =>
+                    setForm({ ...form, returnToWorkDate: e.target.value })
+                  }
+                  className={fieldClass}
+                />
               </div>
               <div>
                 <label className={labelClass}>{t("researchPresentationDate")}</label>
-                <input type="date" value={form.researchPresentationDate} onChange={(e) => setForm({ ...form, researchPresentationDate: e.target.value })} className={fieldClass} />
+                <input
+                  type="date"
+                  name="researchPresentationDate"
+                  autoComplete="off"
+                  value={form.researchPresentationDate}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      researchPresentationDate: e.target.value,
+                    })
+                  }
+                  className={fieldClass}
+                />
               </div>
 
               <div className="flex gap-3 md:col-span-2 pt-2">

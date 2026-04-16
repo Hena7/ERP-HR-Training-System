@@ -301,6 +301,8 @@ export default function GuarantorsPage() {
                 </label>
                 <input
                   type="text"
+                  name="fullName"
+                  autoComplete="name"
                   required
                   value={form.fullName}
                   onChange={(e) =>
@@ -315,6 +317,8 @@ export default function GuarantorsPage() {
                 </label>
                 <input
                   type="text"
+                  name="nationalId"
+                  autoComplete="off"
                   required
                   value={form.nationalId}
                   onChange={(e) =>
@@ -328,7 +332,9 @@ export default function GuarantorsPage() {
                   {t("phone")}
                 </label>
                 <input
-                  type="text"
+                  type="tel"
+                  name="phone"
+                  autoComplete="tel"
                   required
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -355,6 +361,8 @@ export default function GuarantorsPage() {
                   {t("address")}
                 </label>
                 <textarea
+                  name="address"
+                  autoComplete="street-address"
                   value={form.address}
                   onChange={(e) =>
                     setForm({ ...form, address: e.target.value })

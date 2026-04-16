@@ -397,6 +397,8 @@ export default function ContractsPage() {
                 </label>
                 <input
                   type="text"
+                  name="university"
+                  autoComplete="organization"
                   required
                   value={form.university}
                   onChange={(e) =>
@@ -411,6 +413,8 @@ export default function ContractsPage() {
                 </label>
                 <input
                   type="text"
+                  name="program"
+                  autoComplete="education-major"
                   required
                   value={form.program}
                   onChange={(e) =>
@@ -425,6 +429,8 @@ export default function ContractsPage() {
                 </label>
                 <input
                   type="text"
+                  name="studyCountry"
+                  autoComplete="country-name"
                   required
                   value={form.studyCountry}
                   onChange={(e) =>
@@ -439,6 +445,8 @@ export default function ContractsPage() {
                 </label>
                 <input
                   type="text"
+                  name="studyCity"
+                  autoComplete="address-level2"
                   required
                   value={form.studyCity}
                   onChange={(e) =>
@@ -467,6 +475,7 @@ export default function ContractsPage() {
                 </label>
                 <input
                   type="number"
+                  name="durationYears"
                   required
                   value={form.durationYears}
                   onChange={(e) =>
@@ -496,6 +505,7 @@ export default function ContractsPage() {
                 </label>
                 <input
                   type="number"
+                  name="estimatedCost"
                   value={form.estimatedCost}
                   onChange={(e) =>
                     setForm({ ...form, estimatedCost: e.target.value })
@@ -509,6 +519,8 @@ export default function ContractsPage() {
                 </label>
                 <input
                   type="date"
+                  name="contractSignedDate"
+                  autoComplete="off"
                   value={form.contractSignedDate}
                   onChange={(e) =>
                     setForm({ ...form, contractSignedDate: e.target.value })
@@ -522,6 +534,8 @@ export default function ContractsPage() {
                 </label>
                 <input
                   type="date"
+                  name="educationStartDate"
+                  autoComplete="off"
                   value={form.educationStartDate}
                   onChange={(e) =>
                     setForm({ ...form, educationStartDate: e.target.value })
@@ -535,6 +549,8 @@ export default function ContractsPage() {
                 </label>
                 <input
                   type="date"
+                  name="educationEndDate"
+                  autoComplete="off"
                   value={form.educationEndDate}
                   onChange={(e) =>
                     setForm({ ...form, educationEndDate: e.target.value })

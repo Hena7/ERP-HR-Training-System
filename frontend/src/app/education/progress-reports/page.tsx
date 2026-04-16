@@ -166,11 +166,30 @@ export default function ProgressReportsPage() {
             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className={labelClass}>{t("reportMonth")}</label>
-                <input type="date" required value={form.reportMonth} onChange={(e) => setForm({ ...form, reportMonth: e.target.value })} className={fieldClass} />
+                <input
+                  type="date"
+                  name="reportMonth"
+                  autoComplete="off"
+                  required
+                  value={form.reportMonth}
+                  onChange={(e) =>
+                    setForm({ ...form, reportMonth: e.target.value })
+                  }
+                  className={fieldClass}
+                />
               </div>
               <div className="md:col-span-2">
                 <label className={labelClass}>{t("description")}</label>
-                <textarea required value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className={fieldClass} />
+                <textarea
+                  name="description"
+                  required
+                  value={form.description}
+                  onChange={(e) =>
+                    setForm({ ...form, description: e.target.value })
+                  }
+                  rows={3}
+                  className={fieldClass}
+                />
               </div>
               <div className="flex gap-3 md:col-span-2">
                 <button type="submit" disabled={loading} className="rounded-lg bg-blue-600 px-8 py-2.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 disabled:opacity-50 transition-all">

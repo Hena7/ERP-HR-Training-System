@@ -802,6 +802,8 @@ export default function EducationRequestsPage() {
                   {t("educationLevel")}
                 </label>
                 <select
+                  name="educationLevel"
+                  autoComplete="education-level"
                   value={batchEducation.educationLevel}
                   onChange={(e) =>
                     setBatchEducation({
@@ -824,6 +826,8 @@ export default function EducationRequestsPage() {
                 </label>
                 <input
                   type="text"
+                  name="fieldOfStudy"
+                  autoComplete="education-major"
                   value={batchEducation.fieldOfStudy}
                   onChange={(e) =>
                     setBatchEducation({
@@ -842,6 +846,8 @@ export default function EducationRequestsPage() {
                 </label>
                 <input
                   type="text"
+                  name="institution"
+                  autoComplete="organization"
                   value={batchEducation.institution}
                   onChange={(e) =>
                     setBatchEducation({
@@ -859,6 +865,8 @@ export default function EducationRequestsPage() {
                 </label>
                 <input
                   type="number"
+                  name="budgetYear"
+                  autoComplete="off"
                   value={batchEducation.budgetYear}
                   onChange={(e) =>
                     setBatchEducation({
@@ -963,6 +971,8 @@ export default function EducationRequestsPage() {
                 </label>
                 <input
                   type="text"
+                  name="fullName"
+                  autoComplete="name"
                   required
                   readOnly={!currentCandidate.isManual}
                   value={currentCandidate.name}
@@ -1001,6 +1011,8 @@ export default function EducationRequestsPage() {
                 </label>
                 <input
                   type="text"
+                  name="institution"
+                  autoComplete="organization"
                   value={currentCandidate.institution}
                   onChange={(e) =>
                     setCurrentCandidate({
@@ -1018,6 +1030,7 @@ export default function EducationRequestsPage() {
                 </label>
                 <input
                   type="number"
+                  name="duration"
                   value={currentCandidate.duration}
                   onChange={(e) =>
                     setCurrentCandidate({
@@ -1034,6 +1047,7 @@ export default function EducationRequestsPage() {
                   Program Time
                 </label>
                 <select
+                  name="program"
                   value={currentCandidate.program}
                   onChange={(e) =>
                     setCurrentCandidate({

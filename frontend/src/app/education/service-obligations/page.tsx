@@ -195,19 +195,57 @@ export default function ServiceObligationsPage() {
             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className={labelClass}>{t("studyYears")}</label>
-                <input type="number" required value={form.studyYears} onChange={(e) => setForm({ ...form, studyYears: e.target.value })} className={fieldClass} />
+                <input
+                  type="number"
+                  name="studyYears"
+                  autoComplete="off"
+                  required
+                  value={form.studyYears}
+                  onChange={(e) =>
+                    setForm({ ...form, studyYears: e.target.value })
+                  }
+                  className={fieldClass}
+                />
               </div>
               <div>
                 <label className={labelClass}>{t("requiredServiceYears")}</label>
-                <input type="number" required value={form.requiredServiceYears} onChange={(e) => setForm({ ...form, requiredServiceYears: e.target.value })} className={fieldClass} />
+                <input
+                  type="number"
+                  name="requiredServiceYears"
+                  autoComplete="off"
+                  required
+                  value={form.requiredServiceYears}
+                  onChange={(e) =>
+                    setForm({ ...form, requiredServiceYears: e.target.value })
+                  }
+                  className={fieldClass}
+                />
               </div>
               <div>
                 <label className={labelClass}>{t("serviceStartDate")}</label>
-                <input type="date" value={form.serviceStartDate} onChange={(e) => setForm({ ...form, serviceStartDate: e.target.value })} className={fieldClass} />
+                <input
+                  type="date"
+                  name="serviceStartDate"
+                  autoComplete="off"
+                  value={form.serviceStartDate}
+                  onChange={(e) =>
+                    setForm({ ...form, serviceStartDate: e.target.value })
+                  }
+                  className={fieldClass}
+                />
               </div>
               <div>
                 <label className={labelClass}>{t("serviceEndDate")}</label>
-                <input type="date" value={form.serviceEndDate} onChange={(e) => setForm({ ...form, serviceEndDate: e.target.value })} className={fieldClass} />
+                <input
+                  type="date"
+                  name="serviceEndDate"
+                  autoComplete="off"
+                  value={form.serviceEndDate}
+                  onChange={(e) =>
+                    setForm({ ...form, serviceEndDate: e.target.value })
+                  }
+                  className={fieldClass}
+                />
               </div>
 
               <div className="flex gap-3 md:col-span-2 mt-2">
