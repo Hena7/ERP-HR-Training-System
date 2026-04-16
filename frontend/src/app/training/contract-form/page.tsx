@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { trainingRequestApi, trainingContractApi } from "@/app/training/services/trainingApi";
+import {
+  trainingRequestApi,
+  trainingContractApi,
+} from "@/app/training/services/trainingApi";
 import { TrainingRequest } from "@/types/training";
 import {
   FileSignature,
@@ -18,8 +21,11 @@ import { calculateObligation } from "@/app/training/services/obligationCalculato
 
 export default function TrainingContractFormPage() {
   const { t } = useLanguage();
-  const [eligibleRequests, setEligibleRequests] = useState<TrainingRequest[]>([]);
-  const [selectedRequest, setSelectedRequest] = useState<TrainingRequest | null>(null);
+  const [eligibleRequests, setEligibleRequests] = useState<TrainingRequest[]>(
+    [],
+  );
+  const [selectedRequest, setSelectedRequest] =
+    useState<TrainingRequest | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -68,7 +74,9 @@ export default function TrainingContractFormPage() {
       setForm((prev) => ({
         ...prev,
         totalCost: value,
-        contractDurationMonths: obl.requiresContract ? String(obl.months) : prev.contractDurationMonths,
+        contractDurationMonths: obl.requiresContract
+          ? String(obl.months)
+          : prev.contractDurationMonths,
       }));
     } else {
       setForm({ ...form, [name]: value });
@@ -176,15 +184,22 @@ export default function TrainingContractFormPage() {
                   eligibleRequests.map((r) => {
                     const isSelected = selectedRequest?.id === r.id;
                     return (
-                      <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
+                      <tr
+                        key={r.id}
+                        className="hover:bg-gray-50/50 transition-colors"
+                      >
                         <td className="px-6 py-4 font-bold text-blue-600">
                           TRQ-{r.id.toString().slice(-6)}
                         </td>
                         <td className="px-6 py-4 font-bold text-gray-900 max-w-[180px] truncate">
                           {r.trainingTitle}
                         </td>
-                        <td className="px-6 py-4 font-medium text-gray-600">{r.department}</td>
-                        <td className="px-6 py-4 font-medium text-gray-500">{r.numTrainees}</td>
+                        <td className="px-6 py-4 font-medium text-gray-600">
+                          {r.department}
+                        </td>
+                        <td className="px-6 py-4 font-medium text-gray-500">
+                          {r.numTrainees}
+                        </td>
                         <td className="px-6 py-4 text-right">
                           <button
                             onClick={() => handleRequestSelect(r)}
@@ -202,7 +217,10 @@ export default function TrainingContractFormPage() {
                   })
                 ) : (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                    <td
+                      colSpan={5}
+                      className="px-4 py-8 text-center text-gray-500"
+                    >
                       No requests with CONTRACT_REQUIRED status found.
                     </td>
                   </tr>
@@ -221,7 +239,8 @@ export default function TrainingContractFormPage() {
                 Linked Training Request
               </p>
               <p className="text-sm font-bold text-gray-900">
-                TRQ-{selectedRequest.id.toString().slice(-6)} — {selectedRequest.trainingTitle} ({selectedRequest.department})
+                TRQ-{selectedRequest.id.toString().slice(-6)} —{" "}
+                {selectedRequest.trainingTitle} ({selectedRequest.department})
               </p>
             </div>
 
@@ -358,41 +377,56 @@ export default function TrainingContractFormPage() {
                 <div>
                   <label className={labelClass}>{t("totalCost")}</label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 h-6 w-4 text-gray-400">
+                      ETB
+                    </span>
                     <input
                       name="totalCost"
                       type="number"
                       value={form.totalCost}
                       onChange={handleChange}
                       required
-                      className={fieldClass + " pl-10"}
+                      className={fieldClass + " pl-11"}
                       placeholder="0.00"
                     />
                   </div>
-                  {form.totalCost && parseFloat(form.totalCost) >= 200000 && (() => {
-                    const obl = calculateObligation(parseFloat(form.totalCost));
-                    return (
-                      <p className="mt-1.5 text-[10px] font-bold text-blue-700">
-                        Auto-obligation: {obl.label} ({obl.months} months)
-                      </p>
-                    );
-                  })()}
+                  {form.totalCost &&
+                    parseFloat(form.totalCost) >= 200000 &&
+                    (() => {
+                      const obl = calculateObligation(
+                        parseFloat(form.totalCost),
+                      );
+                      return (
+                        <p className="mt-1.5 text-[10px] font-bold text-blue-700">
+                          Auto-obligation: {obl.label} ({obl.months} months)
+                        </p>
+                      );
+                    })()}
                 </div>
                 <div>
-                  <label className={labelClass}>{t("contractDuration")} (Months)</label>
+                  <label className={labelClass}>
+                    {t("contractDuration")} (Months)
+                  </label>
                   <input
                     name="contractDurationMonths"
                     type="number"
                     value={form.contractDurationMonths}
                     onChange={handleChange}
                     required
-                    className={fieldClass + " bg-blue-50/40 font-black text-blue-900"}
+                    className={
+                      fieldClass + " bg-blue-50/40 font-black text-blue-900"
+                    }
                     placeholder="Auto-filled from cost"
                   />
-                  <p className="mt-1 text-[10px] text-gray-400">Auto-calculated per INSA obligation schedule. You may adjust manually.</p>
+                  <p className="mt-1 text-[10px] text-gray-400">
+                    Auto-calculated per INSA obligation schedule. You may adjust
+                    manually.
+                  </p>
                 </div>
                 <div>
-                  <label className={labelClass}>{t("contractSignedDate")}</label>
+                  <label className={labelClass}>
+                    {t("contractSignedDate")}
+                  </label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <input
@@ -412,9 +446,13 @@ export default function TrainingContractFormPage() {
             <div className="flex items-start gap-3 rounded-xl bg-amber-50 border border-amber-200 px-5 py-4">
               <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-bold text-amber-900">Procurement Department Notification Required</p>
+                <p className="text-sm font-bold text-amber-900">
+                  Procurement Department Notification Required
+                </p>
                 <p className="text-xs text-amber-700 mt-0.5">
-                  Once this contract is signed, a formal letter must be sent to the Procurement Department confirming that the trainee has signed the service obligation agreement.
+                  Once this contract is signed, a formal letter must be sent to
+                  the Procurement Department confirming that the trainee has
+                  signed the service obligation agreement.
                 </p>
               </div>
             </div>
@@ -432,7 +470,8 @@ export default function TrainingContractFormPage() {
 
         {!selectedRequest && (
           <div className="rounded-lg border border-dashed border-gray-200 p-6 text-center text-sm text-gray-400">
-            Select a training request from the list above to begin filling in contract details.
+            Select a training request from the list above to begin filling in
+            contract details.
           </div>
         )}
       </div>
