@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { calculateObligation } from "@/app/training/services/obligationCalculator";
 
 const THRESHOLD = 200000;
 
@@ -78,7 +79,10 @@ export default function ProcurementReviewPage() {
           <AlertTriangle className="h-5 w-5 text-blue-600 flex-shrink-0" />
           <p className="text-sm font-bold text-blue-900">
             Cost &lt; 200,000 Birr → Approve Directly &nbsp;|&nbsp; Cost ≥ 200,000 Birr
-            → Require Contract
+            → Require Contract &amp; Service Obligation
+          </p>
+          <p className="text-xs text-blue-700 mt-1">
+            Obligation: 200k–400k = 6–12 mo • 400k–800k = 1–2 yr • 800k–1.2M = 2–3 yr • 1.2M–1.6M = 3–4 yr • 1.6M–2M = 4–5 yr • 2M–2.6M = 5–6 yr • &gt;2.6M = 7–10 yr
           </p>
         </div>
 
@@ -86,7 +90,7 @@ export default function ProcurementReviewPage() {
           <table className="min-w-full divide-y divide-gray-100">
             <thead className="bg-gray-50/80 text-[10px] font-bold uppercase tracking-widest text-gray-400">
               <tr>
-                {["REQ-ID", t("department"), t("trainingTitle"), t("estimatedCost"), t("numTrainees"), t("actions")].map((h) => (
+                {["REQ-ID", t("department"), t("trainingTitle"), t("estimatedCost"), "Service Obligation", t("numTrainees"), t("actions")].map((h) => (
                   <th key={h} className="px-6 py-4 text-left">
                     {h}
                   </th>
@@ -122,6 +126,19 @@ export default function ProcurementReviewPage() {
                         <DollarSign className="h-3.5 w-3.5" />
                         {req.estimatedCost.toLocaleString()}
                       </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      {req.estimatedCost >= THRESHOLD ? (() => {
+                        const obl = calculateObligation(req.estimatedCost);
+                        return (
+                          <span className="inline-flex flex-col">
+                            <span className="text-xs font-bold text-amber-700">{obl.label}</span>
+                            <span className="text-[10px] text-gray-400">{obl.months} months total</span>
+                          </span>
+                        );
+                      })() : (
+                        <span className="text-[10px] text-emerald-600 font-bold">No obligation</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-700">{req.numTrainees}</td>
                     <td className="px-6 py-4">

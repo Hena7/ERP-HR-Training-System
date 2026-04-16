@@ -16,6 +16,7 @@ import {
   Send,
   CheckCircle2,
 } from "lucide-react";
+import { calculateObligation } from "@/app/training/services/obligationCalculator";
 const COST_THRESHOLD = 200000;
 
 export default function TrainingRequestFormPage() {
@@ -233,16 +234,30 @@ export default function TrainingRequestFormPage() {
                       value={form.estimatedCost}
                       onChange={handleChange}
                       required
-                      className={fieldClass + " pl-10"}
+                      className={fieldClass + " pl-11"}
                       placeholder="0.00"
                     />
                   </div>
                   {form.estimatedCost &&
-                    parseFloat(form.estimatedCost) >= COST_THRESHOLD && (
-                      <p className="mt-1.5 text-[10px] font-bold text-amber-600 flex items-center gap-1">
-                        ⚠ Cost ≥ 200,000 Birr — Contract will be required
-                      </p>
-                    )}
+                    parseFloat(form.estimatedCost) >= COST_THRESHOLD &&
+                    (() => {
+                      const obl = calculateObligation(
+                        parseFloat(form.estimatedCost),
+                      );
+                      return (
+                        <div className="mt-2 space-y-1">
+                          <p className="text-[10px] font-bold text-amber-600 flex items-center gap-1">
+                            ⚠ Cost ≥ 200,000 Birr — Contract &amp; service
+                            obligation required
+                          </p>
+                          <p className="text-[10px] font-bold text-blue-700">
+                            📅 Required obligation:{" "}
+                            <span className="text-blue-900">{obl.label}</span> (
+                            {obl.months} months)
+                          </p>
+                        </div>
+                      );
+                    })()}
                 </div>
               </div>
               <div>
