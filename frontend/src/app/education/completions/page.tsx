@@ -200,8 +200,9 @@ export default function CompletionsPage() {
             </h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className={labelClass}>{t("completionDate")}</label>
+                <label htmlFor="completionDate" className={labelClass}>{t("completionDate")}</label>
                 <input
+                  id="completionDate"
                   type="date"
                   name="completionDate"
                   autoComplete="off"
@@ -214,8 +215,9 @@ export default function CompletionsPage() {
                 />
               </div>
               <div>
-                <label className={labelClass}>{t("returnToWorkDate")}</label>
+                <label htmlFor="returnToWorkDate" className={labelClass}>{t("returnToWorkDate")}</label>
                 <input
+                  id="returnToWorkDate"
                   type="date"
                   name="returnToWorkDate"
                   autoComplete="off"
@@ -227,8 +229,9 @@ export default function CompletionsPage() {
                 />
               </div>
               <div>
-                <label className={labelClass}>{t("researchPresentationDate")}</label>
+                <label htmlFor="researchPresentationDate" className={labelClass}>{t("researchPresentationDate")}</label>
                 <input
+                  id="researchPresentationDate"
                   type="date"
                   name="researchPresentationDate"
                   autoComplete="off"

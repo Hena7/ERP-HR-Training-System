@@ -1,1 +1,3 @@
-# ERP HR Training System\n\nEducation Module for INSA HR Training ERP System
+# ERP HR Training System
+
+Education and Training Module for INSA HR Training ERP System

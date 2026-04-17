@@ -24,8 +24,35 @@ public class EducationRequest {
     private Employee employee;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "opportunity_id", nullable = false)
+    @JoinColumn(name = "opportunity_id", nullable = true)
     private EducationOpportunity opportunity;
+
+    @Column(name = "education_category")
+    private String educationCategory;
+
+    @Column(name = "field_of_study")
+    private String fieldOfStudy;
+
+    @Column(name = "institution")
+    private String institution;
+
+    @Column(name = "target_education_level")
+    private String targetEducationLevel;
+
+    @Column(name = "budget_year")
+    private Integer budgetYear;
+
+    @Column(name = "award")
+    private String award;
+
+    @Column(name = "duration")
+    private Double duration;
+
+    @Column(name = "program_time")
+    private String programTime;
+
+    @Column(name = "location")
+    private String location;
 
     @Column(name = "current_education_level", nullable = false, length = 100)
     private String currentEducationLevel;

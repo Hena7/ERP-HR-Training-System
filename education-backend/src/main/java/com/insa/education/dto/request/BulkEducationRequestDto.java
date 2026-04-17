@@ -13,26 +13,25 @@ import java.util.List;
 @Builder
 public class BulkEducationRequestDto {
 
-    @NotEmpty(message = "At least one employee must be selected")
-    private List<Long> employeeIds;
+    @NotEmpty(message = "At least one candidate must be nominated")
+    private List<CandidateNominationDto> candidates;
 
-    @NotNull(message = "Education opportunity is required")
     private Long opportunityId;
 
-    @NotNull(message = "Current education level is required")
-    private String currentEducationLevel;
+    private String educationCategory;
 
-    @NotNull(message = "Work experience is required")
-    private Double workExperience;
+    @NotNull(message = "Education level is required")
+    private String educationLevel;
 
-    @NotNull(message = "Performance score is required")
-    private Double performanceScore;
+    private String fieldOfStudy;
+
+    private String institution;
+
+    private Integer budgetYear;
 
     private String description;
- 
+
     private String commitmentSource;
- 
+
     private Double totalScore;
- 
-    private String candidateId;
 }

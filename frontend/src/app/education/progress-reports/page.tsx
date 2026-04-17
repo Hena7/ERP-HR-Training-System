@@ -165,8 +165,9 @@ export default function ProgressReportsPage() {
             </h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className={labelClass}>{t("reportMonth")}</label>
+                <label htmlFor="reportMonth" className={labelClass}>{t("reportMonth")}</label>
                 <input
+                  id="reportMonth"
                   type="date"
                   name="reportMonth"
                   autoComplete="off"
@@ -179,8 +180,9 @@ export default function ProgressReportsPage() {
                 />
               </div>
               <div className="md:col-span-2">
-                <label className={labelClass}>{t("description")}</label>
+                <label htmlFor="reportDescription" className={labelClass}>{t("description")}</label>
                 <textarea
+                  id="reportDescription"
                   name="description"
                   required
                   value={form.description}

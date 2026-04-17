@@ -205,19 +205,22 @@ export default function EducationRequestsPage() {
     setLoading(true);
     try {
       const payload = {
-        ...batchEducation,
-        requesterName: user?.fullName,
-        requesterId: user?.id,
-        requesterDepartment: (user as any)?.department,
+        opportunityId: batchEducation.opportunityId ? Number(batchEducation.opportunityId) : null,
+        educationCategory: batchEducation.educationCategory,
+        educationLevel: batchEducation.educationLevel,
+        fieldOfStudy: batchEducation.fieldOfStudy,
+        institution: batchEducation.institution,
+        budgetYear: Number(batchEducation.budgetYear),
+        description: batchEducation.remark,
         candidates: candidates.map((c) => ({
-          ...c,
           employeeId: typeof c.id === "number" ? c.id : null,
-          employeeName: c.name,
-          employeePhone: c.phone || "-",
-          employeeDepartment: c.dept,
           candidateId: c.candidateId,
-        })),
-        createdAt: new Date().toISOString(),
+          award: c.award,
+          duration: Number(c.duration),
+          programTime: c.program,
+          location: c.location,
+          dept: c.dept
+        })).filter(c => c.employeeId !== null),
       };
 
       await educationRequestApi.createBulk(payload);
@@ -677,10 +680,10 @@ export default function EducationRequestsPage() {
                     <td className="px-8 py-5">
                       <div className="flex flex-col">
                         <span className="font-bold text-gray-800">
-                          {req.fieldOfStudy}
+                          {req.fieldOfStudy || t("notSpecified")}
                         </span>
                         <span className="text-xs font-medium text-gray-500 uppercase tracking-tighter">
-                          {req.educationLevel} • {req.institution}
+                          {req.targetEducationLevel || req.educationLevel} • {req.institution}
                         </span>
                       </div>
                     </td>
@@ -798,10 +801,11 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                <label htmlFor="educationLevel" className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                   {t("educationLevel")}
                 </label>
                 <select
+                  id="educationLevel"
                   name="educationLevel"
                   autoComplete="education-level"
                   value={batchEducation.educationLevel}
@@ -821,10 +825,11 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                <label htmlFor="fieldOfStudy" className="text-xs font-black uppercase tracking-widest text-gray-400">
                   {t("fieldOfStudy")}
                 </label>
                 <input
+                  id="fieldOfStudy"
                   type="text"
                   name="fieldOfStudy"
                   autoComplete="education-major"
@@ -841,10 +846,11 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                <label htmlFor="institution" className="text-xs font-black uppercase tracking-widest text-gray-400">
                   {t("institution")}
                 </label>
                 <input
+                  id="institution"
                   type="text"
                   name="institution"
                   autoComplete="organization"
@@ -860,10 +866,11 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                <label htmlFor="budgetYear" className="text-xs font-black uppercase tracking-widest text-gray-400">
                   {t("budgetYear")}
                 </label>
                 <input
+                  id="budgetYear"
                   type="number"
                   name="budgetYear"
                   autoComplete="off"
@@ -966,10 +973,11 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                <label htmlFor="fullName" className="text-xs font-black uppercase tracking-widest text-gray-400">
                   Full Name
                 </label>
                 <input
+                  id="fullName"
                   type="text"
                   name="fullName"
                   autoComplete="name"
@@ -1006,10 +1014,11 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                <label htmlFor="candidateInstitution" className="text-xs font-black uppercase tracking-widest text-gray-400">
                   Target Institution (If specific)
                 </label>
                 <input
+                  id="candidateInstitution"
                   type="text"
                   name="institution"
                   autoComplete="organization"
@@ -1025,10 +1034,11 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                <label htmlFor="candidateDuration" className="text-xs font-black uppercase tracking-widest text-gray-400">
                   Duration (Years)
                 </label>
                 <input
+                  id="candidateDuration"
                   type="number"
                   name="duration"
                   value={currentCandidate.duration}
@@ -1146,11 +1156,10 @@ export default function EducationRequestsPage() {
                     {t("educationOpportunity")}
                   </p>
                   <p className="text-sm font-bold text-gray-900">
-                    {selectedRequest.fieldOfStudy ||
-                      selectedRequest.educationType}
+                    {selectedRequest.fieldOfStudy || t("notSpecified")}
                   </p>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
-                    {selectedRequest.educationLevel}
+                    {selectedRequest.targetEducationLevel || selectedRequest.educationLevel}
                   </p>
                 </div>
                 <div>
@@ -1164,24 +1173,18 @@ export default function EducationRequestsPage() {
 
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-                    {t("duration")} & {t("budgetYear")}
+                    {t("award")} / {t("duration")}
                   </p>
                   <p className="text-sm font-bold text-gray-900">
-                    {selectedRequest.duration
-                      ? `${selectedRequest.duration} Years`
-                      : "-"}
-                    {selectedRequest.budgetYear
-                      ? ` • Yr ${selectedRequest.budgetYear}`
-                      : ""}
+                    {selectedRequest.award || "-"} ({selectedRequest.duration} {t("years")})
                   </p>
                 </div>
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-                    Program & Location
+                    {t("location")} / {t("program")}
                   </p>
                   <p className="text-sm font-bold text-gray-900">
-                    {selectedRequest.programTime || "Regular"} •{" "}
-                    {selectedRequest.location || "Local"}
+                    {selectedRequest.location} • {selectedRequest.programTime}
                   </p>
                 </div>
               </div>

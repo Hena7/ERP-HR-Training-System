@@ -296,10 +296,11 @@ export default function GuarantorsPage() {
                 </div>
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label htmlFor="fullName" className="mb-1 block text-sm font-medium text-gray-700">
                   {t("fullName")}
                 </label>
                 <input
+                  id="fullName"
                   type="text"
                   name="fullName"
                   autoComplete="name"
@@ -312,10 +313,11 @@ export default function GuarantorsPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label htmlFor="nationalId" className="mb-1 block text-sm font-medium text-gray-700">
                   {t("nationalId")}
                 </label>
                 <input
+                  id="nationalId"
                   type="text"
                   name="nationalId"
                   autoComplete="off"
@@ -328,10 +330,11 @@ export default function GuarantorsPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label htmlFor="phone" className="mb-1 block text-sm font-medium text-gray-700">
                   {t("phone")}
                 </label>
                 <input
+                  id="phone"
                   type="tel"
                   name="phone"
                   autoComplete="tel"
@@ -357,10 +360,11 @@ export default function GuarantorsPage() {
                 </div>
               )}
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label htmlFor="address" className="mb-1 block text-sm font-medium text-gray-700">
                   {t("address")}
                 </label>
                 <textarea
+                  id="address"
                   name="address"
                   autoComplete="street-address"
                   value={form.address}

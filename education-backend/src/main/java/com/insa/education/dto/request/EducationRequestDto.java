@@ -14,8 +14,25 @@ public class EducationRequestDto {
     @NotNull(message = "Employee ID is required")
     private Long employeeId;
 
-    @NotNull(message = "Opportunity ID is required")
     private Long opportunityId;
+
+    private String educationCategory;
+
+    private String fieldOfStudy;
+
+    private String institution;
+
+    private String targetEducationLevel;
+
+    private Integer budgetYear;
+
+    private String award;
+
+    private Double duration;
+
+    private String programTime;
+
+    private String location;
 
     @NotBlank(message = "Current education level is required")
     private String currentEducationLevel;

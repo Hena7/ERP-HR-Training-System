@@ -194,8 +194,9 @@ export default function ServiceObligationsPage() {
             </h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className={labelClass}>{t("studyYears")}</label>
+                <label htmlFor="studyYears" className={labelClass}>{t("studyYears")}</label>
                 <input
+                  id="studyYears"
                   type="number"
                   name="studyYears"
                   autoComplete="off"
@@ -208,8 +209,9 @@ export default function ServiceObligationsPage() {
                 />
               </div>
               <div>
-                <label className={labelClass}>{t("requiredServiceYears")}</label>
+                <label htmlFor="requiredServiceYears" className={labelClass}>{t("requiredServiceYears")}</label>
                 <input
+                  id="requiredServiceYears"
                   type="number"
                   name="requiredServiceYears"
                   autoComplete="off"
@@ -222,8 +224,9 @@ export default function ServiceObligationsPage() {
                 />
               </div>
               <div>
-                <label className={labelClass}>{t("serviceStartDate")}</label>
+                <label htmlFor="serviceStartDate" className={labelClass}>{t("serviceStartDate")}</label>
                 <input
+                  id="serviceStartDate"
                   type="date"
                   name="serviceStartDate"
                   autoComplete="off"
@@ -235,8 +238,9 @@ export default function ServiceObligationsPage() {
                 />
               </div>
               <div>
-                <label className={labelClass}>{t("serviceEndDate")}</label>
+                <label htmlFor="serviceEndDate" className={labelClass}>{t("serviceEndDate")}</label>
                 <input
+                  id="serviceEndDate"
                   type="date"
                   name="serviceEndDate"
                   autoComplete="off"

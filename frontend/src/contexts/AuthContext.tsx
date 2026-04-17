@@ -31,7 +31,7 @@ export function useAuth() {
     "EMPLOYEE";
 
   // Map standard Keycloak claims to the legacy AuthResponse object
-  const user: AuthResponse | null = session
+  const user: AuthResponse | null = React.useMemo(() => session
     ? {
         token: (session as any).accessToken || "",
         role: primaryRole as any,
@@ -43,9 +43,9 @@ export function useAuth() {
         gender: (session as any).user?.gender || "",
         position: (session as any).user?.position || "",
       }
-    : null;
+    : null, [session, primaryRole]);
 
-  return {
+  const authValue = React.useMemo(() => ({
     user,
     token: (session as any)?.accessToken || null,
     login: () => signIn("keycloak", { callbackUrl: "/dashboard" }),
@@ -62,5 +62,7 @@ export function useAuth() {
     },
     isAuthenticated: status === "authenticated",
     isLoading: status === "loading",
-  };
+  }), [user, session, status]);
+
+  return authValue;
 }

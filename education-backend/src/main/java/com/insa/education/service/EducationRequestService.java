@@ -56,14 +56,25 @@ public class EducationRequestService {
         Employee employee = employeeRepository.findById(dto.getEmployeeId())
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + dto.getEmployeeId()));
 
-        EducationOpportunity opportunity = opportunityRepository.findById(dto.getOpportunityId())
-                .orElseThrow(() -> new ResourceNotFoundException("Opportunity not found with id: " + dto.getOpportunityId()));
-
-        validateOpportunityAccess(employee, opportunity);
+        EducationOpportunity opportunity = null;
+        if (dto.getOpportunityId() != null) {
+            opportunity = opportunityRepository.findById(dto.getOpportunityId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Opportunity not found with id: " + dto.getOpportunityId()));
+            validateOpportunityAccess(employee, opportunity);
+        }
 
         EducationRequest request = EducationRequest.builder()
                 .employee(employee)
                 .opportunity(opportunity)
+                .educationCategory(dto.getEducationCategory())
+                .fieldOfStudy(dto.getFieldOfStudy())
+                .institution(dto.getInstitution())
+                .targetEducationLevel(dto.getTargetEducationLevel())
+                .budgetYear(dto.getBudgetYear())
+                .award(dto.getAward())
+                .duration(dto.getDuration())
+                .programTime(dto.getProgramTime())
+                .location(dto.getLocation())
                 .currentEducationLevel(dto.getCurrentEducationLevel())
                 .workExperience(dto.getWorkExperience())
                 .performanceScore(dto.getPerformanceScore())
@@ -84,30 +95,43 @@ public class EducationRequestService {
      */
     @Transactional
     public List<EducationRequestResponse> createBulk(BulkEducationRequestDto dto) {
-        EducationOpportunity opportunity = opportunityRepository.findById(dto.getOpportunityId())
-                .orElseThrow(() -> new ResourceNotFoundException("Opportunity not found with id: " + dto.getOpportunityId()));
+        EducationOpportunity opportunity = null;
+        if (dto.getOpportunityId() != null) {
+            opportunity = opportunityRepository.findById(dto.getOpportunityId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Opportunity not found with id: " + dto.getOpportunityId()));
+        }
 
-        return dto.getEmployeeIds().stream().map(employeeId -> {
-            Employee employee = employeeRepository.findById(employeeId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + employeeId));
+        final EducationOpportunity finalOpp = opportunity;
+        return dto.getCandidates().stream().map(cand -> {
+            Employee employee = employeeRepository.findById(cand.getEmployeeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + cand.getEmployeeId()));
 
-            validateOpportunityAccess(employee, opportunity);
+            if (finalOpp != null) {
+                validateOpportunityAccess(employee, finalOpp);
+            }
 
             EducationRequest request = EducationRequest.builder()
                     .employee(employee)
-                    .opportunity(opportunity)
-                    .currentEducationLevel(dto.getCurrentEducationLevel())
-                    .workExperience(dto.getWorkExperience())
-                    .performanceScore(dto.getPerformanceScore())
+                    .opportunity(finalOpp)
+                    .educationCategory(dto.getEducationCategory())
+                    .fieldOfStudy(dto.getFieldOfStudy())
+                    .institution(dto.getInstitution())
+                    .targetEducationLevel(dto.getEducationLevel())
+                    .budgetYear(dto.getBudgetYear())
+                    .award(cand.getAward())
+                    .duration(cand.getDuration())
+                    .programTime(cand.getProgramTime())
+                    .location(cand.getLocation())
+                    .currentEducationLevel("N/A") // From batch, this is usually for the goal
                     .description(dto.getDescription())
                     .status(RequestStatus.PENDING_DEPARTMENT_SUBMISSION)
                     .commitmentSource(dto.getCommitmentSource() != null ? CommitmentSource.valueOf(dto.getCommitmentSource()) : CommitmentSource.STANDARD)
-                    .candidateId(dto.getCandidateId())
+                    .candidateId(cand.getCandidateId())
                     .build();
 
             EducationRequest saved = requestRepository.save(request);
-            log.info("Education request created in bulk: id={}, employee={}, opportunity={}, by={}",
-                    saved.getId(), employee.getEmployeeId(), opportunity.getId(), currentUsername());
+            log.info("Education request created in bulk: id={}, employee={}, by={}",
+                    saved.getId(), employee.getEmployeeId(), currentUsername());
 
             return mapper.toEducationRequestResponse(saved);
         }).collect(Collectors.toList());
@@ -158,16 +182,28 @@ public class EducationRequestService {
             throw new BadRequestException("Cannot edit request after HR/committee processing has started");
         }
 
-        EducationOpportunity opportunity = opportunityRepository.findById(dto.getOpportunityId())
-                .orElseThrow(() -> new ResourceNotFoundException("Opportunity not found with id: " + dto.getOpportunityId()));
-
-        validateOpportunityAccess(request.getEmployee(), opportunity);
+        EducationOpportunity opportunity = null;
+        if (dto.getOpportunityId() != null) {
+            opportunity = opportunityRepository.findById(dto.getOpportunityId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Opportunity not found with id: " + dto.getOpportunityId()));
+            validateOpportunityAccess(request.getEmployee(), opportunity);
+        }
 
         request.setOpportunity(opportunity);
+        request.setEducationCategory(dto.getEducationCategory());
+        request.setFieldOfStudy(dto.getFieldOfStudy());
+        request.setInstitution(dto.getInstitution());
+        request.setTargetEducationLevel(dto.getTargetEducationLevel());
+        request.setBudgetYear(dto.getBudgetYear());
+        request.setAward(dto.getAward());
+        request.setDuration(dto.getDuration());
+        request.setProgramTime(dto.getProgramTime());
+        request.setLocation(dto.getLocation());
         request.setCurrentEducationLevel(dto.getCurrentEducationLevel());
         request.setWorkExperience(dto.getWorkExperience());
         request.setPerformanceScore(dto.getPerformanceScore());
         request.setDescription(dto.getDescription());
+        request.setCandidateId(dto.getCandidateId());
 
         EducationRequest saved = requestRepository.save(request);
         log.info("Education request updated: id={}, by={}", saved.getId(), currentUsername());
@@ -290,6 +326,8 @@ public class EducationRequestService {
     }
 
     private void validateOpportunityAccess(Employee employee, EducationOpportunity opportunity) {
+        if (opportunity == null) return;
+
         String employeeDepartment = normalizeDepartment(employee.getDepartment());
         List<String> targetDepartments = opportunity.getTargetDepartments();
 

@@ -15,9 +15,15 @@ public class EducationRequestResponse {
     private Long employeeId;
     private String employeeName;
     private Long opportunityId;
-    private String educationType;
-    private String educationLevel;
+    private String educationCategory;
+    private String fieldOfStudy;
     private String institution;
+    private String targetEducationLevel;
+    private Integer budgetYear;
+    private String award;
+    private Double duration;
+    private String programTime;
+    private String location;
     private String currentEducationLevel;
     private Double workExperience;
     private Double performanceScore;
