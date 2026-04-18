@@ -243,7 +243,7 @@ export default function EducationRequestsPage() {
       setShowForm(false);
       loadRequests();
     } catch (err: any) {
-      alert(err?.message || "Failed to submit batch request");
+      alert(err.response?.data?.message || err?.message || "Failed to submit batch request");
     } finally {
       setLoading(false);
     }
@@ -264,7 +264,7 @@ export default function EducationRequestsPage() {
   const approveRequest = async (id: number) => {
     setBusyId(id);
     try {
-      await educationRequestApi.centerReview(id);
+      await educationRequestApi.forwardToHr(id);
       loadRequests();
     } catch (err: any) {
       alert(err?.message || "Failed to approve");

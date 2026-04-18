@@ -16,5 +16,7 @@ public interface EducationRequestRepository extends JpaRepository<EducationReque
     Page<EducationRequest> findByEmployee_EmployeeId(String employeeId, Pageable pageable);
     
     Page<EducationRequest> findByStatus(RequestStatus status, Pageable pageable);
+    Page<EducationRequest> findByStatusIn(List<RequestStatus> statuses, Pageable pageable);
+
     List<EducationRequest> findByEmployeeIdAndStatus(Long employeeId, RequestStatus status);
 }

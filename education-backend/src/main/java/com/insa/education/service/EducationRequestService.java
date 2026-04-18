@@ -194,8 +194,8 @@ public class EducationRequestService {
     }
 
     @Transactional(readOnly = true)
-    public Page<EducationRequestResponse> getByStatus(RequestStatus status, Pageable pageable) {
-        return requestRepository.findByStatus(status, pageable)
+    public Page<EducationRequestResponse> getByStatus(List<RequestStatus> statuses, Pageable pageable) {
+        return requestRepository.findByStatusIn(statuses, pageable)
                 .map(mapper::toEducationRequestResponse);
     }
 

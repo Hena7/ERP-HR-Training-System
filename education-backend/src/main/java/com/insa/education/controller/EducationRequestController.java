@@ -36,7 +36,7 @@ public class EducationRequestController {
 
     @PostMapping("/bulk")
     @PreAuthorize("hasAnyRole('DEPARTMENT_HEAD', 'ADMIN')")
-    public ResponseEntity<List<EducationRequestResponse>> createBulk(@Valid @RequestBody BulkEducationRequestDto dto) {
+    public ResponseEntity<List<EducationRequestResponse>> createBulk(@RequestBody BulkEducationRequestDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(requestService.createBulk(dto));
     }
 
@@ -73,11 +73,12 @@ public class EducationRequestController {
     @GetMapping("/status/{status}")
     @PreAuthorize("hasAnyRole('DEPARTMENT_HEAD', 'HR_OFFICER', 'CYBER_DEVELOPMENT_CENTER', 'COMMITTEE_MEMBER', 'ADMIN')")
     public ResponseEntity<Page<EducationRequestResponse>> getByStatus(
-            @PathVariable RequestStatus status,
+            @PathVariable List<RequestStatus> status,
             Pageable pageable
     ) {
         return ResponseEntity.ok(requestService.getByStatus(status, pageable));
     }
+
 
     /**
      * Department Head can update request details before downstream processing starts.
@@ -138,7 +139,7 @@ public class EducationRequestController {
         return ResponseEntity.ok(
                 requestService.transitionStatus(
                         id,
-                        RequestStatus.CENTER_REVIEWED,
+                        RequestStatus.SUBMITTED_TO_CENTER,
                         RequestStatus.FORWARDED_TO_HR,
                         "Forwarded to HR by Cyber Development Center"
                 )
