@@ -9,10 +9,20 @@ import org.springframework.stereotype.Component;
 public class EducationMapper {
 
     public EducationRequestResponse toEducationRequestResponse(EducationRequest entity) {
+        String name   = entity.getEmployee() != null
+                ? entity.getEmployee().getFirstName() + " " + entity.getEmployee().getLastName()
+                : entity.getManualEmployeeName();
+        String phone  = entity.getEmployee() != null
+                ? entity.getEmployee().getPhone()
+                : entity.getManualEmployeePhone();
+        String dept   = entity.getEmployee() != null
+                ? entity.getEmployee().getDepartment()
+                : entity.getManualEmployeeDept();
+
         return EducationRequestResponse.builder()
                 .id(entity.getId())
-                .employeeId(entity.getEmployee().getId())
-                .employeeName(entity.getEmployee().getFirstName() + " " + entity.getEmployee().getLastName())
+                .employeeId(entity.getEmployee() != null ? entity.getEmployee().getId() : null)
+                .employeeName(name)
                 .opportunityId(entity.getOpportunity() != null ? entity.getOpportunity().getId() : null)
                 .educationCategory(entity.getEducationCategory())
                 .fieldOfStudy(entity.getFieldOfStudy())
@@ -26,8 +36,8 @@ public class EducationMapper {
                 .currentEducationLevel(entity.getCurrentEducationLevel())
                 .workExperience(entity.getWorkExperience())
                 .performanceScore(entity.getPerformanceScore())
-                .employeePhone(entity.getEmployee().getPhone())
-                .employeeDepartment(entity.getEmployee().getDepartment())
+                .employeePhone(phone)
+                .employeeDepartment(dept)
                 .description(entity.getDescription())
                 .status(entity.getStatus())
                 .commitmentSource(entity.getCommitmentSource() != null ? entity.getCommitmentSource().name() : null)

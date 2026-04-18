@@ -1,7 +1,5 @@
 package com.insa.education.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter
@@ -11,10 +9,13 @@ import lombok.*;
 @Builder
 public class CandidateNominationDto {
 
-    @NotNull(message = "Employee ID is required")
     private Long employeeId;
 
     private String candidateId;
+
+    private String name;
+
+    private String phone;
 
     private String award;
 

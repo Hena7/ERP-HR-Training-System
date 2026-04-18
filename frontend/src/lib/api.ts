@@ -100,9 +100,12 @@ export const educationRequestApi = {
     return api.get(`/api/education-requests/status/${statusParam}?page=${page}&size=${size}`);
   },
   update: (id: number, data: any) => api.put(`/api/education-requests/${id}`, data),
-  submitToCenter: (id: number) => api.patch(`/api/education-requests/${id}/status?status=SUBMITTED`),
-  centerReview: (id: number) => api.patch(`/api/education-requests/${id}/status?status=CDC_APPROVED`),
-  forwardToHr: (id: number) => api.patch(`/api/education-requests/${id}/status?status=FORWARDED_TO_HR`),
+  submitToCenter: (id: number) => api.patch(`/api/education-requests/${id}/submit-to-center`),
+  centerReview: (id: number) => api.patch(`/api/education-requests/${id}/center-review`),
+  forwardToHr: (id: number) => api.patch(`/api/education-requests/${id}/forward-to-hr`),
+  reportByCommittee: (id: number) => api.patch(`/api/education-requests/${id}/report-by-committee`),
+  reportByCommitteeBulk: (ids: number[]) => api.post(`/api/education-requests/committee-report`, ids),
+  finalApproval: (id: number) => api.patch(`/api/education-requests/${id}/final-approval`),
   delete: (id: number) => api.delete(`/api/education-requests/${id}`),
 };
 

@@ -95,6 +95,10 @@ public class EducationRequestService {
      */
     @Transactional
     public List<EducationRequestResponse> createBulk(BulkEducationRequestDto dto) {
+        if (dto.getCandidates() == null || dto.getCandidates().isEmpty()) {
+            throw new BadRequestException("At least one candidate must be nominated");
+        }
+
         EducationOpportunity opportunity = null;
         if (dto.getOpportunityId() != null) {
             opportunity = opportunityRepository.findById(dto.getOpportunityId())
@@ -103,15 +107,41 @@ public class EducationRequestService {
 
         final EducationOpportunity finalOpp = opportunity;
         return dto.getCandidates().stream().map(cand -> {
-            Employee employee = employeeRepository.findById(cand.getEmployeeId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + cand.getEmployeeId()));
+            // Resolve the employee: by numeric ID, by card string ID, or keep null for external candidates
+            Employee employee = null;
+            String resolvedName = cand.getName();
+            String resolvedDept = cand.getDept();
+            String resolvedPhone = cand.getPhone();
 
-            if (finalOpp != null) {
+            if (cand.getEmployeeId() != null) {
+                // From employee list: look up by DB primary key
+                employee = employeeRepository.findById(cand.getEmployeeId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + cand.getEmployeeId()));
+            } else if (cand.getCandidateId() != null && !cand.getCandidateId().isBlank()) {
+                // Manual entry: try to look up by employee card ID
+                var found = employeeRepository.findByEmployeeId(cand.getCandidateId());
+                if (found.isPresent()) {
+                    employee = found.get();
+                }
+                // If not found: employee stays null → treated as external candidate
+            }
+
+            if (employee != null && finalOpp != null) {
                 validateOpportunityAccess(employee, finalOpp);
             }
 
+            // For display: prefer DB values, fall back to manual typed-in values
+            String displayName  = (employee != null)
+                    ? employee.getFirstName() + " " + employee.getLastName()
+                    : (resolvedName != null ? resolvedName : cand.getCandidateId());
+            String displayDept  = (employee != null) ? employee.getDepartment() : resolvedDept;
+            String displayPhone = (employee != null) ? employee.getPhone()  : resolvedPhone;
+
             EducationRequest request = EducationRequest.builder()
                     .employee(employee)
+                    .manualEmployeeName(employee == null ? displayName  : null)
+                    .manualEmployeeDept(employee == null ? displayDept  : null)
+                    .manualEmployeePhone(employee == null ? displayPhone : null)
                     .opportunity(finalOpp)
                     .educationCategory(dto.getEducationCategory())
                     .fieldOfStudy(dto.getFieldOfStudy())
@@ -122,16 +152,16 @@ public class EducationRequestService {
                     .duration(cand.getDuration())
                     .programTime(cand.getProgramTime())
                     .location(cand.getLocation())
-                    .currentEducationLevel("N/A") // From batch, this is usually for the goal
+                    .currentEducationLevel("N/A")
                     .description(dto.getDescription())
-                    .status(RequestStatus.PENDING_DEPARTMENT_SUBMISSION)
+                    .status(RequestStatus.SUBMITTED_TO_CENTER)
                     .commitmentSource(dto.getCommitmentSource() != null ? CommitmentSource.valueOf(dto.getCommitmentSource()) : CommitmentSource.STANDARD)
                     .candidateId(cand.getCandidateId())
                     .build();
 
             EducationRequest saved = requestRepository.save(request);
-            log.info("Education request created in bulk: id={}, employee={}, by={}",
-                    saved.getId(), employee.getEmployeeId(), currentUsername());
+            log.info("Education request created in bulk: candidateId={}, employee={}, by={}",
+                    cand.getCandidateId(), employee != null ? employee.getEmployeeId() : "EXTERNAL", currentUsername());
 
             return mapper.toEducationRequestResponse(saved);
         }).collect(Collectors.toList());

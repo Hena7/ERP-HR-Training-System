@@ -1,7 +1,5 @@
 package com.insa.education.dto.request;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.List;
@@ -13,14 +11,12 @@ import java.util.List;
 @Builder
 public class BulkEducationRequestDto {
 
-    @NotEmpty(message = "At least one candidate must be nominated")
     private List<CandidateNominationDto> candidates;
 
     private Long opportunityId;
 
     private String educationCategory;
 
-    @NotNull(message = "Education level is required")
     private String educationLevel;
 
     private String fieldOfStudy;

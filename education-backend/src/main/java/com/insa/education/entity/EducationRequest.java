@@ -20,8 +20,17 @@ public class EducationRequest {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
+    @JoinColumn(name = "employee_id", nullable = true)
     private Employee employee;
+
+    @Column(name = "manual_employee_name")
+    private String manualEmployeeName;
+
+    @Column(name = "manual_employee_dept")
+    private String manualEmployeeDept;
+
+    @Column(name = "manual_employee_phone")
+    private String manualEmployeePhone;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "opportunity_id", nullable = true)
@@ -54,7 +63,7 @@ public class EducationRequest {
     @Column(name = "location")
     private String location;
 
-    @Column(name = "current_education_level", nullable = false, length = 100)
+    @Column(name = "current_education_level", length = 100)
     private String currentEducationLevel;
 
     @Column(name = "work_experience")

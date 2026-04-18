@@ -213,14 +213,17 @@ export default function EducationRequestsPage() {
         budgetYear: Number(batchEducation.budgetYear),
         description: batchEducation.remark,
         candidates: candidates.map((c) => ({
-          employeeId: typeof c.id === "number" ? c.id : null,
+          // DB-backed: use numeric id; Manual: send null, backend resolves via candidateId string
+          employeeId: c.isManual ? null : Number(c.id),
           candidateId: c.candidateId,
+          name: c.name,
+          phone: c.phone,
           award: c.award,
           duration: Number(c.duration),
           programTime: c.program,
           location: c.location,
-          dept: c.dept
-        })).filter(c => c.employeeId !== null),
+          dept: c.dept,
+        })),
       };
 
       await educationRequestApi.createBulk(payload);
@@ -683,7 +686,7 @@ export default function EducationRequestsPage() {
                           {req.fieldOfStudy || t("notSpecified")}
                         </span>
                         <span className="text-xs font-medium text-gray-500 uppercase tracking-tighter">
-                          {req.targetEducationLevel || req.educationLevel} • {req.institution}
+                          {req.educationLevel} • {req.institution}
                         </span>
                       </div>
                     </td>
@@ -702,7 +705,7 @@ export default function EducationRequestsPage() {
                           <Eye className="h-3.5 w-3.5" />
                           {t("view") || "View"}
                         </button>
-                        {req.status === "SUBMITTED" &&
+                        {req.status === "SUBMITTED_TO_CENTER" &&
                           (isCenter || isAdmin) && (
                             <button
                               onClick={() => approveRequest(req.id)}
@@ -710,7 +713,7 @@ export default function EducationRequestsPage() {
                               className="inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-4 py-2 text-[10px] font-bold text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm border border-emerald-100 uppercase tracking-widest italic"
                             >
                               <CheckCircle2 className="h-3.5 w-3.5" />
-                              Approve
+                              Approve (Forward to HR)
                             </button>
                           )}
                       </div>
@@ -1159,7 +1162,7 @@ export default function EducationRequestsPage() {
                     {selectedRequest.fieldOfStudy || t("notSpecified")}
                   </p>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
-                    {selectedRequest.targetEducationLevel || selectedRequest.educationLevel}
+                    {selectedRequest.educationLevel}
                   </p>
                 </div>
                 <div>

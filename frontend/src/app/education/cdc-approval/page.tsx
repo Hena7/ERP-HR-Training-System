@@ -190,7 +190,7 @@ export default function CDCScoringPage() {
                               {request.employeeName}
                             </td>
                             <td className="px-6 py-4 font-medium text-gray-700 italic text-xs">
-                              {request.educationType} ({request.educationLevel})
+                              {request.fieldOfStudy || (request as any).educationType} ({(request as any).targetEducationLevel || (request as any).educationLevel})
                             </td>
                             <td className="px-6 py-4">
                                <span className="font-black text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg border border-indigo-100">
@@ -246,8 +246,8 @@ export default function CDCScoringPage() {
                         </div>
                         <div className="space-y-1">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Program</p>
-                            <p className="text-base font-bold text-gray-900">{selectedRequest.educationType}</p>
-                            <p className="text-[10px] text-gray-400 italic font-medium">{selectedRequest.educationLevel}</p>
+                            <p className="text-base font-bold text-gray-900">{selectedRequest.fieldOfStudy || (selectedRequest as any).educationType}</p>
+                            <p className="text-[10px] text-gray-400 italic font-medium">{(selectedRequest as any).targetEducationLevel || (selectedRequest as any).educationLevel}</p>
                         </div>
                         <div className="space-y-1">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">HR Score Breakdown</p>
@@ -340,7 +340,7 @@ export default function CDCScoringPage() {
                         <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
                           <td className="px-6 py-4 text-xs font-bold text-blue-600">REQ-{r.id.toString().slice(-6)}</td>
                           <td className="px-6 py-4 font-bold text-gray-900">{r.employeeName}</td>
-                          <td className="px-6 py-4 font-medium text-xs italic">{r.educationType} ({r.educationLevel})</td>
+                          <td className="px-6 py-4 font-medium text-xs italic">{r.fieldOfStudy || (r as any).educationType} ({(r as any).targetEducationLevel || (r as any).educationLevel})</td>
                           <td className="px-6 py-4">
                              <span className="font-black text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg border border-indigo-100">
                                {r.totalScore?.toFixed(2)}%
