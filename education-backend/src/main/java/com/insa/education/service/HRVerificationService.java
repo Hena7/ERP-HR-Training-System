@@ -13,12 +13,11 @@ import com.insa.education.mapper.EducationMapper;
 import com.insa.education.repository.EducationRequestRepository;
 import com.insa.education.repository.EmployeeRepository;
 import com.insa.education.repository.HRVerificationRepository;
+import com.insa.education.util.IdentityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,18 +65,7 @@ public class HRVerificationService {
 
         double averageScore = calculateAverage(dto.getSemester1Score(), dto.getSemester2Score());
         
-        // Retrieve the display name from the Keycloak JWT claims
-        String verifiedBy;
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth instanceof JwtAuthenticationToken jwtAuth) {
-            var claims = jwtAuth.getToken().getClaims();
-            String name = (String) claims.get("name");
-            if (name == null || name.isBlank()) name = (String) claims.get("preferred_username");
-            if (name == null || name.isBlank()) name = (String) claims.get("given_name");
-            verifiedBy = (name != null && !name.isBlank()) ? name : auth.getName();
-        } else {
-            verifiedBy = auth.getName();
-        }
+        String verifiedBy = IdentityUtils.getCurrentUserDisplayName();
 
         HRVerification verification = HRVerification.builder()
                 .request(request)

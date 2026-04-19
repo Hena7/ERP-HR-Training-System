@@ -12,11 +12,11 @@ import com.insa.education.exception.ResourceNotFoundException;
 import com.insa.education.mapper.EducationMapper;
 import com.insa.education.repository.CommitteeDecisionRepository;
 import com.insa.education.repository.EducationRequestRepository;
+import com.insa.education.util.IdentityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +50,7 @@ public class CommitteeDecisionService {
             throw new DuplicateResourceException("Committee decision already exists for request: " + dto.getRequestId());
         }
 
-        String decidedBy = SecurityContextHolder.getContext().getAuthentication().getName();
+        String decidedBy = IdentityUtils.getCurrentUserDisplayName();
 
         CommitteeDecision decision = CommitteeDecision.builder()
                 .request(request)

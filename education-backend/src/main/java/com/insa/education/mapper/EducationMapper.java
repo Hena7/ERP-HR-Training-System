@@ -86,7 +86,7 @@ public class EducationMapper {
                 .decision(entity.getDecision())
                 .comment(entity.getComment())
                 .quota(entity.getQuota())
-                .decidedBy(entity.getDecidedBy())
+                .decidedBy(resolveIdentityName(entity.getDecidedBy()))
                 .decisionDate(entity.getDecisionDate())
                 .build();
     }
@@ -216,8 +216,19 @@ public class EducationMapper {
                 employee = employeeRepository.findByEmployeeId(identity);
             }
 
+            // 5. If it looks like a person's name (contains space), it might already be resolved
+            if (identity.contains(" ") && !identity.matches(".*[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-.*")) {
+                return identity;
+            }
+
             return employee.map(e -> e.getFirstName() + " " + e.getLastName())
-                    .orElse(identity);
+                    .orElseGet(() -> {
+                         // If it's a UUID and we can't find it, maybe it's a technical system account
+                         if (identity.matches("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-.*")) {
+                             return "System User (" + identity.substring(0, 8) + ")";
+                         }
+                         return identity;
+                    });
         } catch (Exception e) {
             // Safe fallback — never let name resolution crash the response
             return identity;
