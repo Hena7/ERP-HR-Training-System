@@ -84,6 +84,10 @@ export const authOptions: NextAuthOptions = {
           if (decoded.realm_access && decoded.realm_access.roles) {
             session.user.roles = decoded.realm_access.roles;
           }
+          if (decoded.name) session.user.name = decoded.name;
+          else if (decoded.preferred_username) session.user.name = decoded.preferred_username;
+          else if (decoded.given_name) session.user.name = decoded.given_name;
+
           if (decoded.employee_id) session.user.employeeId = decoded.employee_id;
           if (decoded.department) session.user.department = decoded.department;
           if (decoded.phone) session.user.phone = decoded.phone;

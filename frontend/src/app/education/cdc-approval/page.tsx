@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { educationRequestApi, hrVerificationApi, cdcScoringApi } from "@/lib/api";
 import { EducationRequest, HRVerification, CDCScoring } from "@/types";
 import { BarChart3, CheckCircle2, ClipboardList, Info, FileCheck, X } from "lucide-react";
+import { calculateEducationScore } from "@/lib/scoring";
 
 interface ScoringFormState {
   requestId: number | null;
@@ -84,15 +85,16 @@ export default function CDCScoringPage() {
     if (!form.requestId || !hrVerifications[form.requestId]) return;
 
     const hrVer = hrVerifications[form.requestId];
+    const liveScore = liveCalculatedScore;
     
     setLoading(true);
     try {
       await cdcScoringApi.score({
         requestId: form.requestId,
-        experienceScore: hrVer.experienceSubScore || 0,
-        performanceScore: hrVer.performanceSubScore || hrVer.averageScore || 0,
-        disciplineScore: hrVer.disciplineSubScore || 10,
-        totalScore: hrVer.totalCalculatedScore || hrVer.averageScore || 0,
+        experienceScore: hrVer.experienceSubScore || liveScore?.experienceScore || 0,
+        performanceScore: hrVer.performanceSubScore || hrVer.averageScore || liveScore?.performanceScore || 0,
+        disciplineScore: hrVer.disciplineSubScore || liveScore?.disciplineScore || 10,
+        totalScore: hrVer.totalCalculatedScore || hrVer.averageScore || liveScore?.finalTotalScore || 0,
       });
 
       await loadData();
@@ -118,6 +120,22 @@ export default function CDCScoringPage() {
       setLoading(false);
     }
   };
+
+  const liveCalculatedScore = useMemo(() => {
+    if (!selectedRequest || !hrVerifications[selectedRequest.id]) return null;
+    const hrVer = hrVerifications[selectedRequest.id];
+    
+    // Attempt live calculation from raw data
+    return calculateEducationScore({
+      experienceYears: hrVer.experienceYears ?? (selectedRequest.workExperience || 0),
+      experienceMonths: hrVer.experienceMonths || 0,
+      performance1: hrVer.semester1Score || selectedRequest.performanceScore || 0,
+      performance2: hrVer.semester2Score || selectedRequest.performanceScore || 0,
+      hasDiscipline: hrVer.hasDiscipline ?? false,
+      gender: hrVer.gender || (selectedRequest as any).gender || "Male",
+      isDisabled: hrVer.isDisabled ?? false,
+    });
+  }, [selectedRequest, hrVerifications]);
 
   return (
     <DashboardLayout>
@@ -252,11 +270,11 @@ export default function CDCScoringPage() {
                         <div className="space-y-1">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">HR Score Breakdown</p>
                             <div className="flex flex-wrap gap-2 pt-1">
-                               <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">EXP: {hrVerifications[selectedRequest.id]?.experienceSubScore || 0}</span>
-                               <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">PERF: {hrVerifications[selectedRequest.id]?.performanceSubScore || hrVerifications[selectedRequest.id]?.averageScore || 0}</span>
-                               <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">DISC: {hrVerifications[selectedRequest.id]?.disciplineSubScore || 0}</span>
+                               <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">EXP: {hrVerifications[selectedRequest.id]?.experienceSubScore || liveCalculatedScore?.experienceScore || 0}</span>
+                               <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">PERF: {hrVerifications[selectedRequest.id]?.performanceSubScore || hrVerifications[selectedRequest.id]?.averageScore || liveCalculatedScore?.performanceScore || 0}</span>
+                               <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">DISC: {hrVerifications[selectedRequest.id]?.disciplineSubScore || liveCalculatedScore?.disciplineScore || 0}</span>
                                <span className="bg-white border border-indigo-200 px-2 py-0.5 rounded text-[9px] font-bold text-indigo-600">
-                                 BONUS: +{Math.max(0, (hrVerifications[selectedRequest.id]?.totalCalculatedScore || hrVerifications[selectedRequest.id]?.averageScore || 0) - ((hrVerifications[selectedRequest.id]?.experienceSubScore || 0) + (hrVerifications[selectedRequest.id]?.performanceSubScore || hrVerifications[selectedRequest.id]?.averageScore || 0) + (hrVerifications[selectedRequest.id]?.disciplineSubScore || 0))).toFixed(2)}
+                                 BONUS: +{Math.max(0, (hrVerifications[selectedRequest.id]?.totalCalculatedScore || hrVerifications[selectedRequest.id]?.averageScore || liveCalculatedScore?.finalTotalScore || 0) - ((hrVerifications[selectedRequest.id]?.experienceSubScore || liveCalculatedScore?.experienceScore || 0) + (hrVerifications[selectedRequest.id]?.performanceSubScore || hrVerifications[selectedRequest.id]?.averageScore || liveCalculatedScore?.performanceScore || 0) + (hrVerifications[selectedRequest.id]?.disciplineSubScore || liveCalculatedScore?.disciplineScore || 0))).toFixed(2)}
                                </span>
                             </div>
                         </div>
@@ -264,7 +282,7 @@ export default function CDCScoringPage() {
                             <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-1">Final Calculated Result</p>
                             <div className="rounded-xl bg-indigo-600 px-6 py-3 shadow-lg shadow-indigo-200 text-center">
                                 <p className="text-3xl font-black text-white leading-none">
-                                   {(hrVerifications[selectedRequest.id]?.totalCalculatedScore || hrVerifications[selectedRequest.id]?.averageScore || 0).toFixed(2)}
+                                   {(hrVerifications[selectedRequest.id]?.totalCalculatedScore || hrVerifications[selectedRequest.id]?.averageScore || liveCalculatedScore?.finalTotalScore || 0).toFixed(2)}
                                    <span className="text-sm ml-0.5 opacity-70">%</span>
                                 </p>
                             </div>
