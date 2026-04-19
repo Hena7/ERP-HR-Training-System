@@ -68,7 +68,7 @@ public class CDCScoringService {
         validateRawScore(dto.getPerformanceScore(), "Performance score");
         validateRawScore(dto.getDisciplineScore(),  "Discipline score");
 
-        double totalScore = calculateTotalScore(
+        double totalScore = dto.getTotalScore() != null ? dto.getTotalScore() : calculateTotalScore(
                 dto.getExperienceScore(),
                 dto.getPerformanceScore(),
                 dto.getDisciplineScore()
@@ -88,6 +88,7 @@ public class CDCScoringService {
         CDCScoring saved = scoringRepository.save(scoring);
 
         request.setStatus(RequestStatus.SCORED);
+        request.setTotalScore(totalScore);
         requestRepository.save(request);
 
         log.info("CDC scoring for request {}: experience={}, performance={}, discipline={}, total={}%",

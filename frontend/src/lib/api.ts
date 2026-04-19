@@ -126,12 +126,13 @@ export const hrVerificationApi = {
 };
 
 export const cdcScoringApi = {
-  getScoringConfig: () => api.get("/api/cdc-scoring/config"),
-  updateScoringConfig: (config: any) => api.put("/api/cdc-scoring/config", config),
-  score: (data: any) => api.post("/api/cdc-scoring", data),
-  getAll: (page = 0, size = 10) => api.get(`/api/cdc-scoring?page=${page}&size=${size}`),
-  getByRequestId: (requestId: number) => api.get(`/api/cdc-scoring/request/${requestId}`),
+  getScoringConfig: () => api.get("/api/cdc-scorings/config"),
+  updateScoringConfig: (config: any) => api.put("/api/cdc-scorings/config", config),
+  score: (data: any) => api.post("/api/cdc-scorings", data),
+  getAll: (page = 0, size = 10) => api.get(`/api/cdc-scorings?page=${page}&size=${size}`),
+  getByRequestId: (requestId: number) => api.get(`/api/cdc-scorings/request/${requestId}`),
 };
+
 
 export const committeeDecisionApi = {
   decide: (data: any) => api.post("/api/committee-decisions", data),

@@ -92,7 +92,7 @@ export default function CDCScoringPage() {
         experienceScore: hrVer.experienceSubScore || 0,
         performanceScore: hrVer.performanceSubScore || hrVer.averageScore || 0,
         disciplineScore: hrVer.disciplineSubScore || 10,
-        totalScore: hrVer.totalCalculatedScore || 0,
+        totalScore: hrVer.totalCalculatedScore || hrVer.averageScore || 0,
       });
 
       await loadData();
@@ -253,16 +253,18 @@ export default function CDCScoringPage() {
                             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">HR Score Breakdown</p>
                             <div className="flex flex-wrap gap-2 pt-1">
                                <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">EXP: {hrVerifications[selectedRequest.id]?.experienceSubScore || 0}</span>
-                               <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">PERF: {hrVerifications[selectedRequest.id]?.performanceSubScore || 0}</span>
+                               <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">PERF: {hrVerifications[selectedRequest.id]?.performanceSubScore || hrVerifications[selectedRequest.id]?.averageScore || 0}</span>
                                <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">DISC: {hrVerifications[selectedRequest.id]?.disciplineSubScore || 0}</span>
-                               <span className="bg-white border border-indigo-200 px-2 py-0.5 rounded text-[9px] font-bold text-indigo-600">BONUS: +{hrVerifications[selectedRequest.id]?.totalCalculatedScore! - (hrVerifications[selectedRequest.id]?.experienceSubScore! + hrVerifications[selectedRequest.id]?.performanceSubScore! + hrVerifications[selectedRequest.id]?.disciplineSubScore!)}</span>
+                               <span className="bg-white border border-indigo-200 px-2 py-0.5 rounded text-[9px] font-bold text-indigo-600">
+                                 BONUS: +{Math.max(0, (hrVerifications[selectedRequest.id]?.totalCalculatedScore || hrVerifications[selectedRequest.id]?.averageScore || 0) - ((hrVerifications[selectedRequest.id]?.experienceSubScore || 0) + (hrVerifications[selectedRequest.id]?.performanceSubScore || hrVerifications[selectedRequest.id]?.averageScore || 0) + (hrVerifications[selectedRequest.id]?.disciplineSubScore || 0))).toFixed(2)}
+                               </span>
                             </div>
                         </div>
                         <div className="flex flex-col items-end">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-1">Final Calculated Result</p>
                             <div className="rounded-xl bg-indigo-600 px-6 py-3 shadow-lg shadow-indigo-200 text-center">
                                 <p className="text-3xl font-black text-white leading-none">
-                                   {hrVerifications[selectedRequest.id]?.totalCalculatedScore?.toFixed(2) || "0.00"}
+                                   {(hrVerifications[selectedRequest.id]?.totalCalculatedScore || hrVerifications[selectedRequest.id]?.averageScore || 0).toFixed(2)}
                                    <span className="text-sm ml-0.5 opacity-70">%</span>
                                 </p>
                             </div>

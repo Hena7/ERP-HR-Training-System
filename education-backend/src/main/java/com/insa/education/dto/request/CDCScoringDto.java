@@ -29,4 +29,9 @@ public class CDCScoringDto {
     @Min(value = 0, message = "Discipline score must be at least 0")
     @Max(value = 100, message = "Discipline score must not exceed 100")
     private Double disciplineScore;
+
+    @NotNull(message = "Total score is required")
+    @Min(value = 0, message = "Total score must be at least 0")
+    @Max(value = 110, message = "Total score must not exceed 110 (including bonus)")
+    private Double totalScore;
 }

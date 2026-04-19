@@ -73,7 +73,7 @@ public class EducationRequestController {
     @GetMapping("/status/{status}")
     @PreAuthorize("hasAnyRole('DEPARTMENT_HEAD', 'HR_OFFICER', 'CYBER_DEVELOPMENT_CENTER', 'COMMITTEE_MEMBER', 'ADMIN')")
     public ResponseEntity<Page<EducationRequestResponse>> getByStatus(
-            @PathVariable List<RequestStatus> status,
+            @PathVariable RequestStatus status,
             Pageable pageable
     ) {
         return ResponseEntity.ok(requestService.getByStatus(status, pageable));
