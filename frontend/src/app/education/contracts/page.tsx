@@ -45,7 +45,7 @@ export default function ContractsPage() {
     try {
       const [conRes, reqRes] = await Promise.all([
         contractApi.getAll(0, 20),
-        educationRequestApi.getByStatus("APPROVED", 0, 50),
+        educationRequestApi.getByStatus("CDC_APPROVED", 0, 50),
       ]);
       setContracts(conRes.data.content || []);
       setApprovedRequests(reqRes.data.content || []);

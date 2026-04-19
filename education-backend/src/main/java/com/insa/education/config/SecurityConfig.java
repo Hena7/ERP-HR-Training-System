@@ -48,7 +48,7 @@ public class SecurityConfig {
 
                 // Requests originate from department heads and can be accessed through the workflow chain
                 .requestMatchers("/api/education-requests/**").hasAnyRole(
-                    "DEPARTMENT_HEAD", "HR_OFFICER", "CYBER_DEVELOPMENT_CENTER", "ADMIN")
+                    "DEPARTMENT_HEAD", "HR_OFFICER", "CYBER_DEVELOPMENT_CENTER", "COMMITTEE_MEMBER", "ADMIN")
 
                 // HR receives forwarded requests and verifies them
                 .requestMatchers("/api/hr-verifications/**").hasAnyRole(

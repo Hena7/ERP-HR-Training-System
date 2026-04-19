@@ -26,7 +26,8 @@ export default function CDCScoringPage() {
   const { t } = useLanguage();
 
   const [requests, setRequests] = useState<EducationRequest[]>([]);
-  const [reportedRequests, setReportedRequests] = useState<EducationRequest[]>([]);
+  const [reportedRequests, setReportedRequests] = useState<any[]>([]);
+  const [approvedRequests, setApprovedRequests] = useState<any[]>([]);
   const [hrVerifications, setHrVerifications] = useState<Record<number, HRVerification>>({});
   const [scorings, setScorings] = useState<CDCScoring[]>([]);
   const [form, setForm] = useState<ScoringFormState>(initialForm);
@@ -39,15 +40,17 @@ export default function CDCScoringPage() {
 
   const loadData = async () => {
     try {
-      const [requestRes, scoringRes, verificationRes, reportedRes] = await Promise.all([
+      const [requestRes, scoringRes, verificationRes, reportedRes, approvedRes] = await Promise.all([
         educationRequestApi.getByStatus("HR_VERIFIED", 0, 100),
         cdcScoringApi.getAll(0, 100),
         hrVerificationApi.getAll(0, 100),
         educationRequestApi.getByStatus("COMMITTEE_REPORTED", 0, 100),
+        educationRequestApi.getByStatus("CDC_APPROVED", 0, 100),
       ]);
 
       setRequests(requestRes.data.content || []);
       setReportedRequests(reportedRes.data.content || []);
+      setApprovedRequests(approvedRes.data.content || []);
       setScorings(scoringRes.data.content || []);
 
       const verMap: Record<number, HRVerification> = {};
@@ -405,6 +408,62 @@ export default function CDCScoringPage() {
                 </tbody>
               </table>
             </div>
+            
+            <div className="mt-8 border-t border-gray-100 pt-8">
+              <div className="mb-4">
+                 <h2 className="text-sm font-bold uppercase tracking-widest text-emerald-600">
+                   Already Approved Candidates (Ready for Commitment)
+                 </h2>
+              </div>
+              <div className="overflow-x-auto rounded-xl border border-gray-100 shadow-sm">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-emerald-50 text-[10px] font-bold uppercase tracking-widest text-emerald-600">
+                    <tr>
+                      <th className="px-6 py-4">ID</th>
+                      <th className="px-6 py-4">{t("fullName")}</th>
+                      <th className="px-6 py-4">Education</th>
+                      <th className="px-6 py-4">Study Location</th>
+                      <th className="px-6 py-4">Total Score</th>
+                      <th className="px-6 py-4 text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y bg-white">
+                    {approvedRequests.length > 0 ? (
+                      approvedRequests.map((r) => {
+                         const hrVer = hrVerifications[r.id];
+                         return (
+                          <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
+                            <td className="px-6 py-4 text-xs font-bold text-blue-600">REQ-{r.id.toString().slice(-6)}</td>
+                            <td className="px-6 py-4 font-bold text-gray-900">{r.employeeName}</td>
+                            <td className="px-6 py-4 font-medium text-gray-700 italic text-xs">
+                              {r.fieldOfStudy || (r as any).educationType} ({(r as any).targetEducationLevel || (r as any).educationLevel})
+                            </td>
+                            <td className="px-6 py-4 text-xs tracking-wider text-gray-600">
+                               {r.location || "Local"}
+                            </td>
+                            <td className="px-6 py-4 text-sm font-black text-indigo-700">
+                               {r.totalScore?.toFixed(2) || hrVer?.totalCalculatedScore?.toFixed(2) || "-"}%
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                               <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-100 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700 shadow-sm border border-emerald-200">
+                                  CDC Approved
+                               </span>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan={6} className="px-4 py-8 text-center text-gray-400 italic">
+                          No candidates have received final CDC approval yet.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
           </div>
         )}
 

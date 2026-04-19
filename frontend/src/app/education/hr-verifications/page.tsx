@@ -62,20 +62,15 @@ export default function HRVerificationsPage() {
 
   const loadData = async () => {
     try {
-      const [cdcApprovedRes, forwardedRes, verificationRes] = await Promise.all([
-        educationRequestApi.getByStatus("CDC_APPROVED", 0, 100),
+      const [forwardedRes, verificationRes] = await Promise.all([
         educationRequestApi.getByStatus("FORWARDED_TO_HR", 0, 100),
         hrVerificationApi.getAll(0, 100),
       ]);
 
-      const combinedRequests = [
-        ...(cdcApprovedRes.data.content || []),
-        ...(forwardedRes.data.content || [])
-      ];
-
-      setRequests(combinedRequests);
+      setRequests(forwardedRes.data.content || []);
       setVerifications(verificationRes.data.content || []);
     } catch {
+
       // keep page resilient in mock/offline mode
     }
   };

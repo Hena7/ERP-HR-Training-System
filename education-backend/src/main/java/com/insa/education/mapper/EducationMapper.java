@@ -3,10 +3,17 @@ package com.insa.education.mapper;
 import com.insa.education.dto.request.*;
 import com.insa.education.dto.response.*;
 import com.insa.education.entity.*;
+import com.insa.education.repository.EmployeeRepository;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EducationMapper {
+
+    private final EmployeeRepository employeeRepository;
+
+    public EducationMapper(EmployeeRepository employeeRepository) {
+        this.employeeRepository = employeeRepository;
+    }
 
     public EducationRequestResponse toEducationRequestResponse(EducationRequest entity) {
         String name   = entity.getEmployee() != null
@@ -56,7 +63,7 @@ public class EducationMapper {
                 .semester2Score(entity.getSemester2Score())
                 .averageScore(entity.getAverageScore())
                 .status(entity.getStatus() != null ? entity.getStatus().name() : null)
-                .verifiedBy(entity.getVerifiedBy())
+                .verifiedBy(resolveIdentityName(entity.getVerifiedBy()))
                 .verifiedAt(entity.getVerifiedAt())
                 .experienceYears(entity.getExperienceYears())
                 .experienceMonths(entity.getExperienceMonths())
@@ -92,7 +99,7 @@ public class EducationMapper {
                 .performanceScore(entity.getPerformanceScore())
                 .disciplineScore(entity.getDisciplineScore())
                 .totalScore(entity.getTotalScore())
-                .gradedBy(entity.getGradedBy())
+                .gradedBy(resolveIdentityName(entity.getGradedBy()))
                 .createdAt(entity.getCreatedAt())
                 .build();
     }
@@ -176,5 +183,39 @@ public class EducationMapper {
                 .role(entity.getRole())
                 .createdAt(entity.getCreatedAt())
                 .build();
+    }
+
+    private String resolveIdentityName(String identity) {
+        if (identity == null || identity.isBlank()) return "-";
+        try {
+            // If it's already a full name (contains space and not a pure UUID format), keep it
+            if (identity.contains(" ") && !identity.matches(".*[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-.*")) {
+                return identity;
+            }
+
+            // 1. Try exact match on email
+            var employee = employeeRepository.findByEmail(identity);
+
+            // 2. Try case-insensitive match on email (lower)
+            if (employee.isEmpty()) {
+                employee = employeeRepository.findByEmail(identity.toLowerCase());
+            }
+
+            // 3. Try case-insensitive match on email (upper)
+            if (employee.isEmpty()) {
+                employee = employeeRepository.findByEmail(identity.toUpperCase());
+            }
+
+            // 4. Try exact match on employeeId (some systems store the UUID there)
+            if (employee.isEmpty()) {
+                employee = employeeRepository.findByEmployeeId(identity);
+            }
+
+            return employee.map(e -> e.getFirstName() + " " + e.getLastName())
+                    .orElse(identity);
+        } catch (Exception e) {
+            // Safe fallback — never let name resolution crash the response
+            return identity;
+        }
     }
 }

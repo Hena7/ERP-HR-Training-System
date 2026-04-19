@@ -34,9 +34,38 @@ public class SchemaMigration {
                 );
                 log.info("Schema patch applied: education_requests.employee_id is now nullable.");
 
+                // Drop restrictive enum check constraint so newly added status like COMMITTEE_REPORTED can be saved
+                stmt.execute(
+                    "ALTER TABLE IF EXISTS education_requests " +
+                    "DROP CONSTRAINT IF EXISTS education_requests_status_check"
+                );
+                log.info("Schema patch applied: Dropped education_requests_status_check constraint.");
+
             } catch (Exception e) {
-                // Column is already nullable – nothing to do.
-                log.debug("Schema patch skipped (likely already applied): {}", e.getMessage());
+                log.debug("Schema patch skipped (likely already applied or not applicable): {}", e.getMessage());
+            }
+
+            // Add new scoring columns to hr_verifications (safe - idempotent)
+            String[] hrVerColumns = {
+                "ALTER TABLE hr_verifications ADD COLUMN IF NOT EXISTS experience_years INTEGER",
+                "ALTER TABLE hr_verifications ADD COLUMN IF NOT EXISTS experience_months INTEGER",
+                "ALTER TABLE hr_verifications ADD COLUMN IF NOT EXISTS is_disabled BOOLEAN",
+                "ALTER TABLE hr_verifications ADD COLUMN IF NOT EXISTS gender VARCHAR(20)",
+                "ALTER TABLE hr_verifications ADD COLUMN IF NOT EXISTS has_discipline BOOLEAN",
+                "ALTER TABLE hr_verifications ADD COLUMN IF NOT EXISTS discipline_description TEXT",
+                "ALTER TABLE hr_verifications ADD COLUMN IF NOT EXISTS experience_sub_score DOUBLE PRECISION",
+                "ALTER TABLE hr_verifications ADD COLUMN IF NOT EXISTS performance_sub_score DOUBLE PRECISION",
+                "ALTER TABLE hr_verifications ADD COLUMN IF NOT EXISTS discipline_sub_score DOUBLE PRECISION",
+                "ALTER TABLE hr_verifications ADD COLUMN IF NOT EXISTS affirmative_bonus DOUBLE PRECISION",
+                "ALTER TABLE hr_verifications ADD COLUMN IF NOT EXISTS total_calculated_score DOUBLE PRECISION"
+            };
+            for (String sql : hrVerColumns) {
+                try (Connection c2 = dataSource.getConnection(); Statement s2 = c2.createStatement()) {
+                    s2.execute(sql);
+                    log.info("Schema patch applied: {}", sql);
+                } catch (Exception ex) {
+                    log.debug("Schema patch skipped: {}", ex.getMessage());
+                }
             }
         };
     }

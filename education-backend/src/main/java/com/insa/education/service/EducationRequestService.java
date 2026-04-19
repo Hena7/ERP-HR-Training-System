@@ -285,13 +285,13 @@ public class EducationRequestService {
 
     /**
      * COMMITTEE step:
-     * COMMITTEE_REVIEW -> COMMITTEE_REPORTED
+     * SCORED -> COMMITTEE_REPORTED
      */
     @Transactional
     public EducationRequestResponse reportByCommittee(Long requestId) {
         return transitionStatus(
                 requestId,
-                RequestStatus.COMMITTEE_REVIEW,
+                RequestStatus.SCORED,
                 RequestStatus.COMMITTEE_REPORTED,
                 "Reported by Committee for final CDC sign-off"
         );

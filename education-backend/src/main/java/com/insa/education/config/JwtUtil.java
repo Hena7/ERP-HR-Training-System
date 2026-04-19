@@ -42,6 +42,21 @@ public class JwtUtil {
         return extractAllClaims(token).get("role", String.class);
     }
 
+    public String extractName(String token) {
+        Claims claims = extractAllClaims(token);
+        String name = claims.get("name", String.class);
+        if (name == null || name.isBlank()) {
+            name = claims.get("preferred_username", String.class);
+        }
+        if (name == null || name.isBlank()) {
+            name = claims.get("given_name", String.class);
+        }
+        if (name == null || name.isBlank()) {
+            name = claims.getSubject();
+        }
+        return name;
+    }
+
     public boolean isTokenValid(String token, String email) {
         String extractedEmail = extractEmail(token);
         return extractedEmail.equals(email) && !isTokenExpired(token);

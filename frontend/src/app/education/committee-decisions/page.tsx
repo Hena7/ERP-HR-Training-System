@@ -60,12 +60,13 @@ export default function CommitteeDecisionsPage() {
     
     setLoading(true);
     try {
-      await (educationRequestApi as any).committeeReport(selectedIds);
+      await educationRequestApi.reportByCommitteeBulk(selectedIds);
       loadData();
       setSelectedIds([]);
       alert("Report successfully sent to CDC for final approval.");
-    } catch {
-      alert("Failed to send report");
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || "Failed to send report";
+      alert(msg);
     } finally {
       setLoading(false);
     }
