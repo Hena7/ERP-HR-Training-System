@@ -16,6 +16,7 @@ public class ContractResponse {
     private Long id;
     private Long employeeId;
     private String employeeName;
+    private String employeeDepartment;
     private Long requestId;
     private String university;
     private String program;

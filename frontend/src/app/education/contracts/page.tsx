@@ -646,11 +646,13 @@ export default function ContractsPage() {
                 <tr>
                   <th className="px-4 py-3">ID</th>
                   <th className="px-4 py-3">{t("fullName")}</th>
+                  <th className="px-4 py-3">Department</th>
                   <th className="px-4 py-3">Award / Program</th>
                   <th className="px-4 py-3">{t("university")}</th>
                   <th className="px-4 py-3">{t("studyCountry")}</th>
                   <th className="px-4 py-3">{t("durationYears")}</th>
                   <th className="px-4 py-3">{t("studyMode")}</th>
+                  <th className="px-4 py-3">Signed Date</th>
                   <th className="px-4 py-3">
                     {t("scannedDocument" as any) || "Doc"}
                   </th>
@@ -667,6 +669,9 @@ export default function ContractsPage() {
                           approvedRequests.find((r) => r.id === c.requestId)
                             ?.employeeName ||
                           `EMP-${c.employeeId}`}
+                      </td>
+                      <td className="px-4 py-3 text-xs italic text-gray-600">
+                        {c.employeeDepartment || "—"}
                       </td>
                       <td className="px-4 py-3">
                         {c.award ? (
@@ -685,6 +690,9 @@ export default function ContractsPage() {
                       <td className="px-4 py-3">{c.durationYears}</td>
                       <td className="px-4 py-3">
                         {c.studyMode === "ON_JOB" ? t("onJob") : t("offJob")}
+                      </td>
+                      <td className="px-4 py-3 font-medium text-gray-700">
+                         {c.contractSignedDate ? new Date(c.contractSignedDate).toLocaleDateString() : "—"}
                       </td>
                       <td className="px-4 py-3">
                         {c.scannedDocument ? (

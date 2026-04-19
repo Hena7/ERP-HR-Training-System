@@ -413,6 +413,7 @@ export default function CommitteeDecisionsPage() {
                   </th>
                   <th className="px-6 py-4">Rank</th>
                   <th className="px-6 py-4">Employee</th>
+                  <th className="px-6 py-4">Department</th>
                   <th className="px-6 py-4">Education</th>
                   <th className="px-6 py-4 text-blue-600">Total Score (%)</th>
                   <th className="px-6 py-4 text-right">Actions</th>
@@ -443,6 +444,9 @@ export default function CommitteeDecisionsPage() {
                         </td>
                         <td className="px-6 py-4 font-bold text-gray-900">
                           {r.employeeName}
+                        </td>
+                        <td className="px-6 py-4 text-xs italic text-gray-600">
+                          {r.employeeDepartment || "—"}
                         </td>
                         <td className="px-6 py-4 font-medium text-xs italic">
                           {r.educationType} ({r.educationLevel})
@@ -488,6 +492,7 @@ export default function CommitteeDecisionsPage() {
                 <tr>
                   <th className="px-6 py-4">ID</th>
                   <th className="px-6 py-4">{t("educationRequests")} ID</th>
+                  <th className="px-6 py-4">Department</th>
                   <th className="px-6 py-4 text-blue-600">Total Score (%)</th>
                   <th className="px-6 py-4">{t("decision")}</th>
                   <th className="px-6 py-4">{t("comment")}</th>
@@ -503,6 +508,7 @@ export default function CommitteeDecisionsPage() {
                     <tr key={d.id} className="hover:bg-gray-50/50 transition-colors">
                       <td className="px-6 py-4 text-xs font-bold text-blue-600">DEC-{d.id.toString().slice(-6)}</td>
                       <td className="px-6 py-4 text-xs font-bold text-gray-500">REQ-{d.requestId.toString().slice(-6)}</td>
+                      <td className="px-6 py-4 text-xs italic text-gray-600">{req?.employeeDepartment || "—"}</td>
                       <td className="px-6 py-4 font-bold text-blue-700">
                         {req?.totalScore ? `${req.totalScore}%` : "-"}
                       </td>

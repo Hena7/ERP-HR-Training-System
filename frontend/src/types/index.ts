@@ -113,6 +113,7 @@ export interface Contract {
   id: number;
   employeeId: number;
   employeeName: string;
+  employeeDepartment?: string;
   requestId: number;
   university: string;
   program: string;

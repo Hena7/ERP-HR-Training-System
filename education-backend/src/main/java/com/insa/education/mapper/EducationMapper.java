@@ -111,6 +111,9 @@ public class EducationMapper {
                 .employeeName(entity.getEmployee() != null 
                         ? entity.getEmployee().getFirstName() + " " + entity.getEmployee().getLastName()
                         : (entity.getRequest() != null ? entity.getRequest().getManualEmployeeName() : ""))
+                .employeeDepartment(entity.getEmployee() != null 
+                        ? entity.getEmployee().getDepartment() 
+                        : (entity.getRequest() != null ? entity.getRequest().getManualEmployeeDept() : ""))
                 .requestId(entity.getRequest().getId())
                 .university(entity.getUniversity())
                 .program(entity.getProgram())

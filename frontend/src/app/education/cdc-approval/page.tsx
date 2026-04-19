@@ -192,6 +192,7 @@ export default function CDCScoringPage() {
                     <tr>
                       <th className="px-6 py-4">ID</th>
                       <th className="px-6 py-4">{t("fullName")}</th>
+                      <th className="px-6 py-4">Department</th>
                       <th className="px-6 py-4">Education</th>
                       <th className="px-6 py-4">Auto-Score (HR)</th>
                       <th className="px-6 py-4">Gender</th>
@@ -209,6 +210,9 @@ export default function CDCScoringPage() {
                             <td className="px-6 py-4 text-xs font-bold text-blue-600">REQ-{request.id.toString().slice(-6)}</td>
                             <td className="px-6 py-4 font-bold text-gray-900">
                               {request.employeeName}
+                            </td>
+                            <td className="px-6 py-4 text-xs italic text-gray-600">
+                              {request.employeeDepartment || "—"}
                             </td>
                             <td className="px-6 py-4 font-medium text-gray-700 italic text-xs">
                               {request.fieldOfStudy || (request as any).educationType} ({(request as any).targetEducationLevel || (request as any).educationLevel})
@@ -362,6 +366,7 @@ export default function CDCScoringPage() {
                   <tr>
                     <th className="px-6 py-4">ID</th>
                     <th className="px-6 py-4">Employee</th>
+                    <th className="px-6 py-4">Department</th>
                     <th className="px-6 py-4">Education</th>
                     <th className="px-6 py-4 text-blue-600">Final Score (%)</th>
                     <th className="px-6 py-4">Committee Status</th>
@@ -375,6 +380,7 @@ export default function CDCScoringPage() {
                         <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
                           <td className="px-6 py-4 text-xs font-bold text-blue-600">REQ-{r.id.toString().slice(-6)}</td>
                           <td className="px-6 py-4 font-bold text-gray-900">{r.employeeName}</td>
+                          <td className="px-6 py-4 text-xs italic text-gray-600">{r.employeeDepartment || "—"}</td>
                           <td className="px-6 py-4 font-medium text-xs italic">{r.fieldOfStudy || (r as any).educationType} ({(r as any).targetEducationLevel || (r as any).educationLevel})</td>
                           <td className="px-6 py-4">
                              <span className="font-black text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg border border-indigo-100">
@@ -421,6 +427,7 @@ export default function CDCScoringPage() {
                     <tr>
                       <th className="px-6 py-4">ID</th>
                       <th className="px-6 py-4">{t("fullName")}</th>
+                      <th className="px-6 py-4">Department</th>
                       <th className="px-6 py-4">Education</th>
                       <th className="px-6 py-4">Study Location</th>
                       <th className="px-6 py-4">Total Score</th>
@@ -435,6 +442,7 @@ export default function CDCScoringPage() {
                           <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
                             <td className="px-6 py-4 text-xs font-bold text-blue-600">REQ-{r.id.toString().slice(-6)}</td>
                             <td className="px-6 py-4 font-bold text-gray-900">{r.employeeName}</td>
+                            <td className="px-6 py-4 text-xs italic text-gray-600">{r.employeeDepartment || "—"}</td>
                             <td className="px-6 py-4 font-medium text-gray-700 italic text-xs">
                               {r.fieldOfStudy || (r as any).educationType} ({(r as any).targetEducationLevel || (r as any).educationLevel})
                             </td>

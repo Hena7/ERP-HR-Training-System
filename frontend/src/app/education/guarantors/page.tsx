@@ -228,8 +228,10 @@ export default function GuarantorsPage() {
                 <tr>
                   <th className="px-6 py-4">ID</th>
                   <th className="px-6 py-4">{t("fullName")}</th>
+                  <th className="px-6 py-4">Department</th>
                   <th className="px-6 py-4">{t("university")}</th>
                   <th className="px-6 py-4">{t("program")}</th>
+                  <th className="px-6 py-4">Signed Date</th>
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
@@ -243,8 +245,14 @@ export default function GuarantorsPage() {
                         <td className="px-6 py-4 font-bold text-gray-900">
                           {c.employeeName || users.find(u => String(u.id) === String(c.employeeId))?.fullName || `EMP-${c.employeeId}`}
                         </td>
+                        <td className="px-6 py-4 text-xs italic text-gray-600">
+                          {c.employeeDepartment || "—"}
+                        </td>
                         <td className="px-6 py-4 font-medium text-gray-700">{c.university || "-"}</td>
                         <td className="px-6 py-4 font-medium text-gray-500">{c.program}</td>
+                        <td className="px-6 py-4 font-medium text-gray-700">
+                          {c.contractSignedDate ? new Date(c.contractSignedDate).toLocaleDateString() : "—"}
+                        </td>
                         <td className="px-6 py-4 text-right">
                           <button
                             onClick={() => handleContractChange(String(c.id))}

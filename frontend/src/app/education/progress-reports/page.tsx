@@ -118,8 +118,8 @@ export default function ProgressReportsPage() {
                     <tr key={c.id} className={`transition-colors ${isSelected ? "bg-blue-50/60" : "hover:bg-gray-50/50"}`}>
                       <td className="px-6 py-4 text-xs font-bold text-blue-600">CTR-{c.id.toString().slice(-6)}</td>
                       <td className="px-6 py-4 font-bold text-gray-900">{c.employeeName}</td>
-                      <td className="px-6 py-4 font-medium text-gray-600">{(c as any).employeeDepartment || "—"}</td>
-                      <td className="px-6 py-4 font-medium text-gray-500 text-xs">{(c as any).signedDate || "—"}</td>
+                      <td className="px-6 py-4 font-medium text-gray-600">{c.employeeDepartment || "—"}</td>
+                      <td className="px-6 py-4 font-medium text-gray-500 text-xs">{c.contractSignedDate ? new Date(c.contractSignedDate).toLocaleDateString() : "—"}</td>
                       <td className="px-6 py-4 text-right">
                         <button
                           onClick={() => handleSelectContract(c.id)}

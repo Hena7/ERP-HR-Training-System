@@ -524,6 +524,7 @@ export default function EducationRequestsPage() {
                     <tr>
                       <th className="px-6 py-4">ID / Emp ID</th>
                       <th className="px-6 py-4">Name</th>
+                      <th className="px-6 py-4">Department</th>
                       <th className="px-6 py-4">Award</th>
                       <th className="px-6 py-4">Duration</th>
                       <th className="px-6 py-4">Program</th>
@@ -550,6 +551,9 @@ export default function EducationRequestsPage() {
                               {c.name}
                             </span>
                           </div>
+                        </td>
+                        <td className="px-6 py-4 text-xs italic text-gray-500">
+                          {c.dept || "—"}
                         </td>
                         <td className="px-6 py-4 font-medium text-gray-600">
                           {c.award || "-"}
@@ -655,6 +659,7 @@ export default function EducationRequestsPage() {
                 <tr>
                   <th className="px-8 py-5"># ID</th>
                   <th className="px-8 py-5">{t("fullName")}</th>
+                  <th className="px-8 py-5">{t("department")}</th>
                   <th className="px-8 py-5">Goal / Field</th>
                   <th className="px-8 py-5">Year</th>
                   <th className="px-8 py-5">{t("status")}</th>
@@ -679,6 +684,9 @@ export default function EducationRequestsPage() {
                           {req.candidateId || req.employeeId}
                         </span>
                       </div>
+                    </td>
+                    <td className="px-8 py-5 text-xs italic text-gray-600">
+                      {req.employeeDepartment || "—"}
                     </td>
                     <td className="px-8 py-5">
                       <div className="flex flex-col">
