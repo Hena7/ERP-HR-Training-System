@@ -45,7 +45,9 @@ export const authOptions: NextAuthOptions = {
     KeycloakProvider({
       clientId: process.env.KEYCLOAK_ID || "nextjs-frontend",
       clientSecret: process.env.KEYCLOAK_SECRET || "",
-      issuer: process.env.KEYCLOAK_ISSUER || "http://localhost:8080/realms/erp-system",
+      issuer:
+        process.env.KEYCLOAK_ISSUER ||
+        "http://localhost:8080/realms/erp-system",
     }),
   ],
   callbacks: {
@@ -85,10 +87,12 @@ export const authOptions: NextAuthOptions = {
             session.user.roles = decoded.realm_access.roles;
           }
           if (decoded.name) session.user.name = decoded.name;
-          else if (decoded.preferred_username) session.user.name = decoded.preferred_username;
+          else if (decoded.preferred_username)
+            session.user.name = decoded.preferred_username;
           else if (decoded.given_name) session.user.name = decoded.given_name;
 
-          if (decoded.employee_id) session.user.employeeId = decoded.employee_id;
+          if (decoded.employee_id)
+            session.user.employeeId = decoded.employee_id;
           if (decoded.department) session.user.department = decoded.department;
           if (decoded.phone) session.user.phone = decoded.phone;
           if (decoded.gender) session.user.gender = decoded.gender;

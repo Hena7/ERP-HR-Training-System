@@ -28,4 +28,17 @@ public class HRVerificationDto {
 
     @NotNull(message = "HR verification status is required")
     private HRVerificationStatus status;
+
+    // Optional scoring fields received from frontend
+    private Integer experienceYears;
+    private Integer experienceMonths;
+    private Boolean isDisabled;
+    private String gender;
+    private Boolean hasDiscipline;
+    private String disciplineDescription;
+    private Double experienceSubScore;
+    private Double performanceSubScore;
+    private Double disciplineSubScore;
+    private Double affirmativeBonus;
+    private Double totalCalculatedScore;
 }

@@ -11,6 +11,7 @@ import com.insa.education.exception.ResourceNotFoundException;
 import com.insa.education.mapper.EducationMapper;
 import com.insa.education.repository.CDCScoringRepository;
 import com.insa.education.repository.EducationRequestRepository;
+import com.insa.education.repository.EmployeeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -33,13 +34,16 @@ public class CDCScoringService {
 
     private final CDCScoringRepository scoringRepository;
     private final EducationRequestRepository requestRepository;
+    private final EmployeeRepository employeeRepository;
     private final EducationMapper mapper;
 
     public CDCScoringService(CDCScoringRepository scoringRepository,
                              EducationRequestRepository requestRepository,
+                             EmployeeRepository employeeRepository,
                              EducationMapper mapper) {
         this.scoringRepository = scoringRepository;
         this.requestRepository = requestRepository;
+        this.employeeRepository = employeeRepository;
         this.mapper = mapper;
     }
 
@@ -74,7 +78,10 @@ public class CDCScoringService {
                 dto.getDisciplineScore()
         );
 
-        String gradedBy = SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        String gradedBy = employeeRepository.findByEmail(currentEmail)
+                .map(e -> e.getFirstName() + " " + e.getLastName())
+                .orElse(currentEmail);
 
         CDCScoring scoring = CDCScoring.builder()
                 .request(request)

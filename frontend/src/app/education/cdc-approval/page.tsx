@@ -260,7 +260,19 @@ export default function CDCScoringPage() {
                         <div className="space-y-1">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Applicant</p>
                             <p className="text-base font-bold text-gray-900">{selectedRequest.employeeName}</p>
-                            <p className="text-[10px] text-gray-400 italic font-medium">{selectedRequest.employeeDepartment}</p>
+                            <div className="flex flex-wrap gap-2 mt-1">
+                                <span className={`inline-flex rounded-lg px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${hrVerifications[selectedRequest.id]?.gender === "Female" ? "bg-pink-100 text-pink-700 border border-pink-200" : "bg-blue-100 text-blue-700 border border-blue-200"}`}>
+                                    {hrVerifications[selectedRequest.id]?.gender || "Male"}
+                                </span>
+                                <span className="bg-gray-100 text-gray-600 border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+                                    {hrVerifications[selectedRequest.id]?.experienceYears || selectedRequest.workExperience || 0} Yrs Exp
+                                </span>
+                                {hrVerifications[selectedRequest.id]?.isDisabled && (
+                                    <span className="bg-amber-100 text-amber-700 border border-amber-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+                                        Disabled
+                                    </span>
+                                )}
+                            </div>
                         </div>
                         <div className="space-y-1">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Program</p>
@@ -271,10 +283,10 @@ export default function CDCScoringPage() {
                             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">HR Score Breakdown</p>
                             <div className="flex flex-wrap gap-2 pt-1">
                                <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">EXP: {hrVerifications[selectedRequest.id]?.experienceSubScore || liveCalculatedScore?.experienceScore || 0}</span>
-                               <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">PERF: {hrVerifications[selectedRequest.id]?.performanceSubScore || hrVerifications[selectedRequest.id]?.averageScore || liveCalculatedScore?.performanceScore || 0}</span>
+                               <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">PERF: {hrVerifications[selectedRequest.id]?.performanceSubScore || liveCalculatedScore?.performanceScore || 0}</span>
                                <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">DISC: {hrVerifications[selectedRequest.id]?.disciplineSubScore || liveCalculatedScore?.disciplineScore || 0}</span>
                                <span className="bg-white border border-indigo-200 px-2 py-0.5 rounded text-[9px] font-bold text-indigo-600">
-                                 BONUS: +{Math.max(0, (hrVerifications[selectedRequest.id]?.totalCalculatedScore || hrVerifications[selectedRequest.id]?.averageScore || liveCalculatedScore?.finalTotalScore || 0) - ((hrVerifications[selectedRequest.id]?.experienceSubScore || liveCalculatedScore?.experienceScore || 0) + (hrVerifications[selectedRequest.id]?.performanceSubScore || hrVerifications[selectedRequest.id]?.averageScore || liveCalculatedScore?.performanceScore || 0) + (hrVerifications[selectedRequest.id]?.disciplineSubScore || liveCalculatedScore?.disciplineScore || 0))).toFixed(2)}
+                                 BONUS: +{hrVerifications[selectedRequest.id]?.affirmativeBonus || liveCalculatedScore?.affirmativeBonus || "0.00"}
                                </span>
                             </div>
                         </div>

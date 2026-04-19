@@ -11,6 +11,7 @@ import com.insa.education.exception.DuplicateResourceException;
 import com.insa.education.exception.ResourceNotFoundException;
 import com.insa.education.mapper.EducationMapper;
 import com.insa.education.repository.EducationRequestRepository;
+import com.insa.education.repository.EmployeeRepository;
 import com.insa.education.repository.HRVerificationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,13 +28,16 @@ public class HRVerificationService {
 
     private final HRVerificationRepository verificationRepository;
     private final EducationRequestRepository requestRepository;
+    private final EmployeeRepository employeeRepository;
     private final EducationMapper mapper;
 
     public HRVerificationService(HRVerificationRepository verificationRepository,
                                  EducationRequestRepository requestRepository,
+                                 EmployeeRepository employeeRepository,
                                  EducationMapper mapper) {
         this.verificationRepository = verificationRepository;
         this.requestRepository = requestRepository;
+        this.employeeRepository = employeeRepository;
         this.mapper = mapper;
     }
 
@@ -60,7 +64,10 @@ public class HRVerificationService {
                 dto.getStatus() == null ? HRVerificationStatus.VERIFIED : dto.getStatus();
 
         double averageScore = calculateAverage(dto.getSemester1Score(), dto.getSemester2Score());
-        String verifiedBy = SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        String verifiedBy = employeeRepository.findByEmail(currentEmail)
+                .map(e -> e.getFirstName() + " " + e.getLastName())
+                .orElse(currentEmail);
 
         HRVerification verification = HRVerification.builder()
                 .request(request)
@@ -69,6 +76,17 @@ public class HRVerificationService {
                 .averageScore(averageScore)
                 .status(verificationStatus)
                 .verifiedBy(verifiedBy)
+                .experienceYears(dto.getExperienceYears())
+                .experienceMonths(dto.getExperienceMonths())
+                .isDisabled(dto.getIsDisabled())
+                .gender(dto.getGender())
+                .hasDiscipline(dto.getHasDiscipline())
+                .disciplineDescription(dto.getDisciplineDescription())
+                .experienceSubScore(dto.getExperienceSubScore())
+                .performanceSubScore(dto.getPerformanceSubScore())
+                .disciplineSubScore(dto.getDisciplineSubScore())
+                .affirmativeBonus(dto.getAffirmativeBonus())
+                .totalCalculatedScore(dto.getTotalCalculatedScore())
                 .build();
 
         HRVerification saved = verificationRepository.save(verification);

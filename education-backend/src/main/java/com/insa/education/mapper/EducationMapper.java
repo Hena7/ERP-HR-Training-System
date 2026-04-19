@@ -58,6 +58,17 @@ public class EducationMapper {
                 .status(entity.getStatus() != null ? entity.getStatus().name() : null)
                 .verifiedBy(entity.getVerifiedBy())
                 .verifiedAt(entity.getVerifiedAt())
+                .experienceYears(entity.getExperienceYears())
+                .experienceMonths(entity.getExperienceMonths())
+                .isDisabled(entity.getIsDisabled())
+                .gender(entity.getGender())
+                .hasDiscipline(entity.getHasDiscipline())
+                .disciplineDescription(entity.getDisciplineDescription())
+                .experienceSubScore(entity.getExperienceSubScore())
+                .performanceSubScore(entity.getPerformanceSubScore())
+                .disciplineSubScore(entity.getDisciplineSubScore())
+                .affirmativeBonus(entity.getAffirmativeBonus())
+                .totalCalculatedScore(entity.getTotalCalculatedScore())
                 .build();
     }
 

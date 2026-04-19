@@ -42,6 +42,40 @@ public class HRVerification {
     @Column(name = "verified_at")
     private LocalDateTime verifiedAt;
 
+    // New scoring fields
+    @Column(name = "experience_years")
+    private Integer experienceYears;
+
+    @Column(name = "experience_months")
+    private Integer experienceMonths;
+
+    @Column(name = "is_disabled")
+    private Boolean isDisabled;
+
+    @Column(name = "gender", length = 20)
+    private String gender;
+
+    @Column(name = "has_discipline")
+    private Boolean hasDiscipline;
+
+    @Column(name = "discipline_description", columnDefinition = "TEXT")
+    private String disciplineDescription;
+
+    @Column(name = "experience_sub_score")
+    private Double experienceSubScore;
+
+    @Column(name = "performance_sub_score")
+    private Double performanceSubScore;
+
+    @Column(name = "discipline_sub_score")
+    private Double disciplineSubScore;
+
+    @Column(name = "affirmative_bonus")
+    private Double affirmativeBonus;
+
+    @Column(name = "total_calculated_score")
+    private Double totalCalculatedScore;
+
     @PrePersist
     protected void onCreate() {
         this.verifiedAt = LocalDateTime.now();
