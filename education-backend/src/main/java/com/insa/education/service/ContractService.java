@@ -42,8 +42,11 @@ public class ContractService {
 
     @Transactional
     public ContractResponse create(ContractDto dto) {
-        Employee employee = employeeRepository.findById(dto.getEmployeeId())
-                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + dto.getEmployeeId()));
+        Employee employee = null;
+        if (dto.getEmployeeId() != null && dto.getEmployeeId() > 0) {
+            employee = employeeRepository.findById(dto.getEmployeeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + dto.getEmployeeId()));
+        }
 
         EducationRequest request = requestRepository.findById(dto.getRequestId())
                 .orElseThrow(() -> new ResourceNotFoundException("Education request not found with id: " + dto.getRequestId()));
@@ -74,7 +77,7 @@ public class ContractService {
         request.setStatus(RequestStatus.CONTRACT_CREATED);
         requestRepository.save(request);
 
-        log.info("Contract created: id={}, employee={}", saved.getId(), employee.getEmployeeId());
+        log.info("Contract created: id={}, employee={}", saved.getId(), employee != null ? employee.getEmployeeId() : "EXTERNAL");
         return mapper.toContractResponse(saved);
     }
 

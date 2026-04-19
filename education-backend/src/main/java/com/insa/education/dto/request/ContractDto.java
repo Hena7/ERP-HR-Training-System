@@ -15,7 +15,6 @@ import java.time.LocalDate;
 @Builder
 public class ContractDto {
 
-    @NotNull(message = "Employee ID is required")
     private Long employeeId;
 
     @NotNull(message = "Request ID is required")

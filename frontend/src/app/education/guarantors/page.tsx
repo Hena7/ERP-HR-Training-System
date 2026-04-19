@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { guarantorApi, witnessApi, contractApi, userApi } from "@/lib/api";
+import { guarantorApi, witnessApi, contractApi, userApi, employeeApi } from "@/lib/api";
 import { Guarantor, Witness, Contract } from "@/types";
 import { Shield, Plus, Trash2, Edit, Eye, X, Users } from "lucide-react";
 
@@ -37,10 +37,10 @@ export default function GuarantorsPage() {
     try {
       const [contractsRes, usersRes] = await Promise.all([
         contractApi.getAll(0, 50),
-        userApi.getAll()
+        employeeApi.getAll(0, 100)
       ]);
       setContracts(contractsRes.data.content || []);
-      setUsers(usersRes.data || []);
+      setUsers(usersRes.data.content || []);
     } catch {
       // API not available
     }

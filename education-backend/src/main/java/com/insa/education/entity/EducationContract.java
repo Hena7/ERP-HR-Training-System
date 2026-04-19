@@ -21,7 +21,7 @@ public class EducationContract {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
+    @JoinColumn(name = "employee_id", nullable = true)
     private Employee employee;
 
     @OneToOne(fetch = FetchType.LAZY)

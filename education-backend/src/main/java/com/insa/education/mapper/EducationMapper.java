@@ -107,8 +107,10 @@ public class EducationMapper {
     public ContractResponse toContractResponse(EducationContract entity) {
         return ContractResponse.builder()
                 .id(entity.getId())
-                .employeeId(entity.getEmployee().getId())
-                .employeeName(entity.getEmployee().getFirstName() + " " + entity.getEmployee().getLastName())
+                .employeeId(entity.getEmployee() != null ? entity.getEmployee().getId() : null)
+                .employeeName(entity.getEmployee() != null 
+                        ? entity.getEmployee().getFirstName() + " " + entity.getEmployee().getLastName()
+                        : (entity.getRequest() != null ? entity.getRequest().getManualEmployeeName() : ""))
                 .requestId(entity.getRequest().getId())
                 .university(entity.getUniversity())
                 .program(entity.getProgram())

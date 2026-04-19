@@ -114,10 +114,7 @@ export default function ContractsPage() {
         ? approvedRequests.find((r) => r.id === Number(form.requestId))
         : null;
       const payload = {
-        employeeId: Number(form.employeeId),
-        employeeName: form.isAward
-          ? form.employeeName
-          : selectedReq?.employeeName || "",
+        employeeId: form.employeeId ? Number(form.employeeId) : null,
         requestId: form.isAward ? 0 : Number(form.requestId),
         university: form.university,
         program: form.program,
@@ -127,10 +124,6 @@ export default function ContractsPage() {
         studyMode: form.studyMode,
         estimatedCost: Number(form.estimatedCost) || null,
         contractSignedDate: form.contractSignedDate || null,
-        educationStartDate: form.educationStartDate || null,
-        educationEndDate: form.educationEndDate || null,
-        award: form.award || null,
-        scannedDocument: form.scannedDocument,
       };
 
       if (editId) {
@@ -160,8 +153,8 @@ export default function ContractsPage() {
         scannedDocument: null,
       });
       loadData();
-    } catch {
-      alert("Failed to save contract");
+    } catch (err: any) {
+      alert(err.response?.data?.message || err?.message || "Failed to save contract");
     } finally {
       setLoading(false);
     }
