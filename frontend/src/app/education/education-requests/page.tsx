@@ -96,13 +96,21 @@ export default function EducationRequestsPage() {
 
   const loadRequests = async () => {
     try {
-      const isRegularEmployee = user?.role === "EMPLOYEE" && 
-                                !["DEPARTMENT_HEAD", "ADMIN", "HR_OFFICER", "CYBER_DEVELOPMENT_CENTER", "COMMITTEE_MEMBER"].includes(user?.role);
-      
-      const res = isRegularEmployee && user?.employeeId
-        ? await educationRequestApi.getMyRequests(user.employeeId, 0, 100)
-        : await educationRequestApi.getAll(0, 100);
-        
+      const isRegularEmployee =
+        user?.role === "EMPLOYEE" &&
+        ![
+          "DEPARTMENT_HEAD",
+          "ADMIN",
+          "HR_OFFICER",
+          "CYBER_DEVELOPMENT_CENTER",
+          "COMMITTEE_MEMBER",
+        ].includes(user?.role);
+
+      const res =
+        isRegularEmployee && user?.employeeId
+          ? await educationRequestApi.getMyRequests(user.employeeId, 0, 100)
+          : await educationRequestApi.getAll(0, 100);
+
       setRequests(res.data.content || []);
     } catch (err) {
       console.error("Failed to load education requests", err);
@@ -207,7 +215,9 @@ export default function EducationRequestsPage() {
     setLoading(true);
     try {
       const payload = {
-        opportunityId: batchEducation.opportunityId ? Number(batchEducation.opportunityId) : null,
+        opportunityId: batchEducation.opportunityId
+          ? Number(batchEducation.opportunityId)
+          : null,
         educationCategory: batchEducation.educationCategory,
         educationLevel: batchEducation.educationLevel,
         fieldOfStudy: batchEducation.fieldOfStudy,
@@ -245,7 +255,11 @@ export default function EducationRequestsPage() {
       setShowForm(false);
       loadRequests();
     } catch (err: any) {
-      alert(err.response?.data?.message || err?.message || "Failed to submit batch request");
+      alert(
+        err.response?.data?.message ||
+          err?.message ||
+          "Failed to submit batch request",
+      );
     } finally {
       setLoading(false);
     }
@@ -527,7 +541,9 @@ export default function EducationRequestsPage() {
                       <th className="px-6 py-4">ID / Emp ID</th>
                       <th className="px-6 py-4">Name</th>
                       <th className="px-6 py-4">Department</th>
-                      <th className="px-6 py-4">Award</th>
+                      <th className="px-6 py-4">
+                        የአባሉ የትምህርት ደረጃ / Degree Point
+                      </th>
                       <th className="px-6 py-4">Duration</th>
                       <th className="px-6 py-4">Program</th>
                       <th className="px-6 py-4 text-right">Actions</th>
@@ -572,7 +588,7 @@ export default function EducationRequestsPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex justify-end gap-1.5">
                             <button
                               onClick={() => {
                                 setCurrentCandidate(c);
@@ -722,8 +738,8 @@ export default function EducationRequestsPage() {
                               disabled={busyId === req.id}
                               className="inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-4 py-2 text-[10px] font-bold text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm border border-emerald-100 uppercase tracking-widest italic"
                             >
-                              <CheckCircle2 className="h-3.5 w-3.5" />
-                              Approve (Forward to HR)
+                              <CheckCircle2 />
+                              Forward to HR
                             </button>
                           )}
                       </div>
@@ -814,7 +830,10 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="educationLevel" className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                <label
+                  htmlFor="educationLevel"
+                  className="text-[10px] font-bold uppercase tracking-widest text-gray-400"
+                >
                   {t("educationLevel")}
                 </label>
                 <select
@@ -838,7 +857,10 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <label htmlFor="fieldOfStudy" className="text-xs font-black uppercase tracking-widest text-gray-400">
+                <label
+                  htmlFor="fieldOfStudy"
+                  className="text-xs font-black uppercase tracking-widest text-gray-400"
+                >
                   {t("fieldOfStudy")}
                 </label>
                 <input
@@ -859,7 +881,10 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <label htmlFor="institution" className="text-xs font-black uppercase tracking-widest text-gray-400">
+                <label
+                  htmlFor="institution"
+                  className="text-xs font-black uppercase tracking-widest text-gray-400"
+                >
                   {t("institution")}
                 </label>
                 <input
@@ -879,7 +904,10 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="budgetYear" className="text-xs font-black uppercase tracking-widest text-gray-400">
+                <label
+                  htmlFor="budgetYear"
+                  className="text-xs font-black uppercase tracking-widest text-gray-400"
+                >
                   {t("budgetYear")}
                 </label>
                 <input
@@ -986,7 +1014,10 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <label htmlFor="fullName" className="text-xs font-black uppercase tracking-widest text-gray-400">
+                <label
+                  htmlFor="fullName"
+                  className="text-xs font-black uppercase tracking-widest text-gray-400"
+                >
                   Full Name
                 </label>
                 <input
@@ -1010,7 +1041,7 @@ export default function EducationRequestsPage() {
 
               <div className="col-span-2 space-y-1.5">
                 <label className="text-xs font-black uppercase tracking-widest text-gray-400">
-                  Award / Degree Point
+                  የአባሉ የትምህርት ደረጃ / Degree Point
                 </label>
                 <input
                   type="text"
@@ -1027,7 +1058,10 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <label htmlFor="candidateInstitution" className="text-xs font-black uppercase tracking-widest text-gray-400">
+                <label
+                  htmlFor="candidateInstitution"
+                  className="text-xs font-black uppercase tracking-widest text-gray-400"
+                >
                   Target Institution (If specific)
                 </label>
                 <input
@@ -1047,7 +1081,10 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="candidateDuration" className="text-xs font-black uppercase tracking-widest text-gray-400">
+                <label
+                  htmlFor="candidateDuration"
+                  className="text-xs font-black uppercase tracking-widest text-gray-400"
+                >
                   Duration (Years)
                 </label>
                 <input
@@ -1189,7 +1226,8 @@ export default function EducationRequestsPage() {
                     {t("award")} / {t("duration")}
                   </p>
                   <p className="text-sm font-bold text-gray-900">
-                    {selectedRequest.award || "-"} ({selectedRequest.duration} {t("years")})
+                    {selectedRequest.award || "-"} ({selectedRequest.duration}{" "}
+                    {t("years")})
                   </p>
                 </div>
                 <div>

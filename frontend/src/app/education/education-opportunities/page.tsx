@@ -108,7 +108,7 @@ export default function EducationOpportunitiesPage() {
         "Engineering",
         "Legal",
         "Research & Development",
-        "IT Support"
+        "IT Support",
       ].sort((a, b) => a.localeCompare(b));
 
       setDepartmentOptions(standardDepartments);
@@ -356,7 +356,7 @@ export default function EducationOpportunitiesPage() {
                 {editId ? t("editOpportunity") : t("addOpportunity")}
               </h2>
 
-              {!editId && templates.length > 0 && (
+              {/* {!editId && templates.length > 0 && (
                 <div className="flex items-center gap-3">
                   <label className="text-xs font-bold uppercase tracking-wider text-gray-400">
                     Copy from Recent:
@@ -380,7 +380,7 @@ export default function EducationOpportunitiesPage() {
                     ))}
                   </select>
                 </div>
-              )}
+              )} */}
             </div>
 
             <form
@@ -496,23 +496,23 @@ export default function EducationOpportunitiesPage() {
                 {departmentOptions.length > 0 ? (
                   <div className="grid grid-cols-1 gap-2 rounded-lg border p-3 md:grid-cols-2 lg:grid-cols-3">
                     {departmentOptions.map((department) => {
-                        const checked = formData.targetDepartments.some(
-                          (item) =>
-                            item.trim().toLowerCase() ===
-                            department.trim().toLowerCase(),
-                        );
+                      const checked = formData.targetDepartments.some(
+                        (item) =>
+                          item.trim().toLowerCase() ===
+                          department.trim().toLowerCase(),
+                      );
 
-                        return (
-                          <label
-                            key={department}
-                            className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 hover:bg-gray-50"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={checked}
-                              onChange={() =>
-                                handleTargetDepartmentToggle(department)
-                              }
+                      return (
+                        <label
+                          key={department}
+                          className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 hover:bg-gray-50"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() =>
+                              handleTargetDepartmentToggle(department)
+                            }
                             className="h-4 w-4 rounded border-gray-300"
                           />
                           <span className="text-sm text-gray-700">
