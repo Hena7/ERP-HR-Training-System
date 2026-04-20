@@ -112,7 +112,9 @@ export default function EducationRequestsPage() {
   const loadOpportunities = async () => {
     try {
       const res = await educationOpportunityApi.getAll(0, 100);
-      setOpportunities(res.data.content || []);
+      const allOpps = res.data.content || [];
+      // Only show OPEN opportunities for request initiation
+      setOpportunities(allOpps.filter((o: any) => o.status === "OPEN"));
     } catch (err) {
       console.error(err);
     }

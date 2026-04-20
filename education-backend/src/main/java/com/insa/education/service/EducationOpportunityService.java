@@ -71,7 +71,8 @@ public class EducationOpportunityService {
         opportunity.setEducationLevel(dto.getEducationLevel());
         opportunity.setInstitution(dto.getInstitution());
         opportunity.setDepartment(resolveLegacyDepartment(dto, normalizedTargets));
-        opportunity.setTargetDepartments(normalizedTargets);
+        opportunity.getTargetDepartments().clear();
+        opportunity.getTargetDepartments().addAll(normalizedTargets);
         opportunity.setDescription(dto.getDescription());
         if (dto.getStatus() != null) {
             opportunity.setStatus(dto.getStatus());

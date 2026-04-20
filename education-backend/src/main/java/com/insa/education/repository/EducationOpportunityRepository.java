@@ -15,8 +15,9 @@ public interface EducationOpportunityRepository extends JpaRepository<EducationO
             SELECT DISTINCT eo
             FROM EducationOpportunity eo
             LEFT JOIN eo.targetDepartments td
-            WHERE LOWER(eo.department) = LOWER(:department)
-               OR LOWER(td) = LOWER(:department)
+            WHERE (LOWER(eo.department) = LOWER(:department)
+               OR LOWER(td) = LOWER(:department))
+               AND eo.status = 'OPEN'
             """)
     Page<EducationOpportunity> findVisibleByDepartment(@Param("department") String department, Pageable pageable);
 }

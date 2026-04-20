@@ -91,10 +91,14 @@ public class EducationOpportunity {
             return;
         }
 
-        this.targetDepartments = this.targetDepartments.stream()
+        List<String> normalized = this.targetDepartments.stream()
                 .filter(value -> value != null && !value.trim().isEmpty())
                 .map(String::trim)
                 .distinct()
                 .toList();
+        
+        // Update in-place to maintain JPA collection management
+        this.targetDepartments.clear();
+        this.targetDepartments.addAll(normalized);
     }
 }
