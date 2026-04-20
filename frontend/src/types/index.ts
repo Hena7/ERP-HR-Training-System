@@ -45,6 +45,8 @@ export interface EducationRequest {
   opportunityId: number;
   educationType: string;
   educationLevel: string;
+  educationCategory?: string;
+  targetEducationLevel?: string;
   institution: string;
   currentEducationLevel: string;
   workExperience: number;
