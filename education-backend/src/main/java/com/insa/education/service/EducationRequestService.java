@@ -14,6 +14,10 @@ import com.insa.education.mapper.EducationMapper;
 import com.insa.education.repository.EducationOpportunityRepository;
 import com.insa.education.repository.EducationRequestRepository;
 import com.insa.education.repository.EmployeeRepository;
+import com.insa.education.repository.CommitteeDecisionRepository;
+import com.insa.education.entity.CommitteeDecision;
+import com.insa.education.enums.DecisionStatus;
+import com.insa.education.util.IdentityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -34,15 +38,18 @@ public class EducationRequestService {
     private final EducationRequestRepository requestRepository;
     private final EmployeeRepository employeeRepository;
     private final EducationOpportunityRepository opportunityRepository;
+    private final CommitteeDecisionRepository committeeDecisionRepository;
     private final EducationMapper mapper;
 
     public EducationRequestService(EducationRequestRepository requestRepository,
                                    EmployeeRepository employeeRepository,
                                    EducationOpportunityRepository opportunityRepository,
+                                   CommitteeDecisionRepository committeeDecisionRepository,
                                    EducationMapper mapper) {
         this.requestRepository = requestRepository;
         this.employeeRepository = employeeRepository;
         this.opportunityRepository = opportunityRepository;
+        this.committeeDecisionRepository = committeeDecisionRepository;
         this.mapper = mapper;
     }
 
@@ -286,9 +293,25 @@ public class EducationRequestService {
     /**
      * COMMITTEE step:
      * SCORED -> COMMITTEE_REPORTED
+     * This creates a committee decision record if it doesn't already exist.
      */
     @Transactional
     public EducationRequestResponse reportByCommittee(Long requestId) {
+        EducationRequest request = requestRepository.findById(requestId)
+                .orElseThrow(() -> new ResourceNotFoundException("Education request not found with id: " + requestId));
+
+        // Create a committee decision record if it doesn't exist for the history table
+        if (!committeeDecisionRepository.existsByRequestId(requestId)) {
+            CommitteeDecision decision = CommitteeDecision.builder()
+                    .request(request)
+                    .decision(DecisionStatus.APPROVED)
+                    .comment("Approved via Committee Bulk Report")
+                    .decidedBy(IdentityUtils.getCurrentUserDisplayName())
+                    .build();
+            committeeDecisionRepository.save(decision);
+            log.info("Auto-created committee decision record for bulk report: requestId={}", requestId);
+        }
+
         return transitionStatus(
                 requestId,
                 RequestStatus.SCORED,
