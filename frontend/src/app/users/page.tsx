@@ -178,7 +178,7 @@ export default function UsersPage() {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-2xl border border-gray-100">
             <h2 className="mb-6 text-xl font-bold text-gray-900 uppercase tracking-tight">
               Create New User

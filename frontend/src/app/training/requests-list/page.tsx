@@ -196,66 +196,66 @@ export default function TrainingRequestsListPage() {
           </table>
         </div>
 
-        {/* Detail Modal */}
-        {selected && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-            <div className="relative w-full max-w-lg rounded-xl bg-white shadow-2xl border border-gray-100 overflow-hidden">
-              <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-                <h2 className="text-base font-bold text-gray-900 uppercase tracking-tight">
-                  Request Detail — TRQ-{selected.id.toString().slice(-6)}
-                </h2>
-                <button
-                  onClick={() => setSelected(null)}
-                  className="rounded-lg p-1.5 hover:bg-gray-100 transition-colors"
-                >
-                  <X className="h-4 w-4 text-gray-500" />
-                </button>
-              </div>
-              <div className="p-6 space-y-4">
-                {[
-                  { icon: Building2, label: t("department"), value: selected.department },
-                  { icon: BookOpen, label: t("trainingTitle"), value: selected.trainingTitle },
-                  { icon: DollarSign, label: t("estimatedCost"), value: `${selected.estimatedCost.toLocaleString()} Birr` },
-                  { icon: Users, label: t("numTrainees"), value: selected.numTrainees },
-                  { icon: Calendar, label: t("trainingDuration"), value: selected.trainingDuration },
-                  { icon: MapPin, label: t("trainingLocation"), value: selected.trainingLocation },
-                  { icon: FileText, label: t("budgetSource"), value: selected.budgetSource },
-                ].map(({ icon: Icon, label, value }) => (
-                  <div key={label} className="flex items-start gap-4">
-                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50">
-                      <Icon className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                        {label}
-                      </p>
-                      <p className="text-sm font-bold text-gray-900">
-                        {String(value || "—")}
-                      </p>
-                    </div>
+      </div>
+      {/* Detail Modal */}
+      {selected && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-lg rounded-xl bg-white shadow-2xl border border-gray-100 overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+              <h2 className="text-base font-bold text-gray-900 uppercase tracking-tight">
+                Request Detail — TRQ-{selected.id.toString().slice(-6)}
+              </h2>
+              <button
+                onClick={() => setSelected(null)}
+                className="rounded-lg p-1.5 hover:bg-gray-100 transition-colors"
+              >
+                <X className="h-4 w-4 text-gray-500" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              {[
+                { icon: Building2, label: t("department"), value: selected.department },
+                { icon: BookOpen, label: t("trainingTitle"), value: selected.trainingTitle },
+                { icon: DollarSign, label: t("estimatedCost"), value: `${selected.estimatedCost.toLocaleString()} Birr` },
+                { icon: Users, label: t("numTrainees"), value: selected.numTrainees },
+                { icon: Calendar, label: t("trainingDuration"), value: selected.trainingDuration },
+                { icon: MapPin, label: t("trainingLocation"), value: selected.trainingLocation },
+                { icon: FileText, label: t("budgetSource"), value: selected.budgetSource },
+              ].map(({ icon: Icon, label, value }) => (
+                <div key={label} className="flex items-start gap-4">
+                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50">
+                    <Icon className="h-4 w-4 text-blue-600" />
                   </div>
-                ))}
-                {selected.specification && (
-                  <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
-                      {t("specification")}
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                      {label}
                     </p>
-                    <p className="text-sm text-gray-700 font-medium leading-relaxed">{selected.specification}</p>
-                  </div>
-                )}
-                {selected.reviewNote && (
-                  <div className="rounded-lg border border-blue-100 bg-blue-50/50 p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-2">
-                      {t("reviewNote")}
+                    <p className="text-sm font-bold text-gray-900">
+                      {String(value || "—")}
                     </p>
-                    <p className="text-sm text-gray-700 font-medium leading-relaxed">{selected.reviewNote}</p>
                   </div>
-                )}
-              </div>
+                </div>
+              ))}
+              {selected.specification && (
+                <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
+                    {t("specification")}
+                  </p>
+                  <p className="text-sm text-gray-700 font-medium leading-relaxed">{selected.specification}</p>
+                </div>
+              )}
+              {selected.reviewNote && (
+                <div className="rounded-lg border border-blue-100 bg-blue-50/50 p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-2">
+                    {t("reviewNote")}
+                  </p>
+                  <p className="text-sm text-gray-700 font-medium leading-relaxed">{selected.reviewNote}</p>
+                </div>
+              )}
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

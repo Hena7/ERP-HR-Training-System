@@ -744,7 +744,7 @@ export default function ContractsPage() {
       </div>
 
       {viewDoc && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
           <div className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-white shadow-2xl flex flex-col">
             <div className="flex items-center justify-between p-4 border-b">
               <h3 className="text-lg font-bold">{t("viewDocument")}</h3>

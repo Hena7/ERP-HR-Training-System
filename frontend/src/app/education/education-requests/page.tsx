@@ -769,7 +769,7 @@ export default function EducationRequestsPage() {
 
       {/* Education Detail Modal */}
       {showEducationModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 sm:p-10 shadow-2xl animate-in zoom-in-95 duration-200 border border-gray-100">
             <h3 className="mb-8 text-2xl font-bold text-gray-900 flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
@@ -981,7 +981,7 @@ export default function EducationRequestsPage() {
 
       {/* Candidate Modal */}
       {showCandidateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-200">
             <h3 className="mb-8 text-2xl font-bold text-gray-900 border-b border-gray-100 pb-6 flex items-center gap-3">
               <div className="rounded-lg bg-blue-600 p-2 text-white">
@@ -1163,7 +1163,7 @@ export default function EducationRequestsPage() {
 
       {/* Request Detail Modal */}
       {selectedRequest && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="relative w-full max-w-2xl flex flex-col max-h-[90vh] rounded-2xl bg-white shadow-2xl border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="flex shrink-0 items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50/50">
               <h2 className="text-lg font-bold text-gray-900 flex items-center gap-3">
