@@ -48,6 +48,16 @@ export default function TrainingContractFormPage() {
     signedDate: new Date().toISOString().split("T")[0],
   });
 
+  const [trainees, setTrainees] = useState<
+    {
+      employeeId: string;
+      fullName: string;
+      phone: string;
+      email: string;
+      department: string;
+    }[]
+  >([]);
+
   useEffect(() => {
     Promise.all([
       trainingRequestApi.getAll(),
@@ -61,9 +71,38 @@ export default function TrainingContractFormPage() {
   }, [success]);
 
   const handleSelectRequest = (r: TrainingRequest) => {
-    setSelectedRequest((prev) => (prev?.id === r.id ? null : r));
+    if (selectedRequest?.id === r.id) {
+      setSelectedRequest(null);
+      setTrainees([]);
+    } else {
+      setSelectedRequest(r);
+      // Initialize trainees based on numTrainees
+      const count = r.numTrainees || 1;
+      setTrainees(
+        Array(count).fill({
+          employeeId: "",
+          fullName: "",
+          phone: "",
+          email: "",
+          department: "",
+        }),
+      );
+    }
     setSuccess(false);
     setError("");
+  };
+
+  const updateTrainee = (index: number, employee: any) => {
+    const newTrainees = [...trainees];
+    newTrainees[index] = {
+      employeeId: String(employee.employeeId),
+      fullName:
+        employee.fullName || `${employee.firstName} ${employee.lastName}`,
+      phone: employee.phone || "",
+      email: employee.email || "",
+      department: employee.department || selectedRequest?.department || "",
+    };
+    setTrainees(newTrainees);
   };
 
   const handleChange = (
@@ -90,19 +129,25 @@ export default function TrainingContractFormPage() {
     setLoading(true);
     setError("");
     try {
-      await trainingContractApi.create({
-        ...form,
-        requestId: selectedRequest.id,
-        employeeId: String(selectedRequest.requesterId),
-        employeeName: selectedRequest.requesterName || "",
-        employeeDepartment: selectedRequest.department,
-        email: selectedRequest.requesterEmail || "",
-        phone: selectedRequest.requesterPhone || "",
-        totalCost: parseFloat(form.totalCost),
-        contractDurationMonths: parseInt(form.contractDurationMonths),
-      });
+      // Create contracts for ALL trainees
+      await Promise.all(
+        trainees.map((t) =>
+          trainingContractApi.create({
+            ...form,
+            requestId: selectedRequest.id,
+            employeeId: t.employeeId,
+            employeeName: t.fullName,
+            employeeDepartment: t.department || selectedRequest.department,
+            email: t.email,
+            phone: t.phone,
+            totalCost: parseFloat(form.totalCost),
+            contractDurationMonths: parseInt(form.contractDurationMonths),
+          }),
+        ),
+      );
       setSuccess(true);
       setSelectedRequest(null);
+      setTrainees([]);
       setForm({
         city: "",
         houseNo: "",
@@ -252,32 +297,53 @@ export default function TrainingContractFormPage() {
               <div className="flex items-center gap-2 mb-5">
                 <User className="h-4 w-4 text-blue-600" />
                 <h2 className="text-xs font-bold uppercase tracking-widest text-gray-700">
-                  Trainee Summary
+                  Assign Participants ({trainees.length})
                 </h2>
               </div>
-              <div className="grid grid-cols-2 gap-y-4 text-sm md:grid-cols-4">
-                <div>
-                  <p className={labelClass}>{t("employeeId")}</p>
-                  <p className="font-bold">{selectedRequest.requesterId}</p>
-                </div>
-                <div>
-                  <p className={labelClass}>{t("fullName")}</p>
-                  <p className="font-bold">
-                    {selectedRequest.requesterName && selectedRequest.requesterName !== "Keycloak User"
-                      ? selectedRequest.requesterName
-                      : employees.find((e) => String(e.employeeId) === String(selectedRequest.requesterId))?.fullName ||
-                        selectedRequest.requesterName ||
-                        "Keycloak User"}
-                  </p>
-                </div>
-                <div>
-                  <p className={labelClass}>{t("department")}</p>
-                  <p className="font-bold">{selectedRequest.department}</p>
-                </div>
-                <div>
-                  <p className={labelClass}>{t("phone")}</p>
-                  <p className="font-bold">{selectedRequest.requesterPhone}</p>
-                </div>
+              <div className="space-y-6">
+                {trainees.map((trainee, idx) => (
+                  <div key={idx} className="flex flex-col gap-4 p-4 rounded-xl bg-gray-50/50 border border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Trainee #{idx + 1}</span>
+                      {trainee.employeeId && (
+                        <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3" /> Assigned: {trainee.employeeId}
+                        </span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className={labelClass}>Select Employee</label>
+                        <select
+                          className={fieldClass}
+                          value={trainee.employeeId}
+                          onChange={(e) => {
+                            const emp = employees.find(emp => String(emp.employeeId) === e.target.value);
+                            if (emp) updateTrainee(idx, emp);
+                          }}
+                          required
+                        >
+                          <option value="">Choose an employee...</option>
+                          {employees.map(emp => (
+                            <option key={emp.id} value={emp.employeeId}>
+                              {emp.fullName || `${emp.firstName} ${emp.lastName}`} ({emp.employeeId})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                         <div>
+                            <p className={labelClass}>Email</p>
+                            <p className="text-xs font-bold text-gray-600 truncate">{trainee.email || "—"}</p>
+                         </div>
+                         <div>
+                            <p className={labelClass}>Phone</p>
+                            <p className="text-xs font-bold text-gray-600">{trainee.phone || "—"}</p>
+                         </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 

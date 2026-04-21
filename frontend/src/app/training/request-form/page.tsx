@@ -189,6 +189,10 @@ export default function TrainingRequestFormPage() {
                       placeholder="0"
                     />
                   </div>
+                  <p className="mt-1 text-[10px] text-gray-400">
+                    Specific trainee names will be assigned by HR during the
+                    contract phase.
+                  </p>
                 </div>
                 <div>
                   <label className={labelClass}>{t("trainingDuration")}</label>
