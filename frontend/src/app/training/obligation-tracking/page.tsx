@@ -7,6 +7,7 @@ import {
   trainingContractApi,
   trainingObligationApi,
 } from "@/app/training/services/trainingApi";
+import { employeeApi } from "@/lib/api";
 import { TrainingObligation, TrainingContract } from "@/types/training";
 import {
   Clock,
@@ -21,6 +22,7 @@ import { calculateObligation } from "@/app/training/services/obligationCalculato
 export default function ObligationTrackingPage() {
   const { t } = useLanguage();
   const [contracts, setContracts] = useState<TrainingContract[]>([]);
+  const [employees, setEmployees] = useState<any[]>([]);
   const [obligations, setObligations] = useState<TrainingObligation[]>([]);
   const [selectedContract, setSelectedContract] =
     useState<TrainingContract | null>(null);
@@ -41,9 +43,11 @@ export default function ObligationTrackingPage() {
     Promise.all([
       trainingContractApi.getAll(),
       trainingObligationApi.getAll(),
-    ]).then(([{ data: c }, { data: o }]) => {
+      employeeApi.getAll(0, 100).catch(() => ({ data: { content: [] } })),
+    ]).then(([{ data: c }, { data: o }, { data: e }]) => {
       setContracts(c);
       setObligations(o);
+      setEmployees(e.content || []);
       setLoading(false);
     });
   };
@@ -139,6 +143,135 @@ export default function ObligationTrackingPage() {
             <Plus className="h-4 w-4" /> New Obligation
           </button>
         </div>
+
+        {/* Obligations Table */}
+        <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+          <table className="min-w-full divide-y divide-gray-100">
+            <thead className="bg-gray-50/80 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              <tr>
+                {[
+                  "OBL-ID",
+                  t("fullName"),
+                  t("startDate"),
+                  t("endDate"),
+                  t("obligationMonths"),
+                  t("status"),
+                  t("actions"),
+                ].map((h) => (
+                  <th key={h} className="px-6 py-4 text-left">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {loading ? (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="py-16 text-center text-sm text-gray-400"
+                  >
+                    {t("loading")}
+                  </td>
+                </tr>
+              ) : obligations.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-16 text-center">
+                    <div className="flex flex-col items-center opacity-40">
+                      <Clock className="h-10 w-10 text-gray-300 mb-3" />
+                      <p className="text-sm font-bold text-gray-700">
+                        {t("noData")}
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                obligations.map((ob) => {
+                  const sc = statusConfig[ob.status] || statusConfig.ACTIVE;
+                  const Icon = sc.icon;
+                  return (
+                    <tr
+                      key={ob.id}
+                      className="hover:bg-gray-50/50 transition-colors"
+                    >
+                      <td className="px-6 py-4 text-xs font-bold text-blue-600">
+                        OBL-{ob.id.toString().slice(-6)}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                        {ob.employeeName && ob.employeeName !== "Keycloak User"
+                          ? ob.employeeName
+                          : (() => {
+                              const contract = contracts.find(
+                                (c) => c.id === ob.contractId,
+                              );
+                              return (
+                                employees.find(
+                                  (e) =>
+                                    String(e.employeeId) ===
+                                    String(contract?.employeeId),
+                                )?.fullName ||
+                                ob.employeeName ||
+                                "Keycloak User"
+                              );
+                            })()}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700">
+                        {ob.startDate}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700">
+                        {ob.endDate}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-bold text-gray-700">
+                        {ob.obligationMonths} mo
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${sc.color}`}
+                        >
+                          <Icon className="h-3 w-3" /> {sc.label}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-1.5">
+                          {ob.status === "ACTIVE" && (
+                            <>
+                              <button
+                                onClick={() =>
+                                  handleStatusChange(ob.id, "COMPLETED")
+                                }
+                                disabled={busyId === ob.id}
+                                className="rounded-lg bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700 hover:bg-emerald-600 hover:text-white transition-all"
+                              >
+                                <CheckCircle2 className="inline h-3 w-3 mr-0.5" />{" "}
+                                Complete
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleStatusChange(ob.id, "VIOLATED")
+                                }
+                                disabled={busyId === ob.id}
+                                className="rounded-lg bg-red-50 px-2.5 py-1 text-[10px] font-bold text-red-700 hover:bg-red-600 hover:text-white transition-all"
+                              >
+                                <AlertTriangle className="inline h-3 w-3 mr-0.5" />{" "}
+                                Violate
+                              </button>
+                            </>
+                          )}
+                          {ob.status === "COMPLETED" && (
+                            <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
+                              <CheckCircle2 className="h-3 w-3" />{" "}
+                              {t("releaseGuarantor")}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Add Obligation Modal */}
@@ -175,7 +308,11 @@ export default function ObligationTrackingPage() {
                             CTR-{c.id.toString().slice(-6)}
                           </td>
                           <td className="px-5 py-3 font-bold text-gray-900">
-                            {c.employeeName}
+                            {c.employeeName && c.employeeName !== "Keycloak User"
+                              ? c.employeeName
+                              : employees.find((e) => String(e.employeeId) === String(c.employeeId))?.fullName ||
+                                c.employeeName ||
+                                "Keycloak User"}
                           </td>
                           <td className="px-5 py-3 font-medium text-gray-600">
                             {c.employeeDepartment || "—"}
@@ -223,7 +360,11 @@ export default function ObligationTrackingPage() {
                       </p>
                       <p className="text-sm font-bold text-gray-900">
                         CTR-{selectedContract.id.toString().slice(-6)} —{" "}
-                        {selectedContract.employeeName}
+                        {selectedContract.employeeName && selectedContract.employeeName !== "Keycloak User"
+                          ? selectedContract.employeeName
+                          : employees.find((e) => String(e.employeeId) === String(selectedContract.employeeId))?.fullName ||
+                            selectedContract.employeeName ||
+                            "Keycloak User"}
                       </p>
                       {obl.requiresContract ? (
                         <div className="mt-2 flex flex-wrap gap-2">
@@ -328,119 +469,6 @@ export default function ObligationTrackingPage() {
         </div>
       )}
 
-      {/* Obligations Table */}
-      <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-100">
-          <thead className="bg-gray-50/80 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-            <tr>
-              {[
-                "OBL-ID",
-                t("fullName"),
-                t("startDate"),
-                t("endDate"),
-                t("obligationMonths"),
-                t("status"),
-                t("actions"),
-              ].map((h) => (
-                <th key={h} className="px-6 py-4 text-left">
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50">
-            {loading ? (
-              <tr>
-                <td
-                  colSpan={7}
-                  className="py-16 text-center text-sm text-gray-400"
-                >
-                  {t("loading")}
-                </td>
-              </tr>
-            ) : obligations.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="py-16 text-center">
-                  <div className="flex flex-col items-center opacity-40">
-                    <Clock className="h-10 w-10 text-gray-300 mb-3" />
-                    <p className="text-sm font-bold text-gray-700">
-                      {t("noData")}
-                    </p>
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              obligations.map((ob) => {
-                const sc = statusConfig[ob.status] || statusConfig.ACTIVE;
-                const Icon = sc.icon;
-                return (
-                  <tr
-                    key={ob.id}
-                    className="hover:bg-gray-50/50 transition-colors"
-                  >
-                    <td className="px-6 py-4 text-xs font-bold text-blue-600">
-                      OBL-{ob.id.toString().slice(-6)}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                      {ob.employeeName}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">
-                      {ob.startDate}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">
-                      {ob.endDate}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-bold text-gray-700">
-                      {ob.obligationMonths} mo
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${sc.color}`}
-                      >
-                        <Icon className="h-3 w-3" /> {sc.label}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-1.5">
-                        {ob.status === "ACTIVE" && (
-                          <>
-                            <button
-                              onClick={() =>
-                                handleStatusChange(ob.id, "COMPLETED")
-                              }
-                              disabled={busyId === ob.id}
-                              className="rounded-lg bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700 hover:bg-emerald-600 hover:text-white transition-all"
-                            >
-                              <CheckCircle2 className="inline h-3 w-3 mr-0.5" />{" "}
-                              Complete
-                            </button>
-                            <button
-                              onClick={() =>
-                                handleStatusChange(ob.id, "VIOLATED")
-                              }
-                              disabled={busyId === ob.id}
-                              className="rounded-lg bg-red-50 px-2.5 py-1 text-[10px] font-bold text-red-700 hover:bg-red-600 hover:text-white transition-all"
-                            >
-                              <AlertTriangle className="inline h-3 w-3 mr-0.5" />{" "}
-                              Violate
-                            </button>
-                          </>
-                        )}
-                        {ob.status === "COMPLETED" && (
-                          <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
-                            <CheckCircle2 className="h-3 w-3" />{" "}
-                            {t("releaseGuarantor")}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
     </DashboardLayout>
   );
 }

@@ -7,6 +7,7 @@ import {
   trainingRequestApi,
   trainingContractApi,
 } from "@/app/training/services/trainingApi";
+import { employeeApi } from "@/lib/api";
 import { TrainingRequest } from "@/types/training";
 import {
   FileSignature,
@@ -29,6 +30,7 @@ export default function TrainingContractFormPage() {
   const [eligibleRequests, setEligibleRequests] = useState<TrainingRequest[]>(
     [],
   );
+  const [employees, setEmployees] = useState<any[]>([]);
   const [selectedRequest, setSelectedRequest] =
     useState<TrainingRequest | null>(null);
   const [loading, setLoading] = useState(false);
@@ -47,10 +49,14 @@ export default function TrainingContractFormPage() {
   });
 
   useEffect(() => {
-    trainingRequestApi.getAll().then(({ data }) => {
+    Promise.all([
+      trainingRequestApi.getAll(),
+      employeeApi.getAll(0, 100).catch(() => ({ data: { content: [] } }))
+    ]).then(([{ data }, { data: e }]) => {
       setEligibleRequests(
         data.filter((r: TrainingRequest) => r.status === "CONTRACT_REQUIRED"),
       );
+      setEmployees(e.content || []);
     });
   }, [success]);
 
@@ -161,7 +167,11 @@ export default function TrainingContractFormPage() {
                           TRQ-{r.id.toString().slice(-6)}
                         </td>
                         <td className="px-6 py-4 font-bold text-gray-900">
-                          {r.requesterName || "—"}
+                          {r.requesterName && r.requesterName !== "Keycloak User"
+                            ? r.requesterName
+                            : employees.find((e) => String(e.employeeId) === String(r.requesterId))?.fullName ||
+                              r.requesterName ||
+                              "Keycloak User"}
                         </td>
                         <td className="px-6 py-4 font-medium text-gray-600">
                           {r.department || "—"}
@@ -228,6 +238,13 @@ export default function TrainingContractFormPage() {
               <p className="text-sm font-bold text-blue-900 ml-4">
                 TRQ-{selectedRequest.id.toString().slice(-6)} —{" "}
                 {selectedRequest.trainingTitle} ({selectedRequest.department})
+                <span className="block text-[10px] text-blue-400 mt-0.5">
+                  Requested by: {selectedRequest.requesterName && selectedRequest.requesterName !== "Keycloak User"
+                    ? selectedRequest.requesterName
+                    : employees.find((e) => String(e.employeeId) === String(selectedRequest.requesterId))?.fullName ||
+                      selectedRequest.requesterName ||
+                      "Keycloak User"}
+                </span>
               </p>
             </div>
 
@@ -245,7 +262,13 @@ export default function TrainingContractFormPage() {
                 </div>
                 <div>
                   <p className={labelClass}>{t("fullName")}</p>
-                  <p className="font-bold">{selectedRequest.requesterName}</p>
+                  <p className="font-bold">
+                    {selectedRequest.requesterName && selectedRequest.requesterName !== "Keycloak User"
+                      ? selectedRequest.requesterName
+                      : employees.find((e) => String(e.employeeId) === String(selectedRequest.requesterId))?.fullName ||
+                        selectedRequest.requesterName ||
+                        "Keycloak User"}
+                  </p>
                 </div>
                 <div>
                   <p className={labelClass}>{t("department")}</p>

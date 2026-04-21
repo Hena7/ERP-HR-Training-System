@@ -243,7 +243,9 @@ export default function GuarantorsPage() {
                       <tr key={c.id} className="hover:bg-gray-50/50 transition-colors">
                         <td className="px-6 py-4 font-bold text-blue-600">CON-{c.id}</td>
                         <td className="px-6 py-4 font-bold text-gray-900">
-                          {c.employeeName || users.find(u => String(u.id) === String(c.employeeId))?.fullName || `EMP-${c.employeeId}`}
+                          {c.employeeName && c.employeeName !== "Keycloak User"
+                            ? c.employeeName 
+                            : users.find(u => String(u.id) === String(c.employeeId))?.fullName || c.employeeName || `EMP-${c.employeeId}`}
                         </td>
                         <td className="px-6 py-4 text-xs italic text-gray-600">
                           {c.employeeDepartment || "—"}
@@ -300,7 +302,13 @@ export default function GuarantorsPage() {
                   {t("contracts")}
                 </label>
                 <div className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 font-bold text-gray-900">
-                  {contracts.find((c) => String(c.id) === form.contractId)?.employeeName || users.find(u => String(u.id) === String(contracts.find((c) => String(c.id) === form.contractId)?.employeeId))?.fullName || `CON-${form.contractId}`}
+                  {(() => {
+                    const c = contracts.find((c) => String(c.id) === form.contractId);
+                    if (!c) return `CON-${form.contractId}`;
+                    return c.employeeName && c.employeeName !== "Keycloak User"
+                      ? c.employeeName
+                      : users.find(u => String(u.id) === String(c.employeeId))?.fullName || c.employeeName || `EMP-${c.employeeId}`;
+                  })()}
                 </div>
               </div>
               <div>
