@@ -18,6 +18,7 @@ import {
   DollarSign,
   MapPin,
   FileText,
+  User,
 } from "lucide-react";
 
 const STATUS_OPTIONS = [
@@ -41,11 +42,14 @@ export default function TrainingRequestsListPage() {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const isEmployeeOnly = user?.role === "EMPLOYEE" && !["DEPARTMENT_HEAD", "ADMIN"].includes(user?.role);
-        const { data } = isEmployeeOnly && user?.employeeId
-          ? await trainingRequestApi.getMyRequests(user.employeeId)
-          : await trainingRequestApi.getAll();
-        
+        const isEmployeeOnly =
+          user?.role === "EMPLOYEE" &&
+          !["DEPARTMENT_HEAD", "ADMIN"].includes(user?.role);
+        const { data } =
+          isEmployeeOnly && user?.employeeId
+            ? await trainingRequestApi.getMyRequests(user.employeeId)
+            : await trainingRequestApi.getAll();
+
         setRequests(data);
         setFiltered(data);
       } catch (err) {
@@ -125,10 +129,7 @@ export default function TrainingRequestsListPage() {
                   t("status"),
                   t("actions"),
                 ].map((h) => (
-                  <th
-                    key={h}
-                    className="px-6 py-4 text-left"
-                  >
+                  <th key={h} className="px-6 py-4 text-left">
                     {h}
                   </th>
                 ))}
@@ -137,7 +138,10 @@ export default function TrainingRequestsListPage() {
             <tbody className="divide-y divide-gray-50">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="py-16 text-center text-sm text-gray-400">
+                  <td
+                    colSpan={7}
+                    className="py-16 text-center text-sm text-gray-400"
+                  >
                     {t("loading")}
                   </td>
                 </tr>
@@ -195,7 +199,6 @@ export default function TrainingRequestsListPage() {
             </tbody>
           </table>
         </div>
-
       </div>
       {/* Detail Modal */}
       {selected && (
@@ -214,17 +217,54 @@ export default function TrainingRequestsListPage() {
             </div>
             <div className="p-6 space-y-4">
               {[
-                { icon: Building2, label: t("department"), value: selected.department },
-                { icon: BookOpen, label: t("trainingTitle"), value: selected.trainingTitle },
-                { icon: DollarSign, label: t("estimatedCost"), value: `${selected.estimatedCost.toLocaleString()} Birr` },
-                { icon: Users, label: t("numTrainees"), value: selected.numTrainees },
-                { icon: Calendar, label: t("trainingDuration"), value: selected.trainingDuration },
-                { icon: MapPin, label: t("trainingLocation"), value: selected.trainingLocation },
-                { icon: FileText, label: t("budgetSource"), value: selected.budgetSource },
+                {
+                  icon: user,
+                  label: t("requester"),
+                  value:
+                    selected.requesterName &&
+                    selected.requesterName !== "Keycloak User"
+                      ? selected.requesterName
+                      : selected.requesterId || "Unknown",
+                },
+                {
+                  icon: Building2,
+                  label: t("department"),
+                  value: selected.department,
+                },
+                {
+                  icon: BookOpen,
+                  label: t("trainingTitle"),
+                  value: selected.trainingTitle,
+                },
+                {
+                  icon: DollarSign,
+                  label: t("estimatedCost"),
+                  value: `${selected.estimatedCost.toLocaleString()} Birr`,
+                },
+                {
+                  icon: Users,
+                  label: t("numTrainees"),
+                  value: selected.numTrainees,
+                },
+                {
+                  icon: Calendar,
+                  label: t("trainingDuration"),
+                  value: selected.trainingDuration,
+                },
+                {
+                  icon: MapPin,
+                  label: t("trainingLocation"),
+                  value: selected.trainingLocation,
+                },
+                {
+                  icon: FileText,
+                  label: t("budgetSource"),
+                  value: selected.budgetSource,
+                },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} className="flex items-start gap-4">
                   <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50">
-                    <Icon className="h-4 w-4 text-blue-600" />
+                    <User className="h-4 w-4 text-blue-600" />
                   </div>
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
@@ -241,7 +281,9 @@ export default function TrainingRequestsListPage() {
                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
                     {t("specification")}
                   </p>
-                  <p className="text-sm text-gray-700 font-medium leading-relaxed">{selected.specification}</p>
+                  <p className="text-sm text-gray-700 font-medium leading-relaxed">
+                    {selected.specification}
+                  </p>
                 </div>
               )}
               {selected.reviewNote && (
@@ -249,7 +291,9 @@ export default function TrainingRequestsListPage() {
                   <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-2">
                     {t("reviewNote")}
                   </p>
-                  <p className="text-sm text-gray-700 font-medium leading-relaxed">{selected.reviewNote}</p>
+                  <p className="text-sm text-gray-700 font-medium leading-relaxed">
+                    {selected.reviewNote}
+                  </p>
                 </div>
               )}
             </div>

@@ -61,7 +61,7 @@ export default function TrainingContractFormPage() {
   useEffect(() => {
     Promise.all([
       trainingRequestApi.getAll(),
-      employeeApi.getAll(0, 100).catch(() => ({ data: { content: [] } }))
+      employeeApi.getAll(0, 100).catch(() => ({ data: { content: [] } })),
     ]).then(([{ data }, { data: e }]) => {
       setEligibleRequests(
         data.filter((r: TrainingRequest) => r.status === "CONTRACT_REQUIRED"),
@@ -87,6 +87,13 @@ export default function TrainingContractFormPage() {
           department: "",
         }),
       );
+      // Auto-fill cost and duration from requested estimate
+      const obl = calculateObligation(r.estimatedCost);
+      setForm((prev) => ({
+        ...prev,
+        totalCost: String(r.estimatedCost),
+        contractDurationMonths: obl.requiresContract ? String(obl.months) : "",
+      }));
     }
     setSuccess(false);
     setError("");
@@ -114,9 +121,7 @@ export default function TrainingContractFormPage() {
       setForm((prev) => ({
         ...prev,
         totalCost: value,
-        contractDurationMonths: obl.requiresContract
-          ? String(obl.months)
-          : prev.contractDurationMonths,
+        contractDurationMonths: obl.requiresContract ? String(obl.months) : "",
       }));
     } else {
       setForm({ ...form, [name]: value });
@@ -177,7 +182,8 @@ export default function TrainingContractFormPage() {
               {t("newTrainingContract")}
             </h1>
             <p className="text-sm text-gray-500 font-medium italic">
-              Select an eligible training request below to prepare a formal contract.
+              Select an eligible training request below to prepare a formal
+              contract.
             </p>
           </div>
         </div>
@@ -212,9 +218,14 @@ export default function TrainingContractFormPage() {
                           TRQ-{r.id.toString().slice(-6)}
                         </td>
                         <td className="px-6 py-4 font-bold text-gray-900">
-                          {r.requesterName && r.requesterName !== "Keycloak User"
+                          {r.requesterName &&
+                          r.requesterName !== "Keycloak User"
                             ? r.requesterName
-                            : employees.find((e) => String(e.employeeId) === String(r.requesterId))?.fullName ||
+                            : employees.find(
+                                (e) =>
+                                  String(e.employeeId) ===
+                                  String(r.requesterId),
+                              )?.fullName ||
                               r.requesterName ||
                               "Keycloak User"}
                         </td>
@@ -284,9 +295,15 @@ export default function TrainingContractFormPage() {
                 TRQ-{selectedRequest.id.toString().slice(-6)} —{" "}
                 {selectedRequest.trainingTitle} ({selectedRequest.department})
                 <span className="block text-[10px] text-blue-400 mt-0.5">
-                  Requested by: {selectedRequest.requesterName && selectedRequest.requesterName !== "Keycloak User"
+                  Requested by:{" "}
+                  {selectedRequest.requesterName &&
+                  selectedRequest.requesterName !== "Keycloak User"
                     ? selectedRequest.requesterName
-                    : employees.find((e) => String(e.employeeId) === String(selectedRequest.requesterId))?.fullName ||
+                    : employees.find(
+                        (e) =>
+                          String(e.employeeId) ===
+                          String(selectedRequest.requesterId),
+                      )?.fullName ||
                       selectedRequest.requesterName ||
                       "Keycloak User"}
                 </span>
@@ -302,12 +319,18 @@ export default function TrainingContractFormPage() {
               </div>
               <div className="space-y-6">
                 {trainees.map((trainee, idx) => (
-                  <div key={idx} className="flex flex-col gap-4 p-4 rounded-xl bg-gray-50/50 border border-gray-100">
+                  <div
+                    key={idx}
+                    className="flex flex-col gap-4 p-4 rounded-xl bg-gray-50/50 border border-gray-100"
+                  >
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Trainee #{idx + 1}</span>
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Trainee #{idx + 1}
+                      </span>
                       {trainee.employeeId && (
                         <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
-                          <CheckCircle2 className="h-3 w-3" /> Assigned: {trainee.employeeId}
+                          <CheckCircle2 className="h-3 w-3" /> Assigned:{" "}
+                          {trainee.employeeId}
                         </span>
                       )}
                     </div>
@@ -318,28 +341,37 @@ export default function TrainingContractFormPage() {
                           className={fieldClass}
                           value={trainee.employeeId}
                           onChange={(e) => {
-                            const emp = employees.find(emp => String(emp.employeeId) === e.target.value);
+                            const emp = employees.find(
+                              (emp) =>
+                                String(emp.employeeId) === e.target.value,
+                            );
                             if (emp) updateTrainee(idx, emp);
                           }}
                           required
                         >
                           <option value="">Choose an employee...</option>
-                          {employees.map(emp => (
+                          {employees.map((emp) => (
                             <option key={emp.id} value={emp.employeeId}>
-                              {emp.fullName || `${emp.firstName} ${emp.lastName}`} ({emp.employeeId})
+                              {emp.fullName ||
+                                `${emp.firstName} ${emp.lastName}`}{" "}
+                              ({emp.employeeId})
                             </option>
                           ))}
                         </select>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
-                         <div>
-                            <p className={labelClass}>Email</p>
-                            <p className="text-xs font-bold text-gray-600 truncate">{trainee.email || "—"}</p>
-                         </div>
-                         <div>
-                            <p className={labelClass}>Phone</p>
-                            <p className="text-xs font-bold text-gray-600">{trainee.phone || "—"}</p>
-                         </div>
+                        <div>
+                          <p className={labelClass}>Email</p>
+                          <p className="text-xs font-bold text-gray-600 truncate">
+                            {trainee.email || "—"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className={labelClass}>Phone</p>
+                          <p className="text-xs font-bold text-gray-600">
+                            {trainee.phone || "—"}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -434,7 +466,7 @@ export default function TrainingContractFormPage() {
                     />
                   </div>
                   {form.totalCost &&
-                    parseFloat(form.totalCost) >= 50000 &&
+                    parseFloat(form.totalCost) >= 200000 &&
                     (() => {
                       const obl = calculateObligation(
                         parseFloat(form.totalCost),
@@ -447,9 +479,7 @@ export default function TrainingContractFormPage() {
                     })()}
                 </div>
                 <div>
-                  <label className={labelClass}>
-                    {t("contractDuration")} (Months)
-                  </label>
+                  <label className={labelClass}>{t("contractDuration")}</label>
                   <input
                     name="contractDurationMonths"
                     type="number"

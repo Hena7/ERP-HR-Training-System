@@ -288,6 +288,7 @@ export const translations = {
     navTrainingContracts: "Training Contracts",
     navTrainingGuarantors: "Training Guarantors",
     navTrainingObligations: "Training Obligations",
+    requester: "Requester",
   },
 
   am: {
@@ -576,6 +577,7 @@ export const translations = {
     navTrainingGuarantors: "የስልጠና ዋሶች",
     navTrainingObligations: "የስልጠና ግዴታዎች",
     educationModule: "የትምህርት ሞዱል",
+    requester: "የጠየቀ",
   },
 } as const;
 
