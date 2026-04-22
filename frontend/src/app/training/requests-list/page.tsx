@@ -218,7 +218,7 @@ export default function TrainingRequestsListPage() {
             <div className="p-6 space-y-4">
               {[
                 {
-                  icon: user,
+                  icon: User,
                   label: t("requester"),
                   value:
                     selected.requesterName &&
@@ -264,7 +264,7 @@ export default function TrainingRequestsListPage() {
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} className="flex items-start gap-4">
                   <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50">
-                    <User className="h-4 w-4 text-blue-600" />
+                    <Icon className="h-4 w-4 text-blue-600" />
                   </div>
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">

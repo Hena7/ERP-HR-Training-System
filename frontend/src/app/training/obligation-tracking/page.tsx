@@ -42,6 +42,10 @@ export default function ObligationTrackingPage() {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<number | null>(null);
   const [showAdd, setShowAdd] = useState(false);
+  const [addFormTrainingId, setAddFormTrainingId] = useState<number | null>(
+    null,
+  );
+  const [selectedCreationIds, setSelectedCreationIds] = useState<number[]>([]);
 
   const [form, setForm] = useState({
     contractId: "",
@@ -69,35 +73,57 @@ export default function ObligationTrackingPage() {
 
   useEffect(load, []);
 
-  const handleContractSelect = (c: TrainingContract) => {
-    const cost = (c as any).estimatedCost || 0;
-    const obl = calculateObligation(cost);
-    setSelectedContract(c);
-    setForm((prev) => ({
-      ...prev,
-      contractId: String(c.id),
-      employeeName: c.employeeName || "",
-      obligationMonths: obl.requiresContract ? String(obl.months) : "",
-    }));
+  const handleContractToggle = (c: TrainingContract) => {
+    setSelectedCreationIds((prev) => {
+      const isSelected = prev.includes(Number(c.id));
+      const next = isSelected
+        ? prev.filter((id) => id !== Number(c.id))
+        : [...prev, Number(c.id)];
+
+      // If we just selected the first one, auto-fill default months based on its cost
+      if (!isSelected && next.length === 1) {
+        const cost = c.totalCost || 0;
+        const obl = calculateObligation(cost);
+        setForm((prevForm) => ({
+          ...prevForm,
+          obligationMonths: obl.requiresContract ? String(obl.months) : "",
+        }));
+      }
+      return next;
+    });
   };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    await trainingObligationApi.create({
-      ...form,
-      contractId: Number(form.contractId),
-      obligationMonths: parseInt(form.obligationMonths),
-    });
-    setShowAdd(false);
-    setSelectedContract(null);
-    setForm({
-      contractId: "",
-      employeeName: "",
-      startDate: "",
-      endDate: "",
-      obligationMonths: "",
-    });
-    load();
+    setLoading(true);
+    try {
+      await Promise.all(
+        selectedCreationIds.map((cid) => {
+          const contract = contracts.find((c) => c.id === cid);
+          return trainingObligationApi.create({
+            ...form,
+            contractId: cid,
+            employeeName: contract?.employeeName || "",
+            obligationMonths: parseInt(form.obligationMonths),
+          });
+        }),
+      );
+      setShowAdd(false);
+      setAddFormTrainingId(null);
+      setSelectedCreationIds([]);
+      setForm({
+        contractId: "",
+        employeeName: "",
+        startDate: "",
+        endDate: "",
+        obligationMonths: "",
+      });
+      load();
+    } catch (err) {
+      console.error("Failed to create obligations", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleStatusChange = async (id: number, status: string) => {
@@ -538,67 +564,137 @@ export default function ObligationTrackingPage() {
                 </h3>
               </div>
 
-              {/* Contract Selection List in Modal */}
+              {/* Step 1: Select Training */}
+              <div className="p-6 border-b border-gray-100 bg-gray-50/20">
+                <label className={labelClass}>Step 1: Select Training Event</label>
+                <select
+                  className={fieldClass}
+                  value={addFormTrainingId || ""}
+                  onChange={(e) => {
+                    setAddFormTrainingId(Number(e.target.value));
+                    setSelectedContract(null);
+                  }}
+                >
+                  <option value="">Select a training title...</option>
+                  {requests
+                    .filter((r) =>
+                      contracts.some((c) => c.requestId === r.id),
+                    )
+                    .map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {r.trainingTitle} ({r.department})
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              {/* Step 2: Select Trainee registered in those contracts */}
               <div className="overflow-x-auto border-b border-gray-100 max-h-52">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400 sticky top-0">
                     <tr>
+                      <th className="px-5 py-3">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          onChange={(e) => {
+                            const filtered = contracts.filter(
+                              (c) => c.requestId === addFormTrainingId,
+                            );
+                            if (e.target.checked) {
+                              setSelectedCreationIds(
+                                filtered.map((c) => Number(c.id)),
+                              );
+                              // Auto-fill months from first participant if nothing selected yet
+                              if (filtered.length > 0) {
+                                const obl = calculateObligation(
+                                  filtered[0].totalCost,
+                                );
+                                setForm((prev) => ({
+                                  ...prev,
+                                  obligationMonths: obl.requiresContract
+                                    ? String(obl.months)
+                                    : "",
+                                }));
+                              }
+                            } else {
+                              setSelectedCreationIds([]);
+                            }
+                          }}
+                          checked={
+                            addFormTrainingId !== null &&
+                            contracts.filter(
+                              (c) => c.requestId === addFormTrainingId,
+                            ).length > 0 &&
+                            selectedCreationIds.length ===
+                              contracts.filter(
+                                (c) => c.requestId === addFormTrainingId,
+                              ).length
+                          }
+                        />
+                      </th>
                       <th className="px-5 py-3">CTR-ID</th>
                       <th className="px-5 py-3">{t("fullName")}</th>
                       <th className="px-5 py-3">{t("department")}</th>
-                      <th className="px-5 py-3 text-right">{t("actions")}</th>
+                      <th className="px-5 py-3 text-right">Cost (ETB)</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y text-xs">
-                    {contracts.length > 0 ? (
-                      contracts.map((c) => {
-                        const isSelected = selectedContract?.id === c.id;
-                        return (
-                          <tr
-                            key={c.id}
-                            className="hover:bg-gray-50/50 transition-colors"
-                          >
-                            <td className="px-5 py-3 font-bold text-blue-600">
-                              CTR-{c.id.toString().slice(-6)}
-                            </td>
-                            <td className="px-5 py-3 font-bold text-gray-900">
-                              {c.employeeName &&
-                              c.employeeName !== "Keycloak User"
-                                ? c.employeeName
-                                : employees.find(
-                                    (e) =>
-                                      String(e.employeeId) ===
-                                      String(c.employeeId),
-                                  )?.fullName ||
-                                  c.employeeName ||
-                                  "Keycloak User"}
-                            </td>
-                            <td className="px-5 py-3 font-medium text-gray-600">
-                              {c.employeeDepartment || "—"}
-                            </td>
-                            <td className="px-5 py-3 text-right">
-                              <button
-                                type="button"
-                                onClick={() => handleContractSelect(c)}
-                                className={`rounded-lg px-3 py-1 text-xs font-bold transition-all shadow-sm ${
-                                  isSelected
-                                    ? "bg-blue-600 text-white shadow-blue-200"
-                                    : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
-                                }`}
-                              >
-                                {isSelected ? "Selected" : "Select"}
-                              </button>
-                            </td>
-                          </tr>
+                    {addFormTrainingId ? (
+                      (() => {
+                        const filteredContracts = contracts.filter(
+                          (c) => c.requestId === addFormTrainingId,
                         );
-                      })
+                        return filteredContracts.map((c) => {
+                          const isSelected = selectedCreationIds.includes(
+                            Number(c.id),
+                          );
+                          return (
+                            <tr
+                              key={c.id}
+                              className="hover:bg-gray-50/50 transition-colors"
+                            >
+                              <td className="px-5 py-3">
+                                <input
+                                  type="checkbox"
+                                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                  checked={isSelected}
+                                  onChange={() => handleContractToggle(c)}
+                                />
+                              </td>
+                              <td className="px-5 py-3 font-bold text-blue-600">
+                                CTR-{c.id.toString().slice(-6)}
+                              </td>
+                              <td className="px-5 py-3 font-bold text-gray-900">
+                                {c.employeeName &&
+                                c.employeeName !== "Keycloak User"
+                                  ? c.employeeName
+                                  : employees.find(
+                                      (e) =>
+                                        String(e.employeeId) ===
+                                        String(c.employeeId),
+                                    )?.fullName ||
+                                    c.employeeName ||
+                                    "Keycloak User"}
+                              </td>
+                              <td className="px-5 py-3 font-medium text-gray-600">
+                                {c.employeeDepartment || "—"}
+                              </td>
+                              <td className="px-5 py-3 text-right font-bold text-emerald-600">
+                                {c.totalCost.toLocaleString()} Birr
+                              </td>
+                            </tr>
+                          );
+                        });
+                      })()
                     ) : (
                       <tr>
                         <td
-                          colSpan={4}
-                          className="px-5 py-6 text-center text-gray-400"
+                          colSpan={5}
+                          className="px-5 py-8 text-center text-gray-400 italic font-medium"
                         >
-                          {t("noData")}
+                          Please select a training event first to see the
+                          trainee list.
                         </td>
                       </tr>
                     )}
@@ -606,59 +702,38 @@ export default function ObligationTrackingPage() {
                 </table>
               </div>
 
-              {/* Form Fields */}
+              {/* Form Fields for selected batch */}
               <form onSubmit={handleCreate} className="p-6 space-y-4">
-                {selectedContract &&
-                  (() => {
-                    const cost = (selectedContract as any).estimatedCost || 0;
-                    const obl = calculateObligation(cost);
-                    return (
-                      <div className="rounded-lg border border-blue-100 bg-blue-50/40 px-4 py-3 space-y-1">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-blue-500">
-                          Selected Contract
-                        </p>
-                        <p className="text-sm font-bold text-gray-900">
-                          CTR-{selectedContract.id.toString().slice(-6)} —{" "}
-                          {selectedContract.employeeName &&
-                          selectedContract.employeeName !== "Keycloak User"
-                            ? selectedContract.employeeName
-                            : employees.find(
-                                (e) =>
-                                  String(e.employeeId) ===
-                                  String(selectedContract.employeeId),
-                              )?.fullName ||
-                              selectedContract.employeeName ||
-                              "Keycloak User"}
-                        </p>
-                        {obl.requiresContract ? (
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            <span className="rounded-full bg-amber-100 px-3 py-0.5 text-[10px] font-bold text-amber-800">
-                              Cost: {cost.toLocaleString()} ETB
-                            </span>
-                            <span className="rounded-full bg-blue-100 px-3 py-0.5 text-[10px] font-bold text-blue-800">
-                              Auto-calculated: {obl.label} ({obl.months} months)
-                            </span>
+                {selectedCreationIds.length > 0 && (
+                  <div className="rounded-lg border border-blue-100 bg-blue-50/40 px-4 py-3 flex items-center justify-between">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-blue-500">
+                        Selected Participants
+                      </p>
+                      <p className="text-sm font-bold text-gray-900">
+                        {selectedCreationIds.length} Trainee(s) Selected
+                      </p>
+                    </div>
+                    {selectedCreationIds.length === 1 &&
+                      (() => {
+                        const cid = selectedCreationIds[0];
+                        const contract = contracts.find((c) => c.id === cid);
+                        const cost = contract?.totalCost || 0;
+                        const obl = calculateObligation(cost);
+                        return (
+                          <div className="text-right">
+                            <p className="text-[10px] font-bold text-amber-600 uppercase">
+                              Suggested Obligation
+                            </p>
+                            <p className="text-xs font-black text-blue-700">
+                              {obl.label}
+                            </p>
                           </div>
-                        ) : (
-                          <span className="text-[10px] text-emerald-600 font-bold">
-                            Cost below threshold — no obligation required
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })()}
-                <div>
-                  <label className={labelClass}>{t("fullName")}</label>
-                  <input
-                    value={form.employeeName}
-                    onChange={(e) =>
-                      setForm({ ...form, employeeName: e.target.value })
-                    }
-                    required
-                    className={fieldClass}
-                    placeholder="Trainee full name"
-                  />
-                </div>
+                        );
+                      })()}
+                  </div>
+                )}
+                {/* Remove employeeName manual input since it's now bulk selected */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className={labelClass}>{t("startDate")}</label>
@@ -705,16 +780,17 @@ export default function ObligationTrackingPage() {
                 <div className="flex gap-3">
                   <button
                     type="submit"
-                    disabled={!selectedContract}
+                    disabled={selectedCreationIds.length === 0 || loading}
                     className="flex-1 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 transition-all disabled:opacity-50"
                   >
-                    Create Record
+                    {loading ? "Creating..." : "Create Records"}
                   </button>
                   <button
                     type="button"
                     onClick={() => {
                       setShowAdd(false);
-                      setSelectedContract(null);
+                      setAddFormTrainingId(null);
+                      setSelectedCreationIds([]);
                       setForm({
                         contractId: "",
                         employeeName: "",

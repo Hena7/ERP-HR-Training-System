@@ -38,8 +38,6 @@ export default function TrainingContractFormPage() {
   const [error, setError] = useState("");
 
   const [form, setForm] = useState({
-    city: "",
-    houseNo: "",
     trainingCountry: "",
     trainingCity: "",
     trainingType: "",
@@ -55,18 +53,16 @@ export default function TrainingContractFormPage() {
       phone: string;
       email: string;
       department: string;
+      city: string;
+      houseNo: string;
     }[]
   >([]);
 
   useEffect(() => {
-    Promise.all([
-      trainingRequestApi.getAll(),
-      employeeApi.getAll(0, 100).catch(() => ({ data: { content: [] } })),
-    ]).then(([{ data }, { data: e }]) => {
+    trainingRequestApi.getAll().then(({ data }) => {
       setEligibleRequests(
         data.filter((r: TrainingRequest) => r.status === "CONTRACT_REQUIRED"),
       );
-      setEmployees(e.content || []);
     });
   }, [success]);
 
@@ -85,6 +81,8 @@ export default function TrainingContractFormPage() {
           phone: "",
           email: "",
           department: "",
+          city: "",
+          houseNo: "",
         }),
       );
       // Auto-fill cost and duration from requested estimate
@@ -99,16 +97,9 @@ export default function TrainingContractFormPage() {
     setError("");
   };
 
-  const updateTrainee = (index: number, employee: any) => {
+  const updateTrainee = (index: number, field: string, value: string) => {
     const newTrainees = [...trainees];
-    newTrainees[index] = {
-      employeeId: String(employee.employeeId),
-      fullName:
-        employee.fullName || `${employee.firstName} ${employee.lastName}`,
-      phone: employee.phone || "",
-      email: employee.email || "",
-      department: employee.department || selectedRequest?.department || "",
-    };
+    newTrainees[index] = { ...newTrainees[index], [field]: value };
     setTrainees(newTrainees);
   };
 
@@ -139,6 +130,8 @@ export default function TrainingContractFormPage() {
         trainees.map((t) =>
           trainingContractApi.create({
             ...form,
+            city: t.city,
+            houseNo: t.houseNo,
             requestId: selectedRequest.id,
             employeeId: t.employeeId,
             employeeName: t.fullName,
@@ -154,8 +147,6 @@ export default function TrainingContractFormPage() {
       setSelectedRequest(null);
       setTrainees([]);
       setForm({
-        city: "",
-        houseNo: "",
         trainingCountry: "",
         trainingCity: "",
         trainingType: "",
@@ -334,77 +325,94 @@ export default function TrainingContractFormPage() {
                         </span>
                       )}
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                       <div>
-                        <label className={labelClass}>Select Employee</label>
-                        <select
+                        <label className={labelClass}>{t("employeeId")}</label>
+                        <input
                           className={fieldClass}
                           value={trainee.employeeId}
-                          onChange={(e) => {
-                            const emp = employees.find(
-                              (emp) =>
-                                String(emp.employeeId) === e.target.value,
-                            );
-                            if (emp) updateTrainee(idx, emp);
-                          }}
+                          onChange={(e) =>
+                            updateTrainee(idx, "employeeId", e.target.value)
+                          }
                           required
-                        >
-                          <option value="">Choose an employee...</option>
-                          {employees.map((emp) => (
-                            <option key={emp.id} value={emp.employeeId}>
-                              {emp.fullName ||
-                                `${emp.firstName} ${emp.lastName}`}{" "}
-                              ({emp.employeeId})
-                            </option>
-                          ))}
-                        </select>
+                          placeholder="EMP-001"
+                        />
                       </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <p className={labelClass}>Email</p>
-                          <p className="text-xs font-bold text-gray-600 truncate">
-                            {trainee.email || "—"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className={labelClass}>Phone</p>
-                          <p className="text-xs font-bold text-gray-600">
-                            {trainee.phone || "—"}
-                          </p>
-                        </div>
+                      <div>
+                        <label className={labelClass}>{t("fullName")}</label>
+                        <input
+                          className={fieldClass}
+                          value={trainee.fullName}
+                          onChange={(e) =>
+                            updateTrainee(idx, "fullName", e.target.value)
+                          }
+                          required
+                          placeholder="John Doe"
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>{t("department")}</label>
+                        <input
+                          className={fieldClass}
+                          value={trainee.department}
+                          onChange={(e) =>
+                            updateTrainee(idx, "department", e.target.value)
+                          }
+                          required
+                          placeholder="IT / HR / Finance..."
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>{t("email")}</label>
+                        <input
+                          className={fieldClass}
+                          type="email"
+                          value={trainee.email}
+                          onChange={(e) =>
+                            updateTrainee(idx, "email", e.target.value)
+                          }
+                          required
+                          placeholder="john@insa.gov.et"
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>{t("phone")}</label>
+                        <input
+                          className={fieldClass}
+                          value={trainee.phone}
+                          onChange={(e) =>
+                            updateTrainee(idx, "phone", e.target.value)
+                          }
+                          required
+                          placeholder="0911..."
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>{t("city")}</label>
+                        <input
+                          className={fieldClass}
+                          value={trainee.city}
+                          onChange={(e) =>
+                            updateTrainee(idx, "city", e.target.value)
+                          }
+                          required
+                          placeholder="Addis Ababa"
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>{t("houseNo")}</label>
+                        <input
+                          className={fieldClass}
+                          value={trainee.houseNo}
+                          onChange={(e) =>
+                            updateTrainee(idx, "houseNo", e.target.value)
+                          }
+                          placeholder="House No."
+                        />
                       </div>
                     </div>
                   </div>
                 ))}
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-              <h2 className="text-xs font-bold uppercase tracking-widest text-gray-700 mb-5">
-                Permanent Address
-              </h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={labelClass}>{t("city")}</label>
-                  <input
-                    name="city"
-                    value={form.city}
-                    onChange={handleChange}
-                    required
-                    className={fieldClass}
-                    placeholder="Addis Ababa"
-                  />
-                </div>
-                <div>
-                  <label className={labelClass}>{t("houseNo")}</label>
-                  <input
-                    name="houseNo"
-                    value={form.houseNo}
-                    onChange={handleChange}
-                    className={fieldClass}
-                    placeholder="House No."
-                  />
-                </div>
               </div>
             </div>
 
