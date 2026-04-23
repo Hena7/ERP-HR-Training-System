@@ -48,16 +48,18 @@ export default function CDCScoringPage() {
         educationRequestApi.getByStatus("CDC_APPROVED", 0, 100),
       ]);
 
-      setRequests(requestRes.data.content || []);
-      setReportedRequests(reportedRes.data.content || []);
-      setApprovedRequests(approvedRes.data.content || []);
-      setScorings(scoringRes.data.content || []);
-
       const verMap: Record<number, HRVerification> = {};
       (verificationRes.data.content || []).forEach((v: HRVerification) => {
         verMap[v.requestId] = v;
       });
       setHrVerifications(verMap);
+
+      const allRequests = requestRes.data.content || [];
+      setRequests(allRequests.filter((r: EducationRequest) => !!verMap[r.id]));
+      
+      setReportedRequests(reportedRes.data.content || []);
+      setApprovedRequests(approvedRes.data.content || []);
+      setScorings(scoringRes.data.content || []);
     } catch {
       // Offline resilient
     }

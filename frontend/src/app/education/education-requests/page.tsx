@@ -692,7 +692,9 @@ export default function EducationRequestsPage() {
           <div className="border-b border-gray-100 px-6 py-5 bg-gray-50/50">
             <div className="flex flex-col gap-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-gray-800">Process History</h2>
+                <h2 className="text-lg font-bold text-gray-800">
+                  Process History
+                </h2>
                 <div className="relative group no-print">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                   <input
@@ -707,7 +709,9 @@ export default function EducationRequestsPage() {
 
               {/* Status Filter Dropdown */}
               <div className="no-print flex items-center gap-3">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Filter by Status:</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                  Filter by Status:
+                </span>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
@@ -715,13 +719,13 @@ export default function EducationRequestsPage() {
                 >
                   {[
                     { id: "ALL", label: "All Statuses" },
-                    { id: "DRAFT", label: "Draft" },
-                    { id: "SUBMITTED", label: "Sent to CDC" },
+                    { id: "SUBMITTED_TO_CENTER", label: "Sent to CDC" },
+                    { id: "FORWARDED_TO_HR", label: "Forwarded to HR" },
                     { id: "CDC_APPROVED", label: "CDC Approved" },
                     { id: "HR_VERIFIED", label: "HR Verified" },
                     { id: "SCORED", label: "CDC Scored" },
                     { id: "COMMITTEE_REVIEW", label: "Committee Review" },
-                    { id: "COMMITTEE_REPORTED", label: "Ranked" },
+                    { id: "COMMITTEE_REPORTED", label: "Committee Ranked" },
                     { id: "APPROVED", label: "Final Approved" },
                     { id: "CONTRACT_CREATED", label: "Commitment Created" },
                     { id: "REJECTED", label: "Rejected" },
