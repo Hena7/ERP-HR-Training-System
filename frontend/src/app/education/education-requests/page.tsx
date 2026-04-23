@@ -122,7 +122,15 @@ export default function EducationRequestsPage() {
       const res = await educationOpportunityApi.getAll(0, 100);
       const allOpps = res.data.content || [];
       // Only show OPEN opportunities for request initiation
-      setOpportunities(allOpps.filter((o: any) => o.status === "OPEN"));
+      setOpportunities(
+        allOpps.filter((o: any) => {
+          const isStatusOpen = o.status === "OPEN";
+          const deadlinePassed =
+            o.deadline &&
+            new Date(o.deadline) < new Date(new Date().setHours(0, 0, 0, 0));
+          return isStatusOpen && !deadlinePassed;
+        }),
+      );
     } catch (err) {
       console.error(err);
     }
@@ -836,10 +844,9 @@ export default function EducationRequestsPage() {
                 >
                   {t("educationLevel")}
                 </label>
-                <select
+                <input
                   id="educationLevel"
-                  name="educationLevel"
-                  autoComplete="education-level"
+                  list="level-options"
                   value={batchEducation.educationLevel}
                   onChange={(e) =>
                     setBatchEducation({
@@ -848,12 +855,15 @@ export default function EducationRequestsPage() {
                     })
                   }
                   className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-bold text-gray-900 transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
-                >
-                  <option value="Diploma">Diploma</option>
-                  <option value="BSc">BSc</option>
-                  <option value="MSc">MSc</option>
-                  <option value="PhD">PhD</option>
-                </select>
+                  placeholder="e.g. BSc, MSc"
+                />
+                <datalist id="level-options">
+                  <option value="BSc" />
+                  <option value="MSc" />
+                  <option value="PhD" />
+                  <option value="Diploma" />
+                  <option value="Certificate" />
+                </datalist>
               </div>
 
               <div className="col-span-2 space-y-1.5">

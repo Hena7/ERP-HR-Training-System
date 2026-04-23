@@ -235,8 +235,18 @@ export default function EducationOpportunitiesPage() {
       return;
     }
 
+    const deadlineDate = new Date(formData.deadline);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let finalStatus = formData.status;
+    if (deadlineDate < today) {
+      finalStatus = "EXPIRED";
+    }
+
     const payload = {
       ...formData,
+      status: finalStatus,
       department: cleanedTargets[0],
       targetDepartments: cleanedTargets,
     };
@@ -632,7 +642,13 @@ export default function EducationOpportunitiesPage() {
                         {opp.deadline || "-"}
                       </td>
                       <td className="px-6 py-5">
-                        <StatusBadge status={opp.status} />
+                        <StatusBadge
+                          status={
+                            opp.deadline && new Date(opp.deadline) < new Date(new Date().setHours(0, 0, 0, 0))
+                              ? "EXPIRED"
+                              : opp.status
+                          }
+                        />
                       </td>
 
                       {isCenterUser && (
