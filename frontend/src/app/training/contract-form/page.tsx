@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   AlertTriangle,
   FileText,
+  RefreshCw,
 } from "lucide-react";
 import { calculateObligation } from "@/app/training/services/obligationCalculator";
 
@@ -33,7 +34,7 @@ export default function TrainingContractFormPage() {
   const [employees, setEmployees] = useState<any[]>([]);
   const [selectedRequest, setSelectedRequest] =
     useState<TrainingRequest | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
@@ -59,11 +60,13 @@ export default function TrainingContractFormPage() {
   >([]);
 
   useEffect(() => {
+    setLoading(true);
     trainingRequestApi.getAll().then(({ data }) => {
       setEligibleRequests(
         data.filter((r: TrainingRequest) => r.status === "CONTRACT_REQUIRED"),
       );
-    });
+      setLoading(false);
+    }).catch(() => setLoading(false));
   }, [success]);
 
   const handleSelectRequest = (r: TrainingRequest) => {
@@ -197,7 +200,19 @@ export default function TrainingContractFormPage() {
                 </tr>
               </thead>
               <tbody className="divide-y text-xs">
-                {eligibleRequests.length > 0 ? (
+                {loading ? (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      className="px-4 py-12 text-center text-gray-400"
+                    >
+                      <RefreshCw className="h-10 w-10 mx-auto mb-3 opacity-20 animate-spin" />
+                      <p className="font-bold uppercase tracking-widest text-[10px]">
+                        Loading eligible requests...
+                      </p>
+                    </td>
+                  </tr>
+                ) : eligibleRequests.length > 0 ? (
                   eligibleRequests.map((r) => {
                     const isSelected = selectedRequest?.id === r.id;
                     return (
