@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -81,6 +81,29 @@ export default function EducationRequestsPage() {
     {},
   );
   const [searchTerm, setSearchTerm] = useState("");
+  const [historySearch, setHistorySearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+
+  const filteredRequests = useMemo(() => {
+    let result = [...requests].sort((a, b) => (b.id || 0) - (a.id || 0));
+
+    if (statusFilter !== "ALL") {
+      result = result.filter((r) => r.status === statusFilter);
+    }
+
+    if (!historySearch.trim()) return result;
+
+    const term = historySearch.toLowerCase();
+    return result.filter(
+      (r) =>
+        r.employeeName?.toLowerCase().includes(term) ||
+        r.employeeId?.toString().includes(term) ||
+        r.candidateId?.toLowerCase().includes(term) ||
+        r.employeeDepartment?.toLowerCase().includes(term) ||
+        r.fieldOfStudy?.toLowerCase().includes(term) ||
+        r.institution?.toLowerCase().includes(term),
+    );
+  }, [requests, historySearch, statusFilter]);
 
   const isDepartmentHead = user?.role === "DEPARTMENT_HEAD";
   const isCenter = user?.role === "CYBER_DEVELOPMENT_CENTER";
@@ -666,16 +689,48 @@ export default function EducationRequestsPage() {
         {/* History Table */}
 
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-          <div className="border-b border-gray-100 px-6 py-5 flex items-center justify-between bg-gray-50/50">
-            <h2 className="text-lg font-bold text-gray-800">Process History</h2>
-            <div className="flex items-center gap-2">
-              <div className="flex rounded-lg border border-gray-200 bg-white p-1">
-                <button className="rounded-md bg-gray-100 px-3 py-1 text-xs font-bold text-gray-900">
-                  All
-                </button>
-                <button className="rounded-md px-3 py-1 text-xs font-bold text-gray-500 hover:text-gray-700 hover:bg-gray-50">
-                  Draft
-                </button>
+          <div className="border-b border-gray-100 px-6 py-5 bg-gray-50/50">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-bold text-gray-800">Process History</h2>
+                <div className="relative group no-print">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                  <input
+                    type="text"
+                    placeholder="Search history..."
+                    value={historySearch}
+                    onChange={(e) => setHistorySearch(e.target.value)}
+                    className="w-64 rounded-xl border border-gray-100 bg-white pl-9 py-2 text-xs font-bold transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none shadow-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Status Filter Dropdown */}
+              <div className="no-print flex items-center gap-3">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Filter by Status:</span>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="rounded-xl border border-gray-100 bg-white px-4 py-2 text-xs font-bold text-gray-700 transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none shadow-sm cursor-pointer"
+                >
+                  {[
+                    { id: "ALL", label: "All Statuses" },
+                    { id: "DRAFT", label: "Draft" },
+                    { id: "SUBMITTED", label: "Sent to CDC" },
+                    { id: "CDC_APPROVED", label: "CDC Approved" },
+                    { id: "HR_VERIFIED", label: "HR Verified" },
+                    { id: "SCORED", label: "CDC Scored" },
+                    { id: "COMMITTEE_REVIEW", label: "Committee Review" },
+                    { id: "COMMITTEE_REPORTED", label: "Ranked" },
+                    { id: "APPROVED", label: "Final Approved" },
+                    { id: "CONTRACT_CREATED", label: "Commitment Created" },
+                    { id: "REJECTED", label: "Rejected" },
+                  ].map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
@@ -693,7 +748,7 @@ export default function EducationRequestsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 text-[13px]">
-                {requests.map((req) => (
+                {filteredRequests.map((req) => (
                   <tr
                     key={req.id}
                     className="hover:bg-gray-50/80 transition-all"
