@@ -33,6 +33,7 @@ export default function CDCScoringPage() {
   const [form, setForm] = useState<ScoringFormState>(initialForm);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"SCORING" | "APPROVAL">("SCORING");
+  const [selectedViewRequest, setSelectedViewRequest] = useState<EducationRequest | null>(null);
 
   useEffect(() => {
     void loadData();
@@ -454,11 +455,20 @@ export default function CDCScoringPage() {
                             <td className="px-6 py-4 text-sm font-black text-indigo-700">
                                {r.totalScore?.toFixed(2) || hrVer?.totalCalculatedScore?.toFixed(2) || "-"}%
                             </td>
-                            <td className="px-6 py-4 text-right">
-                               <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-100 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700 shadow-sm border border-emerald-200">
-                                  CDC Approved
-                               </span>
-                            </td>
+                             <td className="px-6 py-4 text-right">
+                               <div className="flex justify-end items-center gap-3">
+                                 <button
+                                   onClick={() => setSelectedViewRequest(r)}
+                                   className="rounded-lg bg-gray-50 p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all shadow-sm border border-gray-100"
+                                   title="View Details"
+                                 >
+                                   <Info className="h-4 w-4" />
+                                 </button>
+                                 <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-100 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700 shadow-sm border border-emerald-200">
+                                    CDC Approved
+                                 </span>
+                               </div>
+                             </td>
                           </tr>
                         );
                       })
@@ -523,6 +533,108 @@ export default function CDCScoringPage() {
           </div>
         )}
       </div>
+      
+      {/* Detail View Modal */}
+      {selectedViewRequest && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-200 border border-gray-100">
+            <div className="flex items-center justify-between mb-8 border-b border-gray-50 pb-6">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg">
+                  <ClipboardList className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">Candidate Details</h3>
+                  <p className="text-xs font-medium text-gray-400 uppercase tracking-widest">REQ-{selectedViewRequest.id.toString().slice(-6)}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setSelectedViewRequest(null)}
+                className="rounded-xl p-2 text-gray-400 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+              <div className="space-y-6">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Full Name</p>
+                  <p className="text-lg font-bold text-gray-900">{selectedViewRequest.employeeName}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Department</p>
+                  <p className="text-sm font-bold text-gray-700 italic">{selectedViewRequest.employeeDepartment || "—"}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Education Goal</p>
+                  <p className="text-sm font-bold text-gray-900">
+                    {selectedViewRequest.fieldOfStudy || (selectedViewRequest as any).educationType} ({(selectedViewRequest as any).targetEducationLevel || selectedViewRequest.educationLevel})
+                  </p>
+                  <p className="text-xs font-medium text-gray-500 italic">{selectedViewRequest.institution}</p>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Final Decision</p>
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-100 px-3 py-1.5 text-xs font-black uppercase tracking-wider text-emerald-700 shadow-sm border border-emerald-200">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      CDC Approved
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Total Selection Score</p>
+                  <p className="text-3xl font-black text-indigo-600">
+                    {selectedViewRequest.totalScore?.toFixed(2) || hrVerifications[selectedViewRequest.id]?.totalCalculatedScore?.toFixed(2) || "-"}
+                    <span className="text-sm ml-1 text-gray-400">%</span>
+                  </p>
+                </div>
+                <div className="space-y-1">
+                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Study Location</p>
+                   <span className="inline-flex items-center rounded-md bg-gray-50 px-2.5 py-1 text-xs font-bold text-gray-700 border border-gray-100">
+                      {selectedViewRequest.location || "Local"}
+                   </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-gray-50 p-6 border border-gray-100">
+               <h4 className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-4">HR Automated Verification Data</h4>
+               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                     <p className="text-[9px] font-bold text-gray-400 uppercase">Experience</p>
+                     <p className="text-sm font-bold text-gray-900">{hrVerifications[selectedViewRequest.id]?.experienceSubScore || "0.00"}</p>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                     <p className="text-[9px] font-bold text-gray-400 uppercase">Performance</p>
+                     <p className="text-sm font-bold text-gray-900">{hrVerifications[selectedViewRequest.id]?.performanceSubScore || "0.00"}</p>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                     <p className="text-[9px] font-bold text-gray-400 uppercase">Discipline</p>
+                     <p className="text-sm font-bold text-gray-900">{hrVerifications[selectedViewRequest.id]?.disciplineSubScore || "0.00"}</p>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                     <p className="text-[9px] font-bold text-gray-400 uppercase">Bonus</p>
+                     <p className="text-sm font-bold text-emerald-600">+{hrVerifications[selectedViewRequest.id]?.affirmativeBonus || "0.00"}</p>
+                  </div>
+               </div>
+            </div>
+
+            <div className="mt-10">
+              <button 
+                onClick={() => setSelectedViewRequest(null)}
+                className="w-full rounded-2xl bg-gray-900 py-4 text-sm font-bold text-white shadow-xl hover:bg-black transition-all active:scale-[0.98]"
+              >
+                Close Detail View
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }
+
