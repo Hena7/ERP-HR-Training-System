@@ -186,6 +186,12 @@ const trainingNavItems: NavItem[] = [
     icon: <Clock className="h-5 w-5" />,
     roles: ["HR_OFFICER", "PROCUREMENT", "ADMIN"],
   },
+  {
+    href: "/training/reports",
+    labelKey: "navTrainingReports",
+    icon: <BarChart3 className="h-5 w-5" />,
+    roles: ["HR_OFFICER", "PROCUREMENT", "ADMIN"],
+  },
 ];
 
 export default function Sidebar() {

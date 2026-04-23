@@ -288,6 +288,8 @@ export const translations = {
     navTrainingContracts: "Training Contracts",
     navTrainingGuarantors: "Training Guarantors",
     navTrainingObligations: "Training Obligations",
+    navTrainingReports: "Reports & Analytics",
+    trainingReports: "Training Reports & Analytics",
     requester: "Requester",
   },
 
@@ -576,6 +578,8 @@ export const translations = {
     navTrainingContracts: "የስልጠና ውሎች",
     navTrainingGuarantors: "የስልጠና ዋሶች",
     navTrainingObligations: "የስልጠና ግዴታዎች",
+    navTrainingReports: "ሪፖርት እና ትንታኔ",
+    trainingReports: "የስልጠና ሪፖርት እና ትንታኔ",
     educationModule: "የትምህርት ሞዱል",
     requester: "የጠየቀ",
   },
