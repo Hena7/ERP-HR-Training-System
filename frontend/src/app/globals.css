@@ -33,3 +33,28 @@
     scrollbar-gutter: stable;
   }
 }
+
+@media print {
+  aside, 
+  header, 
+  .no-print,
+  button {
+    display: none !important;
+  }
+
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl {
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
+  }
+
+  body {
+    background: white !important;
+  }
+}

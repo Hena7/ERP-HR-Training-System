@@ -151,7 +151,7 @@ export default function EducationReportsPage() {
           </div>
           <button 
             onClick={() => window.print()}
-            className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 transition-all active:scale-95"
+            className="no-print flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 transition-all active:scale-95"
           >
             <Download className="h-4 w-4" /> Export Report
           </button>
@@ -243,7 +243,7 @@ export default function EducationReportsPage() {
               <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Historical Requests</h3>
               <p className="text-[10px] font-medium text-gray-400">Academic journey audit log</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 no-print">
               <Filter className="h-4 w-4 text-gray-400" />
               <select 
                 value={filterLevel}
@@ -263,7 +263,7 @@ export default function EducationReportsPage() {
                   <th className="px-6 py-4">Education Level</th>
                   <th className="px-6 py-4">Score</th>
                   <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4 text-right">Details</th>
+                  <th className="px-6 py-4 text-right no-print">Details</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -278,7 +278,7 @@ export default function EducationReportsPage() {
                         {req.status?.replace(/_/g, " ")}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-right no-print">
                       <button 
                         onClick={() => setSelectedItem(req)}
                         className="rounded-lg bg-white border border-gray-100 p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-100 transition-all shadow-sm"
