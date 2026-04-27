@@ -216,22 +216,24 @@ export default function Sidebar() {
       <Link
         key={item.href}
         href={item.href}
-        className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-bold transition-all ${
+        className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-300 ${
           isActive
-            ? "bg-blue-600 text-white shadow-md shadow-blue-900/50"
-            : "text-blue-100 hover:bg-blue-800 hover:text-white"
+            ? "bg-brand-600 text-white shadow-md shadow-brand-900/20 dark:shadow-brand-900/50"
+            : "text-slate-300 hover:bg-slate-800/50 hover:text-white dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
         }`}
       >
-        {item.icon}
-        {t(item.labelKey)}
+        <span className={`transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"}`}>
+          {item.icon}
+        </span>
+        <span className="tracking-wide">{t(item.labelKey)}</span>
       </Link>
     );
   };
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-blue-900 text-white shadow-xl flex flex-col">
+    <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-slate-950 dark:bg-slate-900 text-slate-200 shadow-xl flex flex-col border-r border-slate-800">
       {/* Logo */}
-      <div className="flex h-20 flex-shrink-0 items-center gap-3 border-b border-blue-800/50 px-4">
+      <div className="flex h-16 flex-shrink-0 items-center gap-3 border-b border-slate-800 bg-slate-950/50 dark:bg-slate-900/50 backdrop-blur-sm px-4 relative z-10">
         <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-white p-1.5 shadow-sm">
           <img
             src="/INSA_LOGO.png"
@@ -239,80 +241,76 @@ export default function Sidebar() {
             className="h-full w-full object-contain"
           />
         </div>
-        <div className="flex flex-col">
-          <span className="text-sm font-bold leading-tight tracking-tight text-white">
+        <div className="flex flex-col justify-center">
+          <span className="text-sm font-bold leading-tight tracking-wide text-white">
             {t("appName")}
           </span>
-          <span className="text-[10px] text-blue-400 uppercase tracking-widest font-bold">
+          <span className="text-[10px] text-brand-400 uppercase tracking-[0.2em] font-semibold mt-0.5">
             Security Admin
           </span>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="mt-4 flex-1 overflow-y-auto custom-scrollbar space-y-1 px-3 pb-4">
+      <nav className="mt-4 flex-1 overflow-y-auto custom-scrollbar space-y-1.5 px-3 pb-4">
         {/* System/General */}
         {filteredSystem.map(navLink)}
 
         {/* ─── Education Module ─── */}
         {filteredEdu.length > 0 && (
           <>
-            <div className="mt-3">
+            <div className="mt-4 mb-1">
               <button
                 onClick={() => setEduOpen((o) => !o)}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-bold uppercase tracking-widest text-blue-400 hover:bg-blue-800 transition-colors"
+                className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-colors"
               >
                 <span className="flex items-center gap-2">
                   <GraduationCap className="h-4 w-4" />
                   {t("educationModule")}
                 </span>
-                {eduOpen ? (
+                <span className={`transition-transform duration-300 ${eduOpen ? "rotate-180" : ""}`}>
                   <ChevronDown className="h-3.5 w-3.5" />
-                ) : (
-                  <ChevronRight className="h-3.5 w-3.5" />
-                )}
+                </span>
               </button>
             </div>
-            {eduOpen && (
-              <div className="ml-2 border-l-2 border-blue-700 pl-3 space-y-1">
+            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${eduOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
+              <div className="ml-3 mt-1 border-l border-slate-800 pl-3 space-y-1">
                 {filteredEdu.map(navLink)}
               </div>
-            )}
+            </div>
           </>
         )}
 
         {/* ─── Training Module ─── */}
         {filteredTraining.length > 0 && (
           <>
-            <div className="mt-3">
+            <div className="mt-4 mb-1">
               <button
                 onClick={() => setTrainingOpen((o) => !o)}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-bold uppercase tracking-widest text-blue-400 hover:bg-blue-800 transition-colors"
+                className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-colors"
               >
                 <span className="flex items-center gap-2">
                   <Package className="h-4 w-4" />
                   {t("trainingModule")}
                 </span>
-                {trainingOpen ? (
+                <span className={`transition-transform duration-300 ${trainingOpen ? "rotate-180" : ""}`}>
                   <ChevronDown className="h-3.5 w-3.5" />
-                ) : (
-                  <ChevronRight className="h-3.5 w-3.5" />
-                )}
+                </span>
               </button>
             </div>
-            {trainingOpen && (
-              <div className="ml-2 border-l-2 border-blue-700 pl-3 space-y-1">
+            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${trainingOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
+              <div className="ml-3 mt-1 border-l border-slate-800 pl-3 space-y-1">
                 {filteredTraining.map(navLink)}
               </div>
-            )}
+            </div>
           </>
         )}
 
         {/* ─── Admin/System Management ─── */}
         {filteredAdmin.length > 0 && (
           <>
-            <div className="mt-4 mb-1 px-3">
-              <p className="text-[9px] font-black uppercase tracking-widest text-blue-400">
+            <div className="mt-6 mb-2 px-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-500">
                 System Admin
               </p>
             </div>

@@ -4,32 +4,70 @@
 
 @layer base {
   :root {
-    --brand-blue-50: 239 246 255;
-    --brand-blue-100: 219 234 254;
-    --brand-blue-600: 37 99 235;
-    --brand-blue-700: 29 78 216;
-    --brand-blue-900: 30 58 138;
+    /* Light Mode - Base */
+    --background: #f8fafc; /* slate-50 */
+    --foreground: #0f172a; /* slate-900 */
+    --border: #e2e8f0; /* slate-200 */
+    --sidebar: #ffffff;
+    --sidebar-foreground: #334155; /* slate-700 */
+    
+    /* Brand Colors (Deep Corporate Blue) */
+    --brand-50: #eff6ff;
+    --brand-100: #dbeafe;
+    --brand-200: #bfdbfe;
+    --brand-300: #93c5fd;
+    --brand-400: #60a5fa;
+    --brand-500: #3b82f6;
+    --brand-600: #2563eb;
+    --brand-700: #1d4ed8;
+    --brand-800: #1e40af;
+    --brand-900: #1e3a8a;
+    --brand-950: #172554;
+  }
+
+  .dark {
+    /* Dark Mode - Base */
+    --background: #0b1120; /* Very dark slate, modern */
+    --foreground: #f8fafc;
+    --border: #1e293b;
+    --sidebar: #0f172a;
+    --sidebar-foreground: #cbd5e1;
+
+    /* Tweaking brand for dark mode contrast */
+    --brand-500: #60a5fa;
+    --brand-600: #3b82f6;
+  }
+
+  body {
+    @apply bg-[var(--background)] text-[var(--foreground)] transition-colors duration-300 antialiased;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 }
 
 @layer utilities {
+  .glass-panel {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-glass dark:bg-slate-900/60 dark:border-slate-800/50 dark:shadow-glass-dark;
+  }
+
   .custom-scrollbar::-webkit-scrollbar {
-    width: 5px;
+    width: 6px;
+    height: 6px;
   }
   .custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
+    @apply bg-brand-200 rounded-full dark:bg-slate-700;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.2);
+    @apply bg-brand-300 dark:bg-slate-600;
   }
 
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
-    scrollbar-gutter: stable;
+    /* Firefox support */
   }
 }

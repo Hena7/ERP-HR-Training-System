@@ -9,7 +9,7 @@ export default function LanguageToggle() {
   return (
     <button
       onClick={toggleLocale}
-      className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
+      className="flex h-9 items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--sidebar)] px-3 text-sm font-medium text-[var(--sidebar-foreground)] shadow-sm hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-slate-800 dark:hover:text-brand-400 transition-all duration-200"
       title={t("language")}
     >
       <Globe className="h-4 w-4" />

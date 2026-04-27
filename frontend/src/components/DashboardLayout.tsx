@@ -25,10 +25,10 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] transition-colors duration-300">
       <Sidebar />
       <Header />
-      <main className="ml-64 mt-16 p-6">{children}</main>
+      <main className="ml-64 mt-16 p-6 animate-fade-in">{children}</main>
     </div>
   );
 }
