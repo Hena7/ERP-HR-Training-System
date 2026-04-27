@@ -99,7 +99,7 @@ export const userApi = {
 
 export const employeeApi = {
   getAll: (page = 0, size = 10) => mockPageRes(LocalStorageDB.getAll(LS_KEYS.EMPLOYEES)),
-  getByDepartment: (department: string) => mockRes(LocalStorageDB.getAll(LS_KEYS.EMPLOYEES).filter((e: any) => e.department === department)),
+  getByDepartment: (department: string, page = 0, size = 10) => mockRes(LocalStorageDB.getAll(LS_KEYS.EMPLOYEES).filter((e: any) => e.department === department)),
   getById: (id: number) => mockRes(LocalStorageDB.getById(LS_KEYS.EMPLOYEES, id)),
   create: (data: any) => mockRes(LocalStorageDB.create(LS_KEYS.EMPLOYEES, data)),
   update: (id: number, data: any) => mockRes(LocalStorageDB.update(LS_KEYS.EMPLOYEES, id, data)),
@@ -123,9 +123,9 @@ export const educationRequestApi = {
   },
   getById: (id: number) => mockRes(LocalStorageDB.getById(LS_KEYS.REQUESTS, id)),
   getAll: (page = 0, size = 10) => mockPageRes(LocalStorageDB.getAll(LS_KEYS.REQUESTS)),
-  getMyRequests: (employeeId: string) => mockPageRes(LocalStorageDB.getAll(LS_KEYS.REQUESTS).filter((r: any) => r.candidateId === employeeId)),
-  getByEmployee: (employeeId: number) => mockPageRes(LocalStorageDB.getAll(LS_KEYS.REQUESTS).filter((r: any) => r.employeeId === employeeId)),
-  getByStatus: (status: string | string[]) => {
+  getMyRequests: (employeeId: string, page = 0, size = 10) => mockPageRes(LocalStorageDB.getAll(LS_KEYS.REQUESTS).filter((r: any) => r.candidateId === employeeId)),
+  getByEmployee: (employeeId: number, page = 0, size = 10) => mockPageRes(LocalStorageDB.getAll(LS_KEYS.REQUESTS).filter((r: any) => r.employeeId === employeeId)),
+  getByStatus: (status: string | string[], page = 0, size = 10) => {
     const statuses = Array.isArray(status) ? status : status.split(',');
     return mockPageRes(LocalStorageDB.getAll(LS_KEYS.REQUESTS).filter((r: any) => statuses.includes(r.status)));
   },
@@ -222,7 +222,7 @@ export const contractApi = {
   },
   getById: (id: number) => mockRes(LocalStorageDB.getById(LS_KEYS.CONTRACTS, id)),
   getAll: (page = 0, size = 10) => mockPageRes(LocalStorageDB.getAll(LS_KEYS.CONTRACTS)),
-  getByEmployee: (employeeId: number) => mockPageRes(LocalStorageDB.getAll(LS_KEYS.CONTRACTS).filter((c: any) => c.employeeId === employeeId)),
+  getByEmployee: (employeeId: number, page = 0, size = 10) => mockPageRes(LocalStorageDB.getAll(LS_KEYS.CONTRACTS).filter((c: any) => c.employeeId === employeeId)),
   update: (id: number, data: any) => mockRes(LocalStorageDB.update(LS_KEYS.CONTRACTS, id, data)),
   delete: (id: number) => {
     LocalStorageDB.delete(LS_KEYS.CONTRACTS, id);
