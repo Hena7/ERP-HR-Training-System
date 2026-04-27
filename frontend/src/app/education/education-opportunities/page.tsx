@@ -98,19 +98,20 @@ export default function EducationOpportunitiesPage() {
 
   const fetchDepartments = async () => {
     try {
-      const response = await userApi.getAll();
-      const users = (response.data as any[]) || [];
-      const departments: string[] = Array.from(
-        new Set(
-          users
-            .map((item: { department?: string }) =>
-              (item.department || "").trim(),
-            )
-            .filter(Boolean),
-        ),
-      ).sort((a, b) => a.localeCompare(b));
+      // In a Keycloak-driven user system, departments should either be fetched from Keycloak Admin API
+      // or managed as predefined categories. For now, we use a standard list of departments.
+      const standardDepartments = [
+        "Cyber Development Center",
+        "HR & Training",
+        "Finance",
+        "Operations",
+        "Engineering",
+        "Legal",
+        "Research & Development",
+        "IT Support",
+      ].sort((a, b) => a.localeCompare(b));
 
-      setDepartmentOptions(departments);
+      setDepartmentOptions(standardDepartments);
     } catch (error) {
       console.error("Failed to load departments", error);
       setDepartmentOptions([]);
@@ -146,6 +147,55 @@ export default function EducationOpportunitiesPage() {
     });
   }, [opportunities, isDepartmentHead, isCenterUser, userDepartment, search]);
 
+  // Template and Suggestions logic
+  const typeSuggestions = useMemo(() => {
+    return Array.from(new Set(opportunities.map((o) => o.educationType)))
+      .filter(Boolean)
+      .sort();
+  }, [opportunities]);
+
+  const levelSuggestions = useMemo(() => {
+    return Array.from(new Set(opportunities.map((o) => o.educationLevel)))
+      .filter(Boolean)
+      .sort();
+  }, [opportunities]);
+
+  const institutionSuggestions = useMemo(() => {
+    return Array.from(new Set(opportunities.map((o) => o.institution)))
+      .filter(Boolean)
+      .sort();
+  }, [opportunities]);
+
+  const templates = useMemo(() => {
+    const map = new Map<string, EducationOpportunity>();
+    // Take the most recent one for each combination
+    [...opportunities]
+      .sort((a, b) => (b.id || 0) - (a.id || 0))
+      .forEach((opp) => {
+        const key =
+          `${opp.educationType}|${opp.educationLevel}|${opp.institution}`.toLowerCase();
+        if (!map.has(key)) {
+          map.set(key, opp);
+        }
+      });
+    return Array.from(map.values());
+  }, [opportunities]);
+
+  const handleApplyTemplate = (opp: EducationOpportunity) => {
+    setFormData({
+      educationType: opp.educationType,
+      educationLevel: opp.educationLevel,
+      institution: opp.institution,
+      department: opp.department || "",
+      targetDepartments: Array.isArray(opp.targetDepartments)
+        ? [...opp.targetDepartments]
+        : [],
+      description: opp.description || "",
+      status: "OPEN",
+      deadline: opp.deadline || "",
+    });
+  };
+
   const resetForm = () => {
     setFormData(emptyForm);
     setEditId(null);
@@ -154,9 +204,15 @@ export default function EducationOpportunitiesPage() {
 
   const handleTargetDepartmentToggle = (department: string) => {
     setFormData((prev) => {
-      const exists = prev.targetDepartments.includes(department);
+      const normalizedCurrent = department.trim().toLowerCase();
+      const exists = prev.targetDepartments.some(
+        (item) => item.trim().toLowerCase() === normalizedCurrent,
+      );
+
       const nextTargets = exists
-        ? prev.targetDepartments.filter((item) => item !== department)
+        ? prev.targetDepartments.filter(
+            (item) => item.trim().toLowerCase() !== normalizedCurrent,
+          )
         : [...prev.targetDepartments, department];
 
       return {
@@ -179,8 +235,18 @@ export default function EducationOpportunitiesPage() {
       return;
     }
 
+    const deadlineDate = new Date(formData.deadline);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let finalStatus = formData.status;
+    if (deadlineDate < today) {
+      finalStatus = "EXPIRED";
+    }
+
     const payload = {
       ...formData,
+      status: finalStatus,
       department: cleanedTargets[0],
       targetDepartments: cleanedTargets,
     };
@@ -209,7 +275,14 @@ export default function EducationOpportunitiesPage() {
       department: opp.department || "",
       targetDepartments:
         opp.targetDepartments && opp.targetDepartments.length > 0
-          ? opp.targetDepartments
+          ? opp.targetDepartments.map((d) => {
+              // Try to map back to formal name from options if possible
+              return (
+                departmentOptions.find(
+                  (opt) => opt.toLowerCase() === d.toLowerCase(),
+                ) || d
+              );
+            })
           : opp.department
             ? [opp.department]
             : [],
@@ -288,9 +361,37 @@ export default function EducationOpportunitiesPage() {
 
         {showForm && isCenterUser && (
           <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-bold text-gray-900">
-              {editId ? t("editOpportunity") : t("addOpportunity")}
-            </h2>
+            <div className="mb-6 flex flex-col gap-4 border-b border-gray-50 pb-6 md:flex-row md:items-center md:justify-between">
+              <h2 className="text-lg font-bold text-gray-900">
+                {editId ? t("editOpportunity") : t("addOpportunity")}
+              </h2>
+
+              {/* {!editId && templates.length > 0 && (
+                <div className="flex items-center gap-3">
+                  <label className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                    Copy from Recent:
+                  </label>
+                  <select
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (!val) return;
+                      const opp = templates.find(
+                        (t) => t.id?.toString() === val,
+                      );
+                      if (opp) handleApplyTemplate(opp);
+                    }}
+                    className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 outline-none hover:bg-blue-100 transition-colors cursor-pointer"
+                  >
+                    <option value="">-- Choose a template --</option>
+                    {templates.map((t) => (
+                      <option key={`template-${t.id}`} value={t.id}>
+                        {t.educationType} - {t.educationLevel} ({t.institution})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )} */}
+            </div>
 
             <form
               onSubmit={handleSubmit}
@@ -302,6 +403,7 @@ export default function EducationOpportunitiesPage() {
                 </label>
                 <input
                   type="text"
+                  list="type-suggestions"
                   required
                   className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                   value={formData.educationType}
@@ -309,6 +411,11 @@ export default function EducationOpportunitiesPage() {
                     setFormData({ ...formData, educationType: e.target.value })
                   }
                 />
+                <datalist id="type-suggestions">
+                  {typeSuggestions.map((s) => (
+                    <option key={s} value={s} />
+                  ))}
+                </datalist>
               </div>
 
               <div>
@@ -317,6 +424,7 @@ export default function EducationOpportunitiesPage() {
                 </label>
                 <input
                   type="text"
+                  list="level-suggestions"
                   required
                   className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                   value={formData.educationLevel}
@@ -324,6 +432,11 @@ export default function EducationOpportunitiesPage() {
                     setFormData({ ...formData, educationLevel: e.target.value })
                   }
                 />
+                <datalist id="level-suggestions">
+                  {levelSuggestions.map((s) => (
+                    <option key={s} value={s} />
+                  ))}
+                </datalist>
               </div>
 
               <div>
@@ -332,6 +445,7 @@ export default function EducationOpportunitiesPage() {
                 </label>
                 <input
                   type="text"
+                  list="inst-suggestions"
                   required
                   className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                   value={formData.institution}
@@ -339,6 +453,11 @@ export default function EducationOpportunitiesPage() {
                     setFormData({ ...formData, institution: e.target.value })
                   }
                 />
+                <datalist id="inst-suggestions">
+                  {institutionSuggestions.map((s) => (
+                    <option key={s} value={s} />
+                  ))}
+                </datalist>
               </div>
 
               <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -387,8 +506,11 @@ export default function EducationOpportunitiesPage() {
                 {departmentOptions.length > 0 ? (
                   <div className="grid grid-cols-1 gap-2 rounded-lg border p-3 md:grid-cols-2 lg:grid-cols-3">
                     {departmentOptions.map((department) => {
-                      const checked =
-                        formData.targetDepartments.includes(department);
+                      const checked = formData.targetDepartments.some(
+                        (item) =>
+                          item.trim().toLowerCase() ===
+                          department.trim().toLowerCase(),
+                      );
 
                       return (
                         <label
@@ -520,7 +642,13 @@ export default function EducationOpportunitiesPage() {
                         {opp.deadline || "-"}
                       </td>
                       <td className="px-6 py-5">
-                        <StatusBadge status={opp.status} />
+                        <StatusBadge
+                          status={
+                            opp.deadline && new Date(opp.deadline) < new Date(new Date().setHours(0, 0, 0, 0))
+                              ? "EXPIRED"
+                              : opp.status
+                          }
+                        />
                       </td>
 
                       {isCenterUser && (

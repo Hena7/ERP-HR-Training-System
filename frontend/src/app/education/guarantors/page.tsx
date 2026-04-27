@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { guarantorApi, witnessApi, contractApi, userApi } from "@/lib/api";
+import { guarantorApi, witnessApi, contractApi, userApi, employeeApi } from "@/lib/api";
 import { Guarantor, Witness, Contract } from "@/types";
 import { Shield, Plus, Trash2, Edit, Eye, X, Users } from "lucide-react";
 
@@ -37,10 +37,10 @@ export default function GuarantorsPage() {
     try {
       const [contractsRes, usersRes] = await Promise.all([
         contractApi.getAll(0, 50),
-        userApi.getAll()
+        employeeApi.getAll(0, 100)
       ]);
       setContracts(contractsRes.data.content || []);
-      setUsers(usersRes.data || []);
+      setUsers(usersRes.data.content || []);
     } catch {
       // API not available
     }
@@ -228,8 +228,10 @@ export default function GuarantorsPage() {
                 <tr>
                   <th className="px-6 py-4">ID</th>
                   <th className="px-6 py-4">{t("fullName")}</th>
+                  <th className="px-6 py-4">Department</th>
                   <th className="px-6 py-4">{t("university")}</th>
                   <th className="px-6 py-4">{t("program")}</th>
+                  <th className="px-6 py-4">Signed Date</th>
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
@@ -241,10 +243,18 @@ export default function GuarantorsPage() {
                       <tr key={c.id} className="hover:bg-gray-50/50 transition-colors">
                         <td className="px-6 py-4 font-bold text-blue-600">CON-{c.id}</td>
                         <td className="px-6 py-4 font-bold text-gray-900">
-                          {c.employeeName || users.find(u => String(u.id) === String(c.employeeId))?.fullName || `EMP-${c.employeeId}`}
+                          {c.employeeName && c.employeeName !== "Keycloak User"
+                            ? c.employeeName 
+                            : users.find(u => String(u.id) === String(c.employeeId))?.fullName || c.employeeName || `EMP-${c.employeeId}`}
+                        </td>
+                        <td className="px-6 py-4 text-xs italic text-gray-600">
+                          {c.employeeDepartment || "—"}
                         </td>
                         <td className="px-6 py-4 font-medium text-gray-700">{c.university || "-"}</td>
                         <td className="px-6 py-4 font-medium text-gray-500">{c.program}</td>
+                        <td className="px-6 py-4 font-medium text-gray-700">
+                          {c.contractSignedDate ? new Date(c.contractSignedDate).toLocaleDateString() : "—"}
+                        </td>
                         <td className="px-6 py-4 text-right">
                           <button
                             onClick={() => handleContractChange(String(c.id))}
@@ -292,15 +302,24 @@ export default function GuarantorsPage() {
                   {t("contracts")}
                 </label>
                 <div className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 font-bold text-gray-900">
-                  {contracts.find((c) => String(c.id) === form.contractId)?.employeeName || users.find(u => String(u.id) === String(contracts.find((c) => String(c.id) === form.contractId)?.employeeId))?.fullName || `CON-${form.contractId}`}
+                  {(() => {
+                    const c = contracts.find((c) => String(c.id) === form.contractId);
+                    if (!c) return `CON-${form.contractId}`;
+                    return c.employeeName && c.employeeName !== "Keycloak User"
+                      ? c.employeeName
+                      : users.find(u => String(u.id) === String(c.employeeId))?.fullName || c.employeeName || `EMP-${c.employeeId}`;
+                  })()}
                 </div>
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label htmlFor="fullName" className="mb-1 block text-sm font-medium text-gray-700">
                   {t("fullName")}
                 </label>
                 <input
+                  id="fullName"
                   type="text"
+                  name="fullName"
+                  autoComplete="name"
                   required
                   value={form.fullName}
                   onChange={(e) =>
@@ -310,11 +329,14 @@ export default function GuarantorsPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label htmlFor="nationalId" className="mb-1 block text-sm font-medium text-gray-700">
                   {t("nationalId")}
                 </label>
                 <input
+                  id="nationalId"
                   type="text"
+                  name="nationalId"
+                  autoComplete="off"
                   required
                   value={form.nationalId}
                   onChange={(e) =>
@@ -324,11 +346,14 @@ export default function GuarantorsPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label htmlFor="phone" className="mb-1 block text-sm font-medium text-gray-700">
                   {t("phone")}
                 </label>
                 <input
-                  type="text"
+                  id="phone"
+                  type="tel"
+                  name="phone"
+                  autoComplete="tel"
                   required
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -351,10 +376,13 @@ export default function GuarantorsPage() {
                 </div>
               )}
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label htmlFor="address" className="mb-1 block text-sm font-medium text-gray-700">
                   {t("address")}
                 </label>
                 <textarea
+                  id="address"
+                  name="address"
+                  autoComplete="street-address"
                   value={form.address}
                   onChange={(e) =>
                     setForm({ ...form, address: e.target.value })
@@ -485,7 +513,7 @@ export default function GuarantorsPage() {
       </div>
 
       {viewDoc && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
           <div className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-white shadow-2xl flex flex-col">
             <div className="flex items-center justify-between p-4 border-b">
               <h3 className="text-lg font-bold">{t("viewDocument")}</h3>

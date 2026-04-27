@@ -5,25 +5,23 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { progressReportApi, contractApi } from "@/lib/api";
 import { ProgressReport, Contract } from "@/types";
-import { BarChart3, Edit, Trash2 } from "lucide-react";
+import { BarChart3, Edit, Trash2, FileText } from "lucide-react";
+
+const fieldClass =
+  "w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all";
+const labelClass =
+  "block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5";
 
 export default function ProgressReportsPage() {
   const { t } = useLanguage();
   const [reports, setReports] = useState<ProgressReport[]>([]);
   const [contracts, setContracts] = useState<Contract[]>([]);
-  const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
-  const [showForm, setShowForm] = useState(false);
+  const [selectedContractId, setSelectedContractId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({
-    contractId: "",
-    reportMonth: "",
-    description: "",
-  });
+  const [form, setForm] = useState({ reportMonth: "", description: "" });
   const [editId, setEditId] = useState<number | null>(null);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useEffect(() => { loadData(); }, []);
 
   const loadData = async () => {
     try {
@@ -33,24 +31,24 @@ export default function ProgressReportsPage() {
       ]);
       setReports(repRes.data.content || []);
       setContracts(conRes.data.content || []);
-    } catch {
-      // API not available
-    }
+    } catch { /* API not available */ }
   };
 
-  const handleContractSelect = (c: Contract) => {
-    setSelectedContract(c);
-    setForm({ contractId: String(c.id), reportMonth: "", description: "" });
+  const selectedContract = contracts.find((c) => c.id === selectedContractId) || null;
+
+  const handleSelectContract = (id: number) => {
+    setSelectedContractId((prev) => (prev === id ? null : id));
     setEditId(null);
-    setShowForm(true);
+    setForm({ reportMonth: "", description: "" });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedContractId) return;
     setLoading(true);
     try {
       const payload = {
-        contractId: Number(form.contractId),
+        contractId: selectedContractId,
         reportMonth: form.reportMonth,
         description: form.description,
       };
@@ -59,38 +57,23 @@ export default function ProgressReportsPage() {
       } else {
         await progressReportApi.create(payload);
       }
-      setShowForm(false);
       setEditId(null);
-      setSelectedContract(null);
-      setForm({ contractId: "", reportMonth: "", description: "" });
+      setForm({ reportMonth: "", description: "" });
       loadData();
-    } catch {
-      alert("Failed to save report");
-    } finally {
-      setLoading(false);
-    }
+    } catch { alert("Failed to save report"); }
+    finally { setLoading(false); }
   };
 
   const handleEdit = (r: ProgressReport) => {
-    const contract = contracts.find((c) => c.id === r.contractId) || null;
-    setSelectedContract(contract);
-    setForm({
-      contractId: String(r.contractId),
-      reportMonth: r.reportMonth || "",
-      description: r.description || "",
-    });
+    setSelectedContractId(r.contractId);
+    setForm({ reportMonth: r.reportMonth || "", description: r.description || "" });
     setEditId(r.id);
-    setShowForm(true);
   };
 
   const handleDelete = async (id: number) => {
     if (confirm("Are you sure you want to delete this report?")) {
-      try {
-        await progressReportApi.delete(id);
-        loadData();
-      } catch {
-        alert("Failed to delete report");
-      }
+      try { await progressReportApi.delete(id); loadData(); }
+      catch { alert("Failed to delete report"); }
     }
   };
 
@@ -105,16 +88,16 @@ export default function ProgressReportsPage() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{t("progressReports")}</h1>
             <p className="text-sm text-gray-500 font-medium italic">
-              Select a contract below to submit or manage progress reports.
+              Select a contract below to submit or edit a progress report.
             </p>
           </div>
         </div>
 
-        {/* Contract Selection List */}
+        {/* Contracts Picker Table */}
         <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
           <div className="border-b border-gray-50 bg-gray-50/30 px-6 py-4">
             <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400">
-              Active Contracts — Select to Add Report
+              Education Contracts
             </h2>
           </div>
           <div className="overflow-x-auto">
@@ -123,41 +106,38 @@ export default function ProgressReportsPage() {
                 <tr>
                   <th className="px-6 py-4">ID</th>
                   <th className="px-6 py-4">{t("fullName")}</th>
-                  <th className="px-6 py-4">{t("university")}</th>
-                  <th className="px-6 py-4">{t("program")}</th>
+                  <th className="px-6 py-4">{t("department")}</th>
+                  <th className="px-6 py-4">{t("contractSignedDate")}</th>
                   <th className="px-6 py-4 text-right">{t("actions")}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y text-xs">
-                {contracts.length > 0 ? (
-                  contracts.map((c) => {
-                    const isSelected = selectedContract?.id === c.id;
-                    return (
-                      <tr key={c.id} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="px-6 py-4 font-bold text-blue-600">CON-{c.id}</td>
-                        <td className="px-6 py-4 font-bold text-gray-900">
-                          {c.employeeName || `EMP-${c.employeeId}`}
-                        </td>
-                        <td className="px-6 py-4 font-medium text-gray-700">{c.university || "—"}</td>
-                        <td className="px-6 py-4 font-medium text-gray-500">{c.program || "—"}</td>
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => handleContractSelect(c)}
-                            className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
-                              isSelected
-                                ? "bg-blue-600 text-white shadow-blue-200"
-                                : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
-                            }`}
-                          >
-                            {isSelected ? "Selected" : "Select"}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
+              <tbody className="divide-y">
+                {contracts.length > 0 ? contracts.map((c) => {
+                  const isSelected = selectedContractId === c.id;
+                  return (
+                    <tr key={c.id} className={`transition-colors ${isSelected ? "bg-blue-50/60" : "hover:bg-gray-50/50"}`}>
+                      <td className="px-6 py-4 text-xs font-bold text-blue-600">CTR-{c.id.toString().slice(-6)}</td>
+                      <td className="px-6 py-4 font-bold text-gray-900">{c.employeeName}</td>
+                      <td className="px-6 py-4 font-medium text-gray-600">{c.employeeDepartment || "—"}</td>
+                      <td className="px-6 py-4 font-medium text-gray-500 text-xs">{c.contractSignedDate ? new Date(c.contractSignedDate).toLocaleDateString() : "—"}</td>
+                      <td className="px-6 py-4 text-right">
+                        <button
+                          onClick={() => handleSelectContract(c.id)}
+                          className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
+                            isSelected
+                              ? "bg-blue-600 text-white shadow-blue-200"
+                              : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
+                          }`}
+                        >
+                          {isSelected ? "Selected" : "Select"}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                }) : (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={5} className="px-4 py-8 text-center text-gray-400">
+                      <FileText className="h-8 w-8 mx-auto mb-2 opacity-30" />
                       {t("noData")}
                     </td>
                   </tr>
@@ -167,117 +147,107 @@ export default function ProgressReportsPage() {
           </div>
         </div>
 
+        {/* Selection Banner */}
+        {selectedContract && (
+          <div className="flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 px-5 py-3">
+            <div className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0" />
+            <p className="text-sm font-bold text-blue-800">
+              Selected contract: <span className="text-blue-600">CTR-{selectedContract.id.toString().slice(-6)}</span> — {selectedContract.employeeName}
+            </p>
+          </div>
+        )}
+
         {/* Report Form */}
-        {showForm && (
-          <div className="rounded-xl border bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold">
-              {editId ? t("edit") || "Edit Report" : t("submitReport")}
+        {selectedContract ? (
+          <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+            <h2 className="mb-5 text-xs font-bold uppercase tracking-widest text-gray-400">
+              {editId ? "Edit Progress Report" : "Submit Progress Report"}
             </h2>
-            {selectedContract && (
-              <div className="mb-4 rounded-lg border border-blue-100 bg-blue-50/40 px-4 py-3">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-blue-500 mb-0.5">
-                  {t("contracts")}
-                </p>
-                <p className="text-sm font-bold text-gray-900">
-                  CON-{selectedContract.id} —{" "}
-                  {selectedContract.employeeName || `EMP-${selectedContract.employeeId}`}
-                  {selectedContract.university ? ` · ${selectedContract.university}` : ""}
-                </p>
-              </div>
-            )}
             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  {t("reportMonth")}
-                </label>
+                <label htmlFor="reportMonth" className={labelClass}>{t("reportMonth")}</label>
                 <input
+                  id="reportMonth"
                   type="date"
+                  name="reportMonth"
+                  autoComplete="off"
                   required
                   value={form.reportMonth}
-                  onChange={(e) => setForm({ ...form, reportMonth: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  onChange={(e) =>
+                    setForm({ ...form, reportMonth: e.target.value })
+                  }
+                  className={fieldClass}
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  {t("description")}
-                </label>
+                <label htmlFor="reportDescription" className={labelClass}>{t("description")}</label>
                 <textarea
+                  id="reportDescription"
+                  name="description"
                   required
                   value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, description: e.target.value })
+                  }
                   rows={3}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  className={fieldClass}
                 />
               </div>
-              <div className="flex gap-2 md:col-span-2">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
-                >
+              <div className="flex gap-3 md:col-span-2">
+                <button type="submit" disabled={loading} className="rounded-lg bg-blue-600 px-8 py-2.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 disabled:opacity-50 transition-all">
                   {loading ? t("loading") : t("submit")}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowForm(false);
-                    setEditId(null);
-                    setSelectedContract(null);
-                  }}
-                  className="rounded-lg border border-gray-300 px-6 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
-                >
+                <button type="button" onClick={() => { setEditId(null); setForm({ reportMonth: "", description: "" }); }} className="rounded-lg border border-gray-200 px-8 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors">
                   {t("cancel")}
                 </button>
               </div>
             </form>
           </div>
+        ) : (
+          <div className="rounded-lg border border-dashed border-gray-200 p-8 text-center text-sm text-gray-400">
+            Select a contract above to submit a progress report.
+          </div>
         )}
 
-        {/* Reports Table */}
-        <div className="rounded-xl border bg-white shadow-sm">
+        {/* Existing Reports Table */}
+        <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+          <div className="border-b border-gray-50 bg-gray-50/30 px-6 py-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400">
+              Submitted Reports
+            </h2>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b bg-gray-50 text-xs uppercase text-gray-500">
+              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
                 <tr>
-                  <th className="px-4 py-3">ID</th>
-                  <th className="px-4 py-3">{t("contracts")} ID</th>
-                  <th className="px-4 py-3">{t("reportMonth")}</th>
-                  <th className="px-4 py-3">{t("description")}</th>
-                  <th className="px-4 py-3 text-right">{t("actions")}</th>
+                  <th className="px-6 py-4">ID</th>
+                  <th className="px-6 py-4">{t("contracts")} ID</th>
+                  <th className="px-6 py-4">{t("reportMonth")}</th>
+                  <th className="px-6 py-4">{t("description")}</th>
+                  <th className="px-6 py-4 text-right">{t("actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {reports.length > 0 ? (
-                  reports.map((r) => (
-                    <tr key={r.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3">{r.id}</td>
-                      <td className="px-4 py-3">#{r.contractId}</td>
-                      <td className="px-4 py-3">{r.reportMonth}</td>
-                      <td className="px-4 py-3">{r.description}</td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex justify-end gap-2">
-                          <button
-                            onClick={() => handleEdit(r)}
-                            className="p-1 text-gray-500 hover:text-blue-600 transition-colors"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(r.id)}
-                            className="p-1 text-gray-500 hover:text-red-600 transition-colors"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
-                      {t("noData")}
+                {reports.length > 0 ? reports.map((r) => (
+                  <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="px-6 py-4 text-xs font-bold text-blue-600">RPT-{r.id.toString().slice(-6)}</td>
+                    <td className="px-6 py-4 text-xs font-bold text-gray-500">CTR-{r.contractId?.toString().slice(-6)}</td>
+                    <td className="px-6 py-4 font-medium text-gray-700">{r.reportMonth}</td>
+                    <td className="px-6 py-4 font-medium text-gray-600 max-w-xs truncate">{r.description}</td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button onClick={() => handleEdit(r)} className="rounded-lg border border-gray-100 p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button onClick={() => handleDelete(r.id)} className="rounded-lg border border-gray-100 p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </td>
+                  </tr>
+                )) : (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-8 text-center text-gray-400">{t("noData")}</td>
                   </tr>
                 )}
               </tbody>

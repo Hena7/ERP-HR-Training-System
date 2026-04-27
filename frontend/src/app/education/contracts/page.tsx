@@ -45,7 +45,7 @@ export default function ContractsPage() {
     try {
       const [conRes, reqRes] = await Promise.all([
         contractApi.getAll(0, 20),
-        educationRequestApi.getByStatus("APPROVED", 0, 50),
+        educationRequestApi.getByStatus("CDC_APPROVED", 0, 50),
       ]);
       setContracts(conRes.data.content || []);
       setApprovedRequests(reqRes.data.content || []);
@@ -110,10 +110,11 @@ export default function ContractsPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const selectedReq = !form.isAward ? approvedRequests.find((r) => r.id === Number(form.requestId)) : null;
+      const selectedReq = !form.isAward
+        ? approvedRequests.find((r) => r.id === Number(form.requestId))
+        : null;
       const payload = {
-        employeeId: Number(form.employeeId),
-        employeeName: form.isAward ? form.employeeName : (selectedReq?.employeeName || ""),
+        employeeId: form.employeeId ? Number(form.employeeId) : null,
         requestId: form.isAward ? 0 : Number(form.requestId),
         university: form.university,
         program: form.program,
@@ -123,10 +124,6 @@ export default function ContractsPage() {
         studyMode: form.studyMode,
         estimatedCost: Number(form.estimatedCost) || null,
         contractSignedDate: form.contractSignedDate || null,
-        educationStartDate: form.educationStartDate || null,
-        educationEndDate: form.educationEndDate || null,
-        award: form.award || null,
-        scannedDocument: form.scannedDocument,
       };
 
       if (editId) {
@@ -156,8 +153,8 @@ export default function ContractsPage() {
         scannedDocument: null,
       });
       loadData();
-    } catch {
-      alert("Failed to save contract");
+    } catch (err: any) {
+      alert(err.response?.data?.message || err?.message || "Failed to save contract");
     } finally {
       setLoading(false);
     }
@@ -292,16 +289,28 @@ export default function ContractsPage() {
                   approvedRequests.map((request) => {
                     const isSelected = form.requestId === String(request.id);
                     return (
-                      <tr key={request.id} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="px-6 py-4 font-bold text-blue-600">REQ-{request.id}</td>
-                        <td className="px-6 py-4 font-bold text-gray-900">{request.employeeName}</td>
-                        <td className="px-6 py-4 font-medium text-gray-700 italic">
-                          {request.fieldOfStudy || request.educationType} ({request.educationLevel})
+                      <tr
+                        key={request.id}
+                        className="hover:bg-gray-50/50 transition-colors"
+                      >
+                        <td className="px-6 py-4 font-bold text-blue-600">
+                          REQ-{request.id}
                         </td>
-                        <td className="px-6 py-4 font-medium text-gray-500">{request.institution || "-"}</td>
+                        <td className="px-6 py-4 font-bold text-gray-900">
+                          {request.employeeName}
+                        </td>
+                        <td className="px-6 py-4 font-medium text-gray-700 italic">
+                          {request.fieldOfStudy || request.educationType} (
+                          {request.educationLevel})
+                        </td>
+                        <td className="px-6 py-4 font-medium text-gray-500">
+                          {request.institution || "-"}
+                        </td>
                         <td className="px-6 py-4 text-right">
                           <button
-                            onClick={() => handleRequestSelect(String(request.id))}
+                            onClick={() =>
+                              handleRequestSelect(String(request.id))
+                            }
                             className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
                               isSelected && showForm
                                 ? "bg-blue-600 text-white shadow-blue-200"
@@ -316,7 +325,10 @@ export default function ContractsPage() {
                   })
                 ) : (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                    <td
+                      colSpan={5}
+                      className="px-4 py-8 text-center text-gray-500"
+                    >
                       {t("noData")}
                     </td>
                   </tr>
@@ -333,11 +345,15 @@ export default function ContractsPage() {
             </h2>
             {form.studyLocation === "ABROAD" ? (
               <div className="mb-6 rounded-lg bg-orange-50 p-4 text-sm text-orange-800 border border-orange-100">
-                <strong>Note:</strong> Employees studying <em>Abroad</em> are entitled to receive <strong>half salary</strong> during the commitment period.
+                <strong>Note:</strong> Employees studying <em>Abroad</em> are
+                entitled to receive <strong>half salary</strong> during the
+                commitment period.
               </div>
             ) : (
               <div className="mb-6 rounded-lg bg-green-50 p-4 text-sm text-green-800 border border-green-100">
-                <strong>Note:</strong> Employees studying <em>Locally</em> will receive their <strong>full salary</strong> during the commitment period.
+                <strong>Note:</strong> Employees studying <em>Locally</em> will
+                receive their <strong>full salary</strong> during the commitment
+                period.
               </div>
             )}
             <form
@@ -353,13 +369,17 @@ export default function ContractsPage() {
                     type="text"
                     required
                     value={form.employeeName}
-                    onChange={(e) => setForm({ ...form, employeeName: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, employeeName: e.target.value })
+                    }
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 font-bold focus:border-blue-500 focus:outline-none bg-yellow-50/30"
                     placeholder="Enter full name"
                   />
                 ) : (
                   <div className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 font-bold text-gray-900">
-                    {approvedRequests.find((r) => String(r.id) === form.requestId)?.employeeName || "-"}
+                    {approvedRequests.find(
+                      (r) => String(r.id) === form.requestId,
+                    )?.employeeName || "-"}
                   </div>
                 )}
               </div>
@@ -372,7 +392,9 @@ export default function ContractsPage() {
                     type="text"
                     required
                     value={form.employeeId}
-                    onChange={(e) => setForm({ ...form, employeeId: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, employeeId: e.target.value })
+                    }
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 font-bold focus:border-blue-500 focus:outline-none bg-yellow-50/30"
                     placeholder="e.g. 1001"
                   />
@@ -384,7 +406,9 @@ export default function ContractsPage() {
                 </label>
                 <select
                   value={form.studyLocation}
-                  onChange={(e) => setForm({ ...form, studyLocation: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, studyLocation: e.target.value })
+                  }
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 font-bold text-blue-700 bg-blue-50/50 focus:border-blue-500 focus:outline-none"
                 >
                   <option value="LOCAL">Local Study (Full Salary)</option>
@@ -392,11 +416,17 @@ export default function ContractsPage() {
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="university"
+                  className="mb-1 block text-sm font-medium text-gray-700"
+                >
                   {t("university")}
                 </label>
                 <input
+                  id="university"
                   type="text"
+                  name="university"
+                  autoComplete="organization"
                   required
                   value={form.university}
                   onChange={(e) =>
@@ -411,6 +441,8 @@ export default function ContractsPage() {
                 </label>
                 <input
                   type="text"
+                  name="program"
+                  autoComplete="education-major"
                   required
                   value={form.program}
                   onChange={(e) =>
@@ -420,11 +452,17 @@ export default function ContractsPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="studyCountry"
+                  className="mb-1 block text-sm font-medium text-gray-700"
+                >
                   {t("studyCountry")}
                 </label>
                 <input
+                  id="studyCountry"
                   type="text"
+                  name="studyCountry"
+                  autoComplete="country-name"
                   required
                   value={form.studyCountry}
                   onChange={(e) =>
@@ -434,11 +472,17 @@ export default function ContractsPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  {t("studyCity")}
+                <label
+                  htmlFor="studyCity"
+                  className="mb-1 block text-sm font-medium text-gray-700"
+                >
+                  {t("city")}
                 </label>
                 <input
+                  id="studyCity"
                   type="text"
+                  name="studyCity"
+                  autoComplete="address-level2"
                   required
                   value={form.studyCity}
                   onChange={(e) =>
@@ -454,19 +498,22 @@ export default function ContractsPage() {
                 <input
                   type="text"
                   value={form.award}
-                  onChange={(e) =>
-                    setForm({ ...form, award: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, award: e.target.value })}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
                   placeholder="e.g. Masters Excellence Award"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="durationYears"
+                  className="mb-1 block text-sm font-medium text-gray-700"
+                >
                   {t("durationYears")}
                 </label>
                 <input
+                  id="durationYears"
                   type="number"
+                  name="durationYears"
                   required
                   value={form.durationYears}
                   onChange={(e) =>
@@ -491,11 +538,16 @@ export default function ContractsPage() {
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="estimatedCost"
+                  className="mb-1 block text-sm font-medium text-gray-700"
+                >
                   {t("estimatedCost")}
                 </label>
                 <input
+                  id="estimatedCost"
                   type="number"
+                  name="estimatedCost"
                   value={form.estimatedCost}
                   onChange={(e) =>
                     setForm({ ...form, estimatedCost: e.target.value })
@@ -509,6 +561,8 @@ export default function ContractsPage() {
                 </label>
                 <input
                   type="date"
+                  name="contractSignedDate"
+                  autoComplete="off"
                   value={form.contractSignedDate}
                   onChange={(e) =>
                     setForm({ ...form, contractSignedDate: e.target.value })
@@ -522,6 +576,8 @@ export default function ContractsPage() {
                 </label>
                 <input
                   type="date"
+                  name="educationStartDate"
+                  autoComplete="off"
                   value={form.educationStartDate}
                   onChange={(e) =>
                     setForm({ ...form, educationStartDate: e.target.value })
@@ -535,6 +591,8 @@ export default function ContractsPage() {
                 </label>
                 <input
                   type="date"
+                  name="educationEndDate"
+                  autoComplete="off"
                   value={form.educationEndDate}
                   onChange={(e) =>
                     setForm({ ...form, educationEndDate: e.target.value })
@@ -553,7 +611,9 @@ export default function ContractsPage() {
                   className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 />
                 {form.scannedDocument && (
-                  <p className="mt-1 text-xs text-green-600">Document uploaded</p>
+                  <p className="mt-1 text-xs text-green-600">
+                    Document uploaded
+                  </p>
                 )}
               </div>
               <div className="flex gap-2 md:col-span-2">
@@ -586,12 +646,16 @@ export default function ContractsPage() {
                 <tr>
                   <th className="px-4 py-3">ID</th>
                   <th className="px-4 py-3">{t("fullName")}</th>
+                  <th className="px-4 py-3">Department</th>
                   <th className="px-4 py-3">Award / Program</th>
                   <th className="px-4 py-3">{t("university")}</th>
                   <th className="px-4 py-3">{t("studyCountry")}</th>
                   <th className="px-4 py-3">{t("durationYears")}</th>
                   <th className="px-4 py-3">{t("studyMode")}</th>
-                  <th className="px-4 py-3">{t("scannedDocument" as any) || "Doc"}</th>
+                  <th className="px-4 py-3">Signed Date</th>
+                  <th className="px-4 py-3">
+                    {t("scannedDocument" as any) || "Doc"}
+                  </th>
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
@@ -601,12 +665,20 @@ export default function ContractsPage() {
                     <tr key={c.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3">{c.id}</td>
                       <td className="px-4 py-3 font-medium">
-                        {c.employeeName || approvedRequests.find((r) => r.id === c.requestId)?.employeeName || `EMP-${c.employeeId}`}
+                        {c.employeeName ||
+                          approvedRequests.find((r) => r.id === c.requestId)
+                            ?.employeeName ||
+                          `EMP-${c.employeeId}`}
+                      </td>
+                      <td className="px-4 py-3 text-xs italic text-gray-600">
+                        {c.employeeDepartment || "—"}
                       </td>
                       <td className="px-4 py-3">
                         {c.award ? (
                           <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-amber-600 uppercase tracking-tight">Award: {c.award}</span>
+                            <span className="text-[10px] font-bold text-amber-600 uppercase tracking-tight">
+                              Award: {c.award}
+                            </span>
                             <span className="font-medium">{c.program}</span>
                           </div>
                         ) : (
@@ -619,6 +691,9 @@ export default function ContractsPage() {
                       <td className="px-4 py-3">
                         {c.studyMode === "ON_JOB" ? t("onJob") : t("offJob")}
                       </td>
+                      <td className="px-4 py-3 font-medium text-gray-700">
+                         {c.contractSignedDate ? new Date(c.contractSignedDate).toLocaleDateString() : "—"}
+                      </td>
                       <td className="px-4 py-3">
                         {c.scannedDocument ? (
                           <button
@@ -629,7 +704,9 @@ export default function ContractsPage() {
                             {t("viewDocument")}
                           </button>
                         ) : (
-                          <span className="text-gray-400 text-xs">{t("noDocument")}</span>
+                          <span className="text-gray-400 text-xs">
+                            {t("noDocument")}
+                          </span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-right">
@@ -667,7 +744,7 @@ export default function ContractsPage() {
       </div>
 
       {viewDoc && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
           <div className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-white shadow-2xl flex flex-col">
             <div className="flex items-center justify-between p-4 border-b">
               <h3 className="text-lg font-bold">{t("viewDocument")}</h3>
@@ -680,9 +757,17 @@ export default function ContractsPage() {
             </div>
             <div className="flex-1 overflow-auto p-4 bg-gray-100 flex items-center justify-center">
               {viewDoc?.startsWith("data:application/pdf") ? (
-                <embed src={viewDoc} className="w-full h-full" type="application/pdf" />
+                <embed
+                  src={viewDoc}
+                  className="w-full h-full"
+                  type="application/pdf"
+                />
               ) : (
-                <img src={viewDoc || ""} alt="Scanned Document" className="max-w-full max-h-full object-contain" />
+                <img
+                  src={viewDoc || ""}
+                  alt="Scanned Document"
+                  className="max-w-full max-h-full object-contain"
+                />
               )}
             </div>
           </div>

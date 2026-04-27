@@ -275,7 +275,7 @@ export default function DashboardPage() {
                       <td className="px-6 py-4 font-bold text-gray-900">
                         {req.employeeName}
                       </td>
-                      <td className="px-6 py-4 text-gray-600 font-medium">{req.educationType}</td>
+                      <td className="px-6 py-4 text-gray-600 font-medium">{req.fieldOfStudy || (req as any).educationType || "-"}</td>
                       <td className="px-6 py-4 text-gray-600 font-medium">{req.institution}</td>
                       <td className="px-6 py-4">
                         <StatusBadge status={req.status} />

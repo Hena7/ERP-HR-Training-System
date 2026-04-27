@@ -11,8 +11,12 @@ export interface TrainingRequest {
   trainingLocation: "Domestic" | "Abroad";
   budgetSource: string;
   specification?: string;
-  requesterName?: string;
   requesterId?: number | string;
+  requesterName?: string;
+  requesterEmail?: string;
+  requesterPhone?: string;
+  requesterGender?: string;
+  requesterPosition?: string;
   status: TrainingStatus;
   reviewNote?: string;
   contractId?: number;

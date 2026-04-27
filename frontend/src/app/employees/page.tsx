@@ -70,7 +70,8 @@ export default function EmployeesPage() {
 
   const filteredEmployees = useMemo(() => {
     return employees.filter((emp) => {
-      const searchStr = `${emp.firstName} ${emp.lastName} ${emp.employeeId} ${emp.department}`.toLowerCase();
+      const searchStr =
+        `${emp.firstName} ${emp.lastName} ${emp.employeeId} ${emp.department}`.toLowerCase();
       return searchStr.includes(searchTerm.toLowerCase());
     });
   }, [employees, searchTerm]);
@@ -107,7 +108,7 @@ export default function EmployeesPage() {
       department: emp.department,
       position: emp.position,
       role: emp.role as any,
-      password: "", 
+      password: "",
     });
     setShowForm(true);
   };
@@ -155,7 +156,9 @@ export default function EmployeesPage() {
                 {t("employeeList")}
               </h1>
               <p className="text-sm text-gray-500 font-medium italic">
-                {isDH ? `Viewing employees in ${userDept}` : "Organization staff directory"}
+                {isDH
+                  ? `Viewing employees in ${userDept}`
+                  : "Organization staff directory"}
               </p>
             </div>
           </div>
@@ -196,7 +199,9 @@ export default function EmployeesPage() {
                   <th className="px-6 py-4">Contact</th>
                   <th className="px-6 py-4">Org Context</th>
                   <th className="px-6 py-4">Role</th>
-                  {canManage && <th className="px-6 py-4 text-center">{t("actions")}</th>}
+                  {canManage && (
+                    <th className="px-6 py-4 text-center">{t("actions")}</th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -214,15 +219,23 @@ export default function EmployeesPage() {
                   </tr>
                 ) : (
                   filteredEmployees.map((emp) => (
-                    <tr key={emp.id} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={emp.id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-700 text-xs">
-                            {emp.firstName?.[0]}{emp.lastName?.[0]}
+                            {emp.firstName?.[0]}
+                            {emp.lastName?.[0]}
                           </div>
                           <div>
-                            <div className="font-medium text-gray-900">{emp.firstName} {emp.lastName}</div>
-                            <div className="text-xs text-gray-500 font-mono">#{emp.employeeId}</div>
+                            <div className="font-medium text-gray-900">
+                              {emp.firstName} {emp.lastName}
+                            </div>
+                            <div className="text-xs text-gray-500 font-mono">
+                              #{emp.employeeId}
+                            </div>
                           </div>
                         </div>
                       </td>
@@ -234,7 +247,7 @@ export default function EmployeesPage() {
                           </div>
                           <div className="flex items-center gap-1.5 text-gray-500">
                             <Phone className="h-3.5 w-3.5 text-gray-400" />
-                            {emp.phone || '-'}
+                            {emp.phone || "-"}
                           </div>
                         </div>
                       </td>
@@ -244,12 +257,14 @@ export default function EmployeesPage() {
                             <Building2 className="h-3.5 w-3.5 text-gray-400" />
                             {emp.department}
                           </div>
-                          <div className="text-xs text-gray-500 ml-5">{emp.position || 'Staff'}</div>
+                          <div className="text-xs text-gray-500 ml-5">
+                            {emp.position || "Staff"}
+                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <span className="inline-flex rounded-lg bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-700 border border-blue-100">
-                          {(emp.role || 'EMPLOYEE').replace('_', ' ')}
+                          {(emp.role || "EMPLOYEE").replace("_", " ")}
                         </span>
                       </td>
                       {canManage && (
@@ -266,11 +281,11 @@ export default function EmployeesPage() {
                               disabled={busyId === emp.id}
                               className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded disabled:opacity-30"
                             >
-                               {busyId === emp.id ? (
-                                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-600 border-t-transparent" />
-                               ) : (
-                                  <Trash2 className="h-4 w-4" />
-                               )}
+                              {busyId === emp.id ? (
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-600 border-t-transparent" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
                             </button>
                           </div>
                         </td>
@@ -282,160 +297,201 @@ export default function EmployeesPage() {
             </table>
           </div>
         </div>
+      </div>
 
-        {/* Form Modal */}
-        {showForm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-2xl rounded-xl bg-white p-8 shadow-2xl border border-gray-100">
-              <div className="mb-8 flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900 uppercase tracking-tight">
-                   {editId ? t("editEmployee") : t("addEmployee")}
-                </h2>
-                <button
-                  onClick={() => setShowForm(false)}
-                  className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
-                >
-                  <X className="h-5 w-5" />
-                </button>
+      {/* Form Modal */}
+      {showForm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-2xl rounded-xl bg-white p-8 shadow-2xl border border-gray-100">
+            <div className="mb-8 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900 uppercase tracking-tight">
+                {editId ? t("editEmployee") : t("addEmployee")}
+              </h2>
+              <button
+                onClick={() => setShowForm(false)}
+                className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form
+              onSubmit={handleSubmit}
+              className="grid grid-cols-1 gap-5 md:grid-cols-2"
+            >
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                  {t("employeeId")}
+                </label>
+                <input
+                  required
+                  value={form.employeeId}
+                  onChange={(e) =>
+                    setForm({ ...form, employeeId: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+                  placeholder="EMP001"
+                />
               </div>
 
-              <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                  {t("email")}
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+                  placeholder="email@insa.gov.et"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                  {t("firstName")}
+                </label>
+                <input
+                  required
+                  value={form.firstName}
+                  onChange={(e) =>
+                    setForm({ ...form, firstName: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                  {t("lastName")}
+                </label>
+                <input
+                  required
+                  value={form.lastName}
+                  onChange={(e) =>
+                    setForm({ ...form, lastName: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                  {t("gender")}
+                </label>
+                <select
+                  value={form.gender}
+                  onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+                >
+                  <option value="MALE">{t("male")}</option>
+                  <option value="FEMALE">{t("female")}</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                  {t("phone")}
+                </label>
+                <input
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                  {t("department")}
+                </label>
+                <input
+                  required
+                  disabled={isDH}
+                  value={form.department}
+                  onChange={(e) =>
+                    setForm({ ...form, department: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all disabled:opacity-50"
+                  placeholder="e.g. Software engineering"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                  {t("position")}
+                </label>
+                <input
+                  value={form.position}
+                  onChange={(e) =>
+                    setForm({ ...form, position: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                  {t("role")}
+                </label>
+                <select
+                  value={form.role}
+                  onChange={(e) => setForm({ ...form, role: e.target.value })}
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+                >
+                  <option value="EMPLOYEE">{t("EMPLOYEE")}</option>
+                  <option value="DEPARTMENT_HEAD">
+                    {t("DEPARTMENT_HEAD")}
+                  </option>
+                  <option value="HR_OFFICER">{t("HR_OFFICER")}</option>
+                  <option value="CYBER_DEVELOPMENT_CENTER">
+                    {t("CYBER_DEVELOPMENT_CENTER")}
+                  </option>
+                  <option value="COMMITTEE_MEMBER">
+                    {t("COMMITTEE_MEMBER")}
+                  </option>
+                  <option value="DIRECTOR">{t("DIRECTOR")}</option>
+                  <option value="ADMIN">{t("ADMIN")}</option>
+                </select>
+              </div>
+
+              {!editId && (
                 <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("employeeId")}</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                    {t("password")}
+                  </label>
                   <input
+                    type="password"
                     required
-                    value={form.employeeId}
-                    onChange={(e) => setForm({ ...form, employeeId: e.target.value })}
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
-                    placeholder="EMP001"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("email")}</label>
-                  <input
-                    type="email"
-                    required
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
-                    placeholder="email@insa.gov.et"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("firstName")}</label>
-                  <input
-                    required
-                    value={form.firstName}
-                    onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                    value={form.password}
+                    onChange={(e) =>
+                      setForm({ ...form, password: e.target.value })
+                    }
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                   />
                 </div>
+              )}
 
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("lastName")}</label>
-                  <input
-                    required
-                    value={form.lastName}
-                    onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("gender")}</label>
-                  <select
-                    value={form.gender}
-                    onChange={(e) => setForm({ ...form, gender: e.target.value })}
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
-                  >
-                    <option value="MALE">{t("male")}</option>
-                    <option value="FEMALE">{t("female")}</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("phone")}</label>
-                  <input
-                    value={form.phone}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("department")}</label>
-                  <input
-                    required
-                    disabled={isDH}
-                    value={form.department}
-                    onChange={(e) => setForm({ ...form, department: e.target.value })}
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all disabled:opacity-50"
-                    placeholder="e.g. Software engineering"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("position")}</label>
-                  <input
-                    value={form.position}
-                    onChange={(e) => setForm({ ...form, position: e.target.value })}
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("role")}</label>
-                  <select
-                    value={form.role}
-                    onChange={(e) => setForm({ ...form, role: e.target.value })}
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
-                  >
-                    <option value="EMPLOYEE">{t("EMPLOYEE")}</option>
-                    <option value="DEPARTMENT_HEAD">{t("DEPARTMENT_HEAD")}</option>
-                    <option value="HR_OFFICER">{t("HR_OFFICER")}</option>
-                    <option value="CYBER_DEVELOPMENT_CENTER">{t("CYBER_DEVELOPMENT_CENTER")}</option>
-                    <option value="COMMITTEE_MEMBER">{t("COMMITTEE_MEMBER")}</option>
-                    <option value="DIRECTOR">{t("DIRECTOR")}</option>
-                    <option value="ADMIN">{t("ADMIN")}</option>
-                  </select>
-                </div>
-
-                {!editId && (
-                  <div className="space-y-1.5">
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("password")}</label>
-                    <input
-                      type="password"
-                      required
-                      value={form.password}
-                      onChange={(e) => setForm({ ...form, password: e.target.value })}
-                      className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
-                    />
-                  </div>
-                )}
-
-                <div className="md:col-span-2 mt-4 flex gap-4">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="flex-1 rounded-lg bg-blue-600 py-3.5 text-sm font-bold text-white shadow-md transition-all hover:bg-blue-700 disabled:opacity-50"
-                  >
-                    {loading ? t("loading") : editId ? t("save") : t("submit")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowForm(false)}
-                    className="flex-1 rounded-lg border border-gray-200 bg-white py-3.5 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50"
-                  >
-                    {t("cancel")}
-                  </button>
-                </div>
-              </form>
-            </div>
+              <div className="md:col-span-2 mt-4 flex gap-4">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 rounded-lg bg-blue-600 py-3.5 text-sm font-bold text-white shadow-md transition-all hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {loading ? t("loading") : editId ? t("save") : t("submit")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="flex-1 rounded-lg border border-gray-200 bg-white py-3.5 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50"
+                >
+                  {t("cancel")}
+                </button>
+              </div>
+            </form>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

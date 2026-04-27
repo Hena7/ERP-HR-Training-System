@@ -56,7 +56,11 @@ export default function TrainingRequestFormPage() {
         estimatedCost: parseFloat(form.estimatedCost),
         numTrainees: parseInt(form.numTrainees),
         requesterName: user?.fullName || user?.email,
-        requesterId: user?.id,
+        requesterId: user?.employeeId || user?.id,
+        requesterEmail: user?.email,
+        requesterPhone: user?.phone,
+        requesterGender: user?.gender,
+        requesterPosition: user?.position,
       });
       setSuccess(true);
       setForm({
@@ -185,6 +189,10 @@ export default function TrainingRequestFormPage() {
                       placeholder="0"
                     />
                   </div>
+                  <p className="mt-1 text-[10px] text-gray-400">
+                    Specific trainee names will be assigned by HR during the
+                    contract phase.
+                  </p>
                 </div>
                 <div>
                   <label className={labelClass}>{t("trainingDuration")}</label>

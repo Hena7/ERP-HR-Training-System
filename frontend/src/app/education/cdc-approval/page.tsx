@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { educationRequestApi, hrVerificationApi, cdcScoringApi } from "@/lib/api";
 import { EducationRequest, HRVerification, CDCScoring } from "@/types";
 import { BarChart3, CheckCircle2, ClipboardList, Info, FileCheck, X } from "lucide-react";
+import { calculateEducationScore } from "@/lib/scoring";
 
 interface ScoringFormState {
   requestId: number | null;
@@ -25,12 +26,14 @@ export default function CDCScoringPage() {
   const { t } = useLanguage();
 
   const [requests, setRequests] = useState<EducationRequest[]>([]);
-  const [reportedRequests, setReportedRequests] = useState<EducationRequest[]>([]);
+  const [reportedRequests, setReportedRequests] = useState<any[]>([]);
+  const [approvedRequests, setApprovedRequests] = useState<any[]>([]);
   const [hrVerifications, setHrVerifications] = useState<Record<number, HRVerification>>({});
   const [scorings, setScorings] = useState<CDCScoring[]>([]);
   const [form, setForm] = useState<ScoringFormState>(initialForm);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"SCORING" | "APPROVAL">("SCORING");
+  const [selectedViewRequest, setSelectedViewRequest] = useState<EducationRequest | null>(null);
 
   useEffect(() => {
     void loadData();
@@ -38,22 +41,26 @@ export default function CDCScoringPage() {
 
   const loadData = async () => {
     try {
-      const [requestRes, scoringRes, verificationRes, reportedRes] = await Promise.all([
+      const [requestRes, scoringRes, verificationRes, reportedRes, approvedRes] = await Promise.all([
         educationRequestApi.getByStatus("HR_VERIFIED", 0, 100),
         cdcScoringApi.getAll(0, 100),
         hrVerificationApi.getAll(0, 100),
         educationRequestApi.getByStatus("COMMITTEE_REPORTED", 0, 100),
+        educationRequestApi.getByStatus("CDC_APPROVED", 0, 100),
       ]);
-
-      setRequests(requestRes.data.content || []);
-      setReportedRequests(reportedRes.data.content || []);
-      setScorings(scoringRes.data.content || []);
 
       const verMap: Record<number, HRVerification> = {};
       (verificationRes.data.content || []).forEach((v: HRVerification) => {
         verMap[v.requestId] = v;
       });
       setHrVerifications(verMap);
+
+      const allRequests = requestRes.data.content || [];
+      setRequests(allRequests.filter((r: EducationRequest) => !!verMap[r.id]));
+      
+      setReportedRequests(reportedRes.data.content || []);
+      setApprovedRequests(approvedRes.data.content || []);
+      setScorings(scoringRes.data.content || []);
     } catch {
       // Offline resilient
     }
@@ -84,15 +91,16 @@ export default function CDCScoringPage() {
     if (!form.requestId || !hrVerifications[form.requestId]) return;
 
     const hrVer = hrVerifications[form.requestId];
+    const liveScore = liveCalculatedScore;
     
     setLoading(true);
     try {
       await cdcScoringApi.score({
         requestId: form.requestId,
-        experienceScore: hrVer.experienceSubScore || 0,
-        performanceScore: hrVer.performanceSubScore || hrVer.averageScore || 0,
-        disciplineScore: hrVer.disciplineSubScore || 10,
-        totalScore: hrVer.totalCalculatedScore || 0,
+        experienceScore: hrVer.experienceSubScore || liveScore?.experienceScore || 0,
+        performanceScore: hrVer.performanceSubScore || hrVer.averageScore || liveScore?.performanceScore || 0,
+        disciplineScore: hrVer.disciplineSubScore || liveScore?.disciplineScore || 10,
+        totalScore: hrVer.totalCalculatedScore || hrVer.averageScore || liveScore?.finalTotalScore || 0,
       });
 
       await loadData();
@@ -118,6 +126,22 @@ export default function CDCScoringPage() {
       setLoading(false);
     }
   };
+
+  const liveCalculatedScore = useMemo(() => {
+    if (!selectedRequest || !hrVerifications[selectedRequest.id]) return null;
+    const hrVer = hrVerifications[selectedRequest.id];
+    
+    // Attempt live calculation from raw data
+    return calculateEducationScore({
+      experienceYears: hrVer.experienceYears ?? (selectedRequest.workExperience || 0),
+      experienceMonths: hrVer.experienceMonths || 0,
+      performance1: hrVer.semester1Score || selectedRequest.performanceScore || 0,
+      performance2: hrVer.semester2Score || selectedRequest.performanceScore || 0,
+      hasDiscipline: hrVer.hasDiscipline ?? false,
+      gender: hrVer.gender || (selectedRequest as any).gender || "Male",
+      isDisabled: hrVer.isDisabled ?? false,
+    });
+  }, [selectedRequest, hrVerifications]);
 
   return (
     <DashboardLayout>
@@ -171,6 +195,7 @@ export default function CDCScoringPage() {
                     <tr>
                       <th className="px-6 py-4">ID</th>
                       <th className="px-6 py-4">{t("fullName")}</th>
+                      <th className="px-6 py-4">Department</th>
                       <th className="px-6 py-4">Education</th>
                       <th className="px-6 py-4">Auto-Score (HR)</th>
                       <th className="px-6 py-4">Gender</th>
@@ -189,8 +214,11 @@ export default function CDCScoringPage() {
                             <td className="px-6 py-4 font-bold text-gray-900">
                               {request.employeeName}
                             </td>
+                            <td className="px-6 py-4 text-xs italic text-gray-600">
+                              {request.employeeDepartment || "—"}
+                            </td>
                             <td className="px-6 py-4 font-medium text-gray-700 italic text-xs">
-                              {request.educationType} ({request.educationLevel})
+                              {request.fieldOfStudy || (request as any).educationType} ({(request as any).targetEducationLevel || (request as any).educationLevel})
                             </td>
                             <td className="px-6 py-4">
                                <span className="font-black text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg border border-indigo-100">
@@ -242,27 +270,41 @@ export default function CDCScoringPage() {
                         <div className="space-y-1">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Applicant</p>
                             <p className="text-base font-bold text-gray-900">{selectedRequest.employeeName}</p>
-                            <p className="text-[10px] text-gray-400 italic font-medium">{selectedRequest.employeeDepartment}</p>
+                            <div className="flex flex-wrap gap-2 mt-1">
+                                <span className={`inline-flex rounded-lg px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${hrVerifications[selectedRequest.id]?.gender === "Female" ? "bg-pink-100 text-pink-700 border border-pink-200" : "bg-blue-100 text-blue-700 border border-blue-200"}`}>
+                                    {hrVerifications[selectedRequest.id]?.gender || "Male"}
+                                </span>
+                                <span className="bg-gray-100 text-gray-600 border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+                                    {hrVerifications[selectedRequest.id]?.experienceYears || selectedRequest.workExperience || 0} Yrs Exp
+                                </span>
+                                {hrVerifications[selectedRequest.id]?.isDisabled && (
+                                    <span className="bg-amber-100 text-amber-700 border border-amber-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+                                        Disabled
+                                    </span>
+                                )}
+                            </div>
                         </div>
                         <div className="space-y-1">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Program</p>
-                            <p className="text-base font-bold text-gray-900">{selectedRequest.educationType}</p>
-                            <p className="text-[10px] text-gray-400 italic font-medium">{selectedRequest.educationLevel}</p>
+                            <p className="text-base font-bold text-gray-900">{selectedRequest.fieldOfStudy || (selectedRequest as any).educationType}</p>
+                            <p className="text-[10px] text-gray-400 italic font-medium">{(selectedRequest as any).targetEducationLevel || (selectedRequest as any).educationLevel}</p>
                         </div>
                         <div className="space-y-1">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">HR Score Breakdown</p>
                             <div className="flex flex-wrap gap-2 pt-1">
-                               <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">EXP: {hrVerifications[selectedRequest.id]?.experienceSubScore || 0}</span>
-                               <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">PERF: {hrVerifications[selectedRequest.id]?.performanceSubScore || 0}</span>
-                               <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">DISC: {hrVerifications[selectedRequest.id]?.disciplineSubScore || 0}</span>
-                               <span className="bg-white border border-indigo-200 px-2 py-0.5 rounded text-[9px] font-bold text-indigo-600">BONUS: +{hrVerifications[selectedRequest.id]?.totalCalculatedScore! - (hrVerifications[selectedRequest.id]?.experienceSubScore! + hrVerifications[selectedRequest.id]?.performanceSubScore! + hrVerifications[selectedRequest.id]?.disciplineSubScore!)}</span>
+                               <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">EXP: {hrVerifications[selectedRequest.id]?.experienceSubScore || liveCalculatedScore?.experienceScore || 0}</span>
+                               <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">PERF: {hrVerifications[selectedRequest.id]?.performanceSubScore || liveCalculatedScore?.performanceScore || 0}</span>
+                               <span className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[9px] font-bold text-gray-500">DISC: {hrVerifications[selectedRequest.id]?.disciplineSubScore || liveCalculatedScore?.disciplineScore || 0}</span>
+                               <span className="bg-white border border-indigo-200 px-2 py-0.5 rounded text-[9px] font-bold text-indigo-600">
+                                 BONUS: +{hrVerifications[selectedRequest.id]?.affirmativeBonus || liveCalculatedScore?.affirmativeBonus || "0.00"}
+                               </span>
                             </div>
                         </div>
                         <div className="flex flex-col items-end">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-1">Final Calculated Result</p>
                             <div className="rounded-xl bg-indigo-600 px-6 py-3 shadow-lg shadow-indigo-200 text-center">
                                 <p className="text-3xl font-black text-white leading-none">
-                                   {hrVerifications[selectedRequest.id]?.totalCalculatedScore?.toFixed(2) || "0.00"}
+                                   {(hrVerifications[selectedRequest.id]?.totalCalculatedScore || hrVerifications[selectedRequest.id]?.averageScore || liveCalculatedScore?.finalTotalScore || 0).toFixed(2)}
                                    <span className="text-sm ml-0.5 opacity-70">%</span>
                                 </p>
                             </div>
@@ -327,6 +369,7 @@ export default function CDCScoringPage() {
                   <tr>
                     <th className="px-6 py-4">ID</th>
                     <th className="px-6 py-4">Employee</th>
+                    <th className="px-6 py-4">Department</th>
                     <th className="px-6 py-4">Education</th>
                     <th className="px-6 py-4 text-blue-600">Final Score (%)</th>
                     <th className="px-6 py-4">Committee Status</th>
@@ -340,7 +383,8 @@ export default function CDCScoringPage() {
                         <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
                           <td className="px-6 py-4 text-xs font-bold text-blue-600">REQ-{r.id.toString().slice(-6)}</td>
                           <td className="px-6 py-4 font-bold text-gray-900">{r.employeeName}</td>
-                          <td className="px-6 py-4 font-medium text-xs italic">{r.educationType} ({r.educationLevel})</td>
+                          <td className="px-6 py-4 text-xs italic text-gray-600">{r.employeeDepartment || "—"}</td>
+                          <td className="px-6 py-4 font-medium text-xs italic">{r.fieldOfStudy || (r as any).educationType} ({(r as any).targetEducationLevel || (r as any).educationLevel})</td>
                           <td className="px-6 py-4">
                              <span className="font-black text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg border border-indigo-100">
                                {r.totalScore?.toFixed(2)}%
@@ -373,6 +417,73 @@ export default function CDCScoringPage() {
                 </tbody>
               </table>
             </div>
+            
+            <div className="mt-8 border-t border-gray-100 pt-8">
+              <div className="mb-4">
+                 <h2 className="text-sm font-bold uppercase tracking-widest text-emerald-600">
+                   Already Approved Candidates (Ready for Commitment)
+                 </h2>
+              </div>
+              <div className="overflow-x-auto rounded-xl border border-gray-100 shadow-sm">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-emerald-50 text-[10px] font-bold uppercase tracking-widest text-emerald-600">
+                    <tr>
+                      <th className="px-6 py-4">ID</th>
+                      <th className="px-6 py-4">{t("fullName")}</th>
+                      <th className="px-6 py-4">Department</th>
+                      <th className="px-6 py-4">Education</th>
+                      <th className="px-6 py-4">Study Location</th>
+                      <th className="px-6 py-4">Total Score</th>
+                      <th className="px-6 py-4 text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y bg-white">
+                    {approvedRequests.length > 0 ? (
+                      approvedRequests.map((r) => {
+                         const hrVer = hrVerifications[r.id];
+                         return (
+                          <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
+                            <td className="px-6 py-4 text-xs font-bold text-blue-600">REQ-{r.id.toString().slice(-6)}</td>
+                            <td className="px-6 py-4 font-bold text-gray-900">{r.employeeName}</td>
+                            <td className="px-6 py-4 text-xs italic text-gray-600">{r.employeeDepartment || "—"}</td>
+                            <td className="px-6 py-4 font-medium text-gray-700 italic text-xs">
+                              {r.fieldOfStudy || (r as any).educationType} ({(r as any).targetEducationLevel || (r as any).educationLevel})
+                            </td>
+                            <td className="px-6 py-4 text-xs tracking-wider text-gray-600">
+                               {r.location || "Local"}
+                            </td>
+                            <td className="px-6 py-4 text-sm font-black text-indigo-700">
+                               {r.totalScore?.toFixed(2) || hrVer?.totalCalculatedScore?.toFixed(2) || "-"}%
+                            </td>
+                             <td className="px-6 py-4 text-right">
+                               <div className="flex justify-end items-center gap-3">
+                                 <button
+                                   onClick={() => setSelectedViewRequest(r)}
+                                   className="rounded-lg bg-gray-50 p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all shadow-sm border border-gray-100"
+                                   title="View Details"
+                                 >
+                                   <Info className="h-4 w-4" />
+                                 </button>
+                                 <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-100 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700 shadow-sm border border-emerald-200">
+                                    CDC Approved
+                                 </span>
+                               </div>
+                             </td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan={6} className="px-4 py-8 text-center text-gray-400 italic">
+                          No candidates have received final CDC approval yet.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
           </div>
         )}
 
@@ -422,6 +533,108 @@ export default function CDCScoringPage() {
           </div>
         )}
       </div>
+      
+      {/* Detail View Modal */}
+      {selectedViewRequest && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-200 border border-gray-100">
+            <div className="flex items-center justify-between mb-8 border-b border-gray-50 pb-6">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg">
+                  <ClipboardList className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">Candidate Details</h3>
+                  <p className="text-xs font-medium text-gray-400 uppercase tracking-widest">REQ-{selectedViewRequest.id.toString().slice(-6)}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setSelectedViewRequest(null)}
+                className="rounded-xl p-2 text-gray-400 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+              <div className="space-y-6">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Full Name</p>
+                  <p className="text-lg font-bold text-gray-900">{selectedViewRequest.employeeName}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Department</p>
+                  <p className="text-sm font-bold text-gray-700 italic">{selectedViewRequest.employeeDepartment || "—"}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Education Goal</p>
+                  <p className="text-sm font-bold text-gray-900">
+                    {selectedViewRequest.fieldOfStudy || (selectedViewRequest as any).educationType} ({(selectedViewRequest as any).targetEducationLevel || selectedViewRequest.educationLevel})
+                  </p>
+                  <p className="text-xs font-medium text-gray-500 italic">{selectedViewRequest.institution}</p>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Final Decision</p>
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-100 px-3 py-1.5 text-xs font-black uppercase tracking-wider text-emerald-700 shadow-sm border border-emerald-200">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      CDC Approved
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Total Selection Score</p>
+                  <p className="text-3xl font-black text-indigo-600">
+                    {selectedViewRequest.totalScore?.toFixed(2) || hrVerifications[selectedViewRequest.id]?.totalCalculatedScore?.toFixed(2) || "-"}
+                    <span className="text-sm ml-1 text-gray-400">%</span>
+                  </p>
+                </div>
+                <div className="space-y-1">
+                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Study Location</p>
+                   <span className="inline-flex items-center rounded-md bg-gray-50 px-2.5 py-1 text-xs font-bold text-gray-700 border border-gray-100">
+                      {selectedViewRequest.location || "Local"}
+                   </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-gray-50 p-6 border border-gray-100">
+               <h4 className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-4">HR Automated Verification Data</h4>
+               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                     <p className="text-[9px] font-bold text-gray-400 uppercase">Experience</p>
+                     <p className="text-sm font-bold text-gray-900">{hrVerifications[selectedViewRequest.id]?.experienceSubScore || "0.00"}</p>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                     <p className="text-[9px] font-bold text-gray-400 uppercase">Performance</p>
+                     <p className="text-sm font-bold text-gray-900">{hrVerifications[selectedViewRequest.id]?.performanceSubScore || "0.00"}</p>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                     <p className="text-[9px] font-bold text-gray-400 uppercase">Discipline</p>
+                     <p className="text-sm font-bold text-gray-900">{hrVerifications[selectedViewRequest.id]?.disciplineSubScore || "0.00"}</p>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                     <p className="text-[9px] font-bold text-gray-400 uppercase">Bonus</p>
+                     <p className="text-sm font-bold text-emerald-600">+{hrVerifications[selectedViewRequest.id]?.affirmativeBonus || "0.00"}</p>
+                  </div>
+               </div>
+            </div>
+
+            <div className="mt-10">
+              <button 
+                onClick={() => setSelectedViewRequest(null)}
+                className="w-full rounded-2xl bg-gray-900 py-4 text-sm font-bold text-white shadow-xl hover:bg-black transition-all active:scale-[0.98]"
+              >
+                Close Detail View
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }
+
