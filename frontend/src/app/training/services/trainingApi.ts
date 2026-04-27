@@ -1,173 +1,57 @@
-// Training Module - localStorage Mock API
-// POST /training/request → createRequest
-// GET  /training/requests → getAll
-// POST /training/contract → createContract
-// POST /training/guarantor → createGuarantor
-// PATCH /training/requests/:id → update status
-
-const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-function getMock<T>(key: string): T[] {
-  if (typeof window === "undefined") return [];
-  try {
-    return JSON.parse(localStorage.getItem(key) || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function saveMock<T>(key: string, data: T[]) {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(key, JSON.stringify(data));
-  }
-}
+import { trainingApi } from "@/lib/api";
 
 // ─────────────────────────────────────────────
 // Training Request
 // ─────────────────────────────────────────────
 export const trainingRequestApi = {
-  create: async (data: any) => {
-    await delay(600);
-    const all = getMock<any>("trainingRequests");
-    const record = {
-      ...data,
-      id: Date.now(),
-      status: "SUBMITTED",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    saveMock("trainingRequests", [...all, record]);
-    return { data: record };
-  },
+  create: (data: any) => trainingApi.post("/api/training-requests", data),
 
-  getAll: async () => {
-    await delay(300);
-    return { data: getMock<any>("trainingRequests") };
-  },
+  getAll: () => trainingApi.get("/api/training-requests"),
+  
+  getMyRequests: (requesterId: string) => trainingApi.get("/api/training-requests/my-requests", { params: { requesterId } }),
 
-  getById: async (id: number) => {
-    await delay(200);
-    const all = getMock<any>("trainingRequests");
-    return { data: all.find((r: any) => r.id === id) || null };
-  },
+  getById: (id: number) => trainingApi.get(`/api/training-requests/${id}`),
 
-  updateStatus: async (id: number, status: string, note?: string) => {
-    await delay(400);
-    const all = getMock<any>("trainingRequests").map((r: any) =>
-      r.id === id
-        ? { ...r, status, reviewNote: note || "", updatedAt: new Date().toISOString() }
-        : r,
-    );
-    saveMock("trainingRequests", all);
-    return { data: all.find((r: any) => r.id === id) };
-  },
+  updateStatus: (id: number, status: string, note?: string) => 
+    trainingApi.patch(`/api/training-requests/${id}/status`, null, {
+      params: { status, note }
+    }),
 };
 
 // ─────────────────────────────────────────────
 // Training Contract
 // ─────────────────────────────────────────────
 export const trainingContractApi = {
-  create: async (data: any) => {
-    await delay(600);
-    const all = getMock<any>("trainingContracts");
-    const record = {
-      ...data,
-      id: Date.now(),
-      status: "ACTIVE",
-      createdAt: new Date().toISOString(),
-    };
-    saveMock("trainingContracts", [...all, record]);
-    // Link contract to request
-    const requests = getMock<any>("trainingRequests").map((r: any) =>
-      r.id === data.requestId
-        ? { ...r, status: "CONTRACT_CREATED", contractId: record.id }
-        : r,
-    );
-    saveMock("trainingRequests", requests);
-    return { data: record };
-  },
+  create: (data: any) => trainingApi.post("/api/training-contracts", data),
 
-  getAll: async () => {
-    await delay(300);
-    return { data: getMock<any>("trainingContracts") };
-  },
+  getAll: () => trainingApi.get("/api/training-contracts"),
 
-  getById: async (id: number) => {
-    await delay(200);
-    const all = getMock<any>("trainingContracts");
-    return { data: all.find((r: any) => r.id === id) || null };
-  },
+  getById: (id: number) => trainingApi.get(`/api/training-contracts/${id}`),
 };
 
 // ─────────────────────────────────────────────
 // Training Guarantor
 // ─────────────────────────────────────────────
 export const trainingGuarantorApi = {
-  create: async (data: any) => {
-    await delay(500);
-    const all = getMock<any>("trainingGuarantors");
-    if (all.filter((g: any) => g.contractId === data.contractId).length >= 2) {
-      throw new Error("Maximum 2 guarantors per training contract");
-    }
-    const record = { ...data, id: Date.now(), createdAt: new Date().toISOString() };
-    saveMock("trainingGuarantors", [...all, record]);
-    return { data: record };
-  },
+  create: (data: any) => trainingApi.post("/api/training-guarantors", data),
 
-  getByContract: async (contractId: number) => {
-    await delay(200);
-    return {
-      data: getMock<any>("trainingGuarantors").filter(
-        (g: any) => g.contractId === contractId,
-      ),
-    };
-  },
+  getByContract: (contractId: number) => trainingApi.get(`/api/training-guarantors/contract/${contractId}`),
 
-  update: async (id: number, data: any) => {
-    await delay(400);
-    const all = getMock<any>("trainingGuarantors").map((g: any) =>
-      g.id === id ? { ...g, ...data } : g,
-    );
-    saveMock("trainingGuarantors", all);
-    return { data: all.find((g: any) => g.id === id) };
-  },
+  update: (id: number, data: any) => trainingApi.put(`/api/training-guarantors/${id}`, data),
 
-  delete: async (id: number) => {
-    await delay(300);
-    const all = getMock<any>("trainingGuarantors").filter((g: any) => g.id !== id);
-    saveMock("trainingGuarantors", all);
-    return { data: { success: true } };
-  },
+  delete: (id: number) => trainingApi.delete(`/api/training-guarantors/${id}`),
 };
 
 // ─────────────────────────────────────────────
 // Obligation Tracking
 // ─────────────────────────────────────────────
 export const trainingObligationApi = {
-  create: async (data: any) => {
-    await delay(500);
-    const all = getMock<any>("trainingObligations");
-    const record = {
-      ...data,
-      id: Date.now(),
-      status: "ACTIVE",
-      createdAt: new Date().toISOString(),
-    };
-    saveMock("trainingObligations", [...all, record]);
-    return { data: record };
-  },
+  create: (data: any) => trainingApi.post("/api/training-obligations", data),
 
-  getAll: async () => {
-    await delay(300);
-    return { data: getMock<any>("trainingObligations") };
-  },
+  getAll: () => trainingApi.get("/api/training-obligations"),
 
-  updateStatus: async (id: number, status: string) => {
-    await delay(400);
-    const all = getMock<any>("trainingObligations").map((o: any) =>
-      o.id === id ? { ...o, status, updatedAt: new Date().toISOString() } : o,
-    );
-    saveMock("trainingObligations", all);
-    return { data: all.find((o: any) => o.id === id) };
-  },
+  updateStatus: (id: number, status: string) => 
+    trainingApi.patch(`/api/training-obligations/${id}/status`, null, {
+      params: { status }
+    }),
 };

@@ -1,66 +1,79 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext } from "react";
+import { useSession, signIn, signOut } from "next-auth/react";
 import { AuthResponse } from "@/types";
 
-interface AuthContextType {
-  user: AuthResponse | null;
-  token: string | null;
-  login: (user: AuthResponse) => void;
-  logout: () => void;
-  isAuthenticated: boolean;
-}
-
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  token: null,
-  login: () => {},
-  logout: () => {},
-  isAuthenticated: false,
-});
-
+// We keep AuthProvider as a pass-through to avoid breaking imports in Providers.tsx
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthResponse | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
-
-  const login = useCallback((authResponse: AuthResponse) => {
-    setUser(authResponse);
-    setToken(authResponse.token);
-    localStorage.setItem("token", authResponse.token);
-    localStorage.setItem("user", JSON.stringify(authResponse));
-  }, []);
-
-  const logout = useCallback(() => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-  }, []);
-
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        token,
-        login,
-        logout,
-        isAuthenticated: !!token,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  return <>{children}</>;
 }
 
 export function useAuth() {
-  return useContext(AuthContext);
+  const { data: session, status } = useSession();
+
+  // Extract roles injected into the NextAuth session via the custom jwt callback
+  const roles = (session as any)?.user?.roles || [];
+
+  // Backward compatibility: Find the first relevant role that matches the old expected backend roles
+  const primaryRole =
+    roles.find((r: string) =>
+      [
+        "CYBER_DEVELOPMENT_CENTER",
+        "DEPARTMENT_HEAD",
+        " ",
+        "COMMITTEE_MEMBER",
+        "ADMIN",
+        "EMPLOYEE",
+      ].includes(r),
+    ) ||
+    roles[0] ||
+    "EMPLOYEE";
+
+  // Map standard Keycloak claims to the legacy AuthResponse object
+  const user: AuthResponse | null = React.useMemo(
+    () =>
+      session
+        ? {
+            token: (session as any).accessToken || "",
+            role: primaryRole as any,
+            fullName: (session.user?.name && session.user?.name !== "Keycloak User") 
+              ? session.user.name 
+              : (session.user?.email ? session.user.email.split('@')[0] : "Keycloak User"),
+            email: session.user?.email || "user@example.com",
+            department: (session as any).user?.department || "",
+            employeeId: (session as any).user?.employeeId || "",
+            phone: (session as any).user?.phone || "",
+            gender: (session as any).user?.gender || "",
+            position: (session as any).user?.position || "",
+          }
+        : null,
+    [session, primaryRole],
+  );
+
+  const authValue = React.useMemo(
+    () => ({
+      user,
+      token: (session as any)?.accessToken || null,
+      login: () => signIn("keycloak", { callbackUrl: "/dashboard" }),
+      logout: async () => {
+        const idToken = (session as any)?.idToken;
+        await signOut({ redirect: false });
+        if (idToken) {
+          const issuer = "http://localhost:8080/realms/erp-system";
+          const redirectUri = encodeURIComponent(
+            window.location.origin + "/login",
+          );
+          window.location.href = `${issuer}/protocol/openid-connect/logout?id_token_hint=${idToken}&post_logout_redirect_uri=${redirectUri}`;
+        } else {
+          window.location.href = "/login";
+        }
+      },
+      isAuthenticated: status === "authenticated",
+      isLoading: status === "loading",
+    }),
+    [user, session, status],
+  );
+
+  return authValue;
 }

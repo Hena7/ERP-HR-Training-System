@@ -3,16 +3,31 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { committeeDecisionApi, educationRequestApi, cdcScoringApi } from "@/lib/api";
+import {
+  committeeDecisionApi,
+  educationRequestApi,
+  cdcScoringApi,
+} from "@/lib/api";
 import { CommitteeDecision, EducationRequest, CDCScoring } from "@/types";
-import { Users, Edit, Trash2, BarChart3, ClipboardList, FileText } from "lucide-react";
+import {
+  Users,
+  Edit,
+  Trash2,
+  BarChart3,
+  ClipboardList,
+  FileText,
+} from "lucide-react";
 
 export default function CommitteeDecisionsPage() {
   const { t } = useLanguage();
   const [decisions, setDecisions] = useState<CommitteeDecision[]>([]);
   const [scoredRequests, setScoredRequests] = useState<EducationRequest[]>([]);
-  const [allRequests, setAllRequests] = useState<Record<number, EducationRequest>>({});
-  const [selectedScoring, setSelectedScoring] = useState<CDCScoring | null>(null);
+  const [allRequests, setAllRequests] = useState<
+    Record<number, EducationRequest>
+  >({});
+  const [selectedScoring, setSelectedScoring] = useState<CDCScoring | null>(
+    null,
+  );
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [quota, setQuota] = useState<number>(5);
@@ -35,11 +50,13 @@ export default function CommitteeDecisionsPage() {
         educationRequestApi.getByStatus("SCORED", 0, 100),
         educationRequestApi.getAll(0, 500),
       ]);
-      
-      const scReqs = (reqRes.data.content || []).sort((a: any, b: any) => (b.totalScore || 0) - (a.totalScore || 0));
+
+      const scReqs = (reqRes.data.content || []).sort(
+        (a: any, b: any) => (b.totalScore || 0) - (a.totalScore || 0),
+      );
       setDecisions(decRes.data.content || []);
       setScoredRequests(scReqs);
-      
+
       const reqMap: Record<number, EducationRequest> = {};
       (allReqRes.data.content || []).forEach((r: EducationRequest) => {
         reqMap[r.id] = r;
@@ -56,24 +73,31 @@ export default function CommitteeDecisionsPage() {
 
   const handleBulkReport = async () => {
     if (selectedIds.length === 0) return;
-    if (!confirm(`Are you sure you want to send a detailed report to CDC for ${selectedIds.length} candidates?`)) return;
-    
+    if (
+      !confirm(
+        `Are you sure you want to send a detailed report to CDC for ${selectedIds.length} candidates?`,
+      )
+    )
+      return;
+
     setLoading(true);
     try {
-      await (educationRequestApi as any).committeeReport(selectedIds);
+      await educationRequestApi.reportByCommitteeBulk(selectedIds);
       loadData();
       setSelectedIds([]);
       alert("Report successfully sent to CDC for final approval.");
-    } catch {
-      alert("Failed to send report");
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message || err?.message || "Failed to send report";
+      alert(msg);
     } finally {
       setLoading(false);
     }
   };
 
   const toggleSelection = (id: number) => {
-    setSelectedIds(prev => 
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
     );
   };
 
@@ -81,13 +105,13 @@ export default function CommitteeDecisionsPage() {
     setForm({ ...form, requestId });
     if (requestId) {
       try {
-          const res = await cdcScoringApi.getByRequestId(Number(requestId));
-          setSelectedScoring(res.data);
+        const res = await cdcScoringApi.getByRequestId(Number(requestId));
+        setSelectedScoring(res.data);
       } catch {
-          setSelectedScoring(null);
+        setSelectedScoring(null);
       }
     } else {
-        setSelectedScoring(null);
+      setSelectedScoring(null);
     }
   };
 
@@ -128,10 +152,10 @@ export default function CommitteeDecisionsPage() {
     setShowForm(true);
     // Load scoring for edit
     try {
-        const res = await cdcScoringApi.getByRequestId(d.requestId);
-        setSelectedScoring(res.data);
+      const res = await cdcScoringApi.getByRequestId(d.requestId);
+      setSelectedScoring(res.data);
     } catch {
-        setSelectedScoring(null);
+      setSelectedScoring(null);
     }
   };
 
@@ -154,7 +178,7 @@ export default function CommitteeDecisionsPage() {
     });
     setEditId(null);
     setShowForm(true);
-    
+
     try {
       const res = await cdcScoringApi.getByRequestId(request.id);
       setSelectedScoring(res.data);
@@ -178,41 +202,49 @@ export default function CommitteeDecisionsPage() {
                 {t("committeeDecisions")}
               </h1>
               <p className="text-sm text-gray-500 font-medium italic">
-                Rank candidates by score and select top picks for institutional approval.
+                Rank candidates by score and select top picks for institutional
+                approval.
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50/50 p-3 shadow-sm">
-             <div className="space-y-0.5">
-                <p className="text-[9px] font-bold uppercase tracking-widest text-blue-600 px-1">Quota</p>
-                <input 
-                  type="number" 
-                  value={quota} 
-                  onChange={(e) => {
-                    const val = Number(e.target.value);
-                    setQuota(val);
-                    setSelectedIds(scoredRequests.slice(0, val).map(r => r.id));
-                  }}
-                  className="w-16 rounded-lg border border-blue-200 bg-white px-3 py-1 text-sm font-bold text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                />
-             </div>
-             <button
-               onClick={handleBulkReport}
-               disabled={selectedIds.length === 0 || loading}
-               className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-700 disabled:opacity-50 transition-all flex items-center gap-2"
-             >
-                <FileText className="h-3.5 w-3.5" />
-                Send Report ({selectedIds.length})
-             </button>
+            <div className="space-y-0.5">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-blue-600 px-1">
+                Quota
+              </p>
+              <input
+                type="number"
+                value={quota}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  setQuota(val);
+                  setSelectedIds(scoredRequests.slice(0, val).map((r) => r.id));
+                }}
+                className="w-16 rounded-lg border border-blue-200 bg-white px-3 py-1 text-sm font-bold text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+            </div>
+            <button
+              onClick={handleBulkReport}
+              disabled={selectedIds.length === 0 || loading}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-700 disabled:opacity-50 transition-all flex items-center gap-2"
+            >
+              <FileText className="h-3.5 w-3.5" />
+              Send Report ({selectedIds.length})
+            </button>
           </div>
         </div>
 
         {showForm && (
-          <div id="decision-form" className="rounded-xl border border-gray-100 bg-white p-8 shadow-xl">
+          <div
+            id="decision-form"
+            className="rounded-xl border border-gray-100 bg-white p-8 shadow-xl"
+          >
             <h2 className="mb-6 text-sm font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2">
               <ClipboardList className="h-4 w-4 text-blue-600" />
-              {editId ? t("edit") || "Edit Decision" : "Review Participation & Decide"}
+              {editId
+                ? t("edit") || "Edit Decision"
+                : "Review Participation & Decide"}
             </h2>
             <form
               onSubmit={handleSubmit}
@@ -262,48 +294,75 @@ export default function CommitteeDecisionsPage() {
                 <div className="md:col-span-2 flex flex-col gap-5 rounded-xl border border-gray-100 bg-gray-50/50 p-6">
                   <div className="flex items-center gap-2 mb-1 border-b border-gray-200/60 pb-3">
                     <FileText className="h-4 w-4 text-gray-500" />
-                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Request Information</h3>
+                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                      Request Information
+                    </h3>
                   </div>
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">{t("fullName")}</p>
-                      <p className="text-sm font-bold text-gray-900">{allRequests[Number(form.requestId)].employeeName}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Education & Institution</p>
-                      <p className="text-sm font-bold text-gray-900">
-                        {allRequests[Number(form.requestId)].fieldOfStudy || allRequests[Number(form.requestId)].educationType}
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">
+                        {t("fullName")}
                       </p>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
-                        @ {allRequests[Number(form.requestId)].institution || "-"}
+                      <p className="text-sm font-bold text-gray-900">
+                        {allRequests[Number(form.requestId)].employeeName}
                       </p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Level & Program</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">
+                        Education & Institution
+                      </p>
                       <p className="text-sm font-bold text-gray-900">
-                        {allRequests[Number(form.requestId)].educationLevel}
+                        {allRequests[Number(form.requestId)].fieldOfStudy ||
+                          allRequests[Number(form.requestId)]
+                            .educationCategory ||
+                          allRequests[Number(form.requestId)].educationType ||
+                          "—"}
                       </p>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
-                        {allRequests[Number(form.requestId)].programTime || "Regular"}
+                        @{" "}
+                        {allRequests[Number(form.requestId)].institution || "-"}
                       </p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Duration & Budget Year</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">
+                        Level & Program
+                      </p>
                       <p className="text-sm font-bold text-gray-900">
-                        {allRequests[Number(form.requestId)].duration ? `${allRequests[Number(form.requestId)].duration} Years` : "-"}
+                        {allRequests[Number(form.requestId)]
+                          .targetEducationLevel ||
+                          allRequests[Number(form.requestId)].award ||
+                          allRequests[Number(form.requestId)].educationLevel ||
+                          "—"}
                       </p>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
-                        Yr {allRequests[Number(form.requestId)].budgetYear || "-"}
+                        {allRequests[Number(form.requestId)].programTime ||
+                          "Regular"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">
+                        Duration & Budget Year
+                      </p>
+                      <p className="text-sm font-bold text-gray-900">
+                        {allRequests[Number(form.requestId)].duration
+                          ? `${allRequests[Number(form.requestId)].duration} Years`
+                          : "-"}
+                      </p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
+                        Yr{" "}
+                        {allRequests[Number(form.requestId)].budgetYear || "-"}
                       </p>
                     </div>
                   </div>
-                  {((allRequests[Number(form.requestId)] as any).remark || allRequests[Number(form.requestId)].description) && (
+                  {((allRequests[Number(form.requestId)] as any).remark ||
+                    allRequests[Number(form.requestId)].description) && (
                     <div className="border-t border-gray-200/60 pt-4 mt-1">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
                         Description / Remark
                       </p>
                       <p className="text-sm font-medium text-gray-700 leading-relaxed">
-                        {(allRequests[Number(form.requestId)] as any).remark || allRequests[Number(form.requestId)].description}
+                        {(allRequests[Number(form.requestId)] as any).remark ||
+                          allRequests[Number(form.requestId)].description}
                       </p>
                     </div>
                   )}
@@ -312,36 +371,61 @@ export default function CommitteeDecisionsPage() {
 
               {selectedScoring && (
                 <div className="md:col-span-2 rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50/50 to-white p-6 shadow-sm">
-                    <div className="flex items-center gap-2 mb-6">
-                        <BarChart3 className="h-5 w-5 text-blue-600" />
-                        <h3 className="text-sm font-bold uppercase tracking-widest text-blue-800">Automated Scoring Result</h3>
+                  <div className="flex items-center gap-2 mb-6">
+                    <BarChart3 className="h-5 w-5 text-blue-600" />
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-blue-800">
+                      Automated Scoring Result
+                    </h3>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                    <div className="space-y-1">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                        Experience
+                      </p>
+                      <p className="text-lg font-bold text-gray-900">
+                        {selectedScoring.experienceScore.toFixed(2)}
+                      </p>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-                        <div className="space-y-1">
-                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Experience</p>
-                            <p className="text-lg font-bold text-gray-900">{selectedScoring.experienceScore.toFixed(2)}</p>
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Performance</p>
-                            <p className="text-lg font-bold text-gray-900">{selectedScoring.performanceScore.toFixed(2)}</p>
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Discipline</p>
-                            <p className="text-lg font-bold text-gray-900">{selectedScoring.disciplineScore.toFixed(2)}</p>
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Bonus</p>
-                            <p className="text-lg font-bold text-indigo-600">
-                                +{Math.max(0, selectedScoring.totalScore - (selectedScoring.experienceScore + selectedScoring.performanceScore + selectedScoring.disciplineScore)).toFixed(2)}
-                            </p>
-                        </div>
-                        <div className="flex flex-col items-end justify-center sm:border-l sm:border-blue-100 sm:pl-4">
-                            <p className="text-[9px] font-bold uppercase tracking-widest text-blue-600 mb-0.5">Final Score</p>
-                            <span className="rounded-lg bg-blue-600 px-4 py-1.5 text-2xl font-black text-white shadow-md shadow-blue-100">
-                                {selectedScoring.totalScore}%
-                            </span>
-                        </div>
+                    <div className="space-y-1">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                        Performance
+                      </p>
+                      <p className="text-lg font-bold text-gray-900">
+                        {selectedScoring.performanceScore.toFixed(2)}
+                      </p>
                     </div>
+                    <div className="space-y-1">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                        Discipline
+                      </p>
+                      <p className="text-lg font-bold text-gray-900">
+                        {selectedScoring.disciplineScore.toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                        Bonus
+                      </p>
+                      <p className="text-lg font-bold text-indigo-600">
+                        +
+                        {Math.max(
+                          0,
+                          selectedScoring.totalScore -
+                            (selectedScoring.experienceScore +
+                              selectedScoring.performanceScore +
+                              selectedScoring.disciplineScore),
+                        ).toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-end justify-center sm:border-l sm:border-blue-100 sm:pl-4">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-blue-600 mb-0.5">
+                        Final Score
+                      </p>
+                      <span className="rounded-lg bg-blue-600 px-4 py-1.5 text-2xl font-black text-white shadow-md shadow-blue-100">
+                        {selectedScoring.totalScore}%
+                      </span>
+                    </div>
+                  </div>
                 </div>
               )}
               <div className="md:col-span-2 space-y-1.5">
@@ -359,13 +443,13 @@ export default function CommitteeDecisionsPage() {
                 />
               </div>
               <div className="flex gap-4 pt-4 md:col-span-2">
-                <button
+                {/* <button
                   type="submit"
                   disabled={loading}
                   className="rounded-lg bg-blue-600 px-8 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-200 hover:bg-blue-700 disabled:opacity-50 transition-all"
                 >
                   {loading ? t("loading") : t("submit")}
-                </button>
+                </button> */}
                 <button
                   type="button"
                   onClick={() => {
@@ -388,14 +472,14 @@ export default function CommitteeDecisionsPage() {
               Ranked Scored Candidates
             </h2>
             <div className="flex items-center gap-4 text-[10px] font-bold text-gray-400">
-               <div className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
-                  Within Quota
-               </div>
-               <div className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-gray-300"></span>
-                  Backup / Over Quota
-               </div>
+              <div className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+                Within Quota
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-gray-300"></span>
+                Backup / Over Quota
+              </div>
             </div>
           </div>
           <div className="overflow-x-auto">
@@ -403,15 +487,25 @@ export default function CommitteeDecisionsPage() {
               <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
                 <tr>
                   <th className="px-6 py-4 w-12 text-center">
-                    <input 
-                      type="checkbox" 
-                      onChange={(e) => setSelectedIds(e.target.checked ? scoredRequests.map(r => r.id) : [])}
-                      checked={selectedIds.length === scoredRequests.length && scoredRequests.length > 0}
+                    <input
+                      type="checkbox"
+                      onChange={(e) =>
+                        setSelectedIds(
+                          e.target.checked
+                            ? scoredRequests.map((r) => r.id)
+                            : [],
+                        )
+                      }
+                      checked={
+                        selectedIds.length === scoredRequests.length &&
+                        scoredRequests.length > 0
+                      }
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                   </th>
                   <th className="px-6 py-4">Rank</th>
                   <th className="px-6 py-4">Employee</th>
+                  <th className="px-6 py-4">Department</th>
                   <th className="px-6 py-4">Education</th>
                   <th className="px-6 py-4 text-blue-600">Total Score (%)</th>
                   <th className="px-6 py-4 text-right">Actions</th>
@@ -423,31 +517,49 @@ export default function CommitteeDecisionsPage() {
                     const isWithinQuota = index < quota;
                     const isSelected = selectedIds.includes(r.id);
                     return (
-                      <tr 
-                        key={r.id} 
-                        className={`transition-colors ${isSelected ? 'bg-blue-50/30' : 'hover:bg-gray-50/50'}`}
+                      <tr
+                        key={r.id}
+                        className={`transition-colors ${isSelected ? "bg-blue-50/30" : "hover:bg-gray-50/50"}`}
                       >
                         <td className="px-6 py-4 text-center">
-                          <input 
-                            type="checkbox" 
+                          <input
+                            type="checkbox"
                             checked={isSelected}
                             onChange={() => toggleSelection(r.id)}
                             className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                           />
                         </td>
                         <td className="px-6 py-4">
-                           <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-black ${isWithinQuota ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
-                             {index + 1}
-                           </span>
+                          <span
+                            className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-black ${isWithinQuota ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500"}`}
+                          >
+                            {index + 1}
+                          </span>
                         </td>
                         <td className="px-6 py-4 font-bold text-gray-900">
                           {r.employeeName}
                         </td>
+                        <td className="px-6 py-4 text-xs italic text-gray-600">
+                          {r.employeeDepartment || "—"}
+                        </td>
                         <td className="px-6 py-4 font-medium text-xs italic">
-                          {r.educationType} ({r.educationLevel})
+                          {r.fieldOfStudy ||
+                            r.educationCategory ||
+                            r.educationType ||
+                            "—"}{" "}
+                          (
+                          {r.targetEducationLevel ||
+                            r.award ||
+                            r.educationLevel ||
+                            "—"}
+                          )
                         </td>
                         <td className="px-6 py-4 font-bold text-blue-700">
-                          <span className={isWithinQuota ? 'text-emerald-600 font-black' : ''}>
+                          <span
+                            className={
+                              isWithinQuota ? "text-emerald-600 font-black" : ""
+                            }
+                          >
                             {r.totalScore ? `${r.totalScore}%` : "-"}
                           </span>
                         </td>
@@ -465,7 +577,10 @@ export default function CommitteeDecisionsPage() {
                   })
                 ) : (
                   <tr>
-                    <td colSpan={6} className="px-4 py-12 text-center text-gray-400 italic">
+                    <td
+                      colSpan={6}
+                      className="px-4 py-12 text-center text-gray-400 italic"
+                    >
                       No scored requests available for ranking.
                     </td>
                   </tr>
@@ -487,6 +602,7 @@ export default function CommitteeDecisionsPage() {
                 <tr>
                   <th className="px-6 py-4">ID</th>
                   <th className="px-6 py-4">{t("educationRequests")} ID</th>
+                  <th className="px-6 py-4">Department</th>
                   <th className="px-6 py-4 text-blue-600">Total Score (%)</th>
                   <th className="px-6 py-4">{t("decision")}</th>
                   <th className="px-6 py-4">{t("comment")}</th>
@@ -499,43 +615,57 @@ export default function CommitteeDecisionsPage() {
                   decisions.map((d) => {
                     const req = allRequests[d.requestId];
                     return (
-                    <tr key={d.id} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="px-6 py-4 text-xs font-bold text-blue-600">DEC-{d.id.toString().slice(-6)}</td>
-                      <td className="px-6 py-4 text-xs font-bold text-gray-500">REQ-{d.requestId.toString().slice(-6)}</td>
-                      <td className="px-6 py-4 font-bold text-blue-700">
-                        {req?.totalScore ? `${req.totalScore}%` : "-"}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider italic ${d.decision === "APPROVED" ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-red-50 text-red-600 border border-red-100"}`}
-                        >
-                          {d.decision === "APPROVED"
-                            ? t("approve")
-                            : t("reject")}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-xs font-medium text-gray-600">{d.comment}</td>
-                      <td className="px-6 py-4 text-xs font-medium text-gray-400 italic">{d.decidedBy}</td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex justify-end gap-3">
-                          <button
-                            onClick={() => handleEdit(d)}
-                            className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors hover:bg-blue-50 rounded-lg"
+                      <tr
+                        key={d.id}
+                        className="hover:bg-gray-50/50 transition-colors"
+                      >
+                        <td className="px-6 py-4 text-xs font-bold text-blue-600">
+                          DEC-{d.id.toString().slice(-6)}
+                        </td>
+                        <td className="px-6 py-4 text-xs font-bold text-gray-500">
+                          REQ-{d.requestId.toString().slice(-6)}
+                        </td>
+                        <td className="px-6 py-4 text-xs italic text-gray-600">
+                          {req?.employeeDepartment || "—"}
+                        </td>
+                        <td className="px-6 py-4 font-bold text-blue-700">
+                          {req?.totalScore ? `${req.totalScore}%` : "-"}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider italic ${d.decision === "APPROVED" ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-red-50 text-red-600 border border-red-100"}`}
                           >
-                            <Edit className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(d.id)}
-                            className="p-1.5 text-gray-400 hover:text-red-600 transition-colors hover:bg-red-50 rounded-lg"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
+                            {d.decision === "APPROVED"
+                              ? t("approve")
+                              : t("reject")}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-xs font-medium text-gray-600">
+                          {d.comment}
+                        </td>
+                        <td className="px-6 py-4 text-xs font-medium text-gray-400 italic">
+                          {d.decidedBy}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-3">
+                            <button
+                              onClick={() => handleEdit(d)}
+                              className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors hover:bg-blue-50 rounded-lg"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(d.id)}
+                              className="p-1.5 text-gray-400 hover:text-red-600 transition-colors hover:bg-red-50 rounded-lg"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
                   <tr>
                     <td
                       colSpan={7}

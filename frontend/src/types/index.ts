@@ -31,8 +31,11 @@ export interface AuthResponse {
   email: string;
   fullName: string;
   role: UserRole;
-  employeeId?: number;
+  employeeId?: string;
   department?: string;
+  phone?: string;
+  gender?: string;
+  position?: string;
 }
 
 export interface EducationRequest {
@@ -42,6 +45,8 @@ export interface EducationRequest {
   opportunityId: number;
   educationType: string;
   educationLevel: string;
+  educationCategory?: string;
+  targetEducationLevel?: string;
   institution: string;
   currentEducationLevel: string;
   workExperience: number;
@@ -110,6 +115,7 @@ export interface Contract {
   id: number;
   employeeId: number;
   employeeName: string;
+  employeeDepartment?: string;
   requestId: number;
   university: string;
   program: string;

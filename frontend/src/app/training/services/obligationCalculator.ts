@@ -20,22 +20,29 @@ export interface ObligationResult {
 }
 
 const TIERS = [
-  { from: 200_000,   to: 400_000,   baseMonths: 6,   step: 34_000,  maxMonths: 12  },
-  { from: 400_000,   to: 800_000,   baseMonths: 12,  step: 34_000,  maxMonths: 24  },
-  { from: 800_000,   to: 1_200_000, baseMonths: 24,  step: 34_000,  maxMonths: 36  },
-  { from: 1_200_000, to: 1_600_000, baseMonths: 36,  step: 34_000,  maxMonths: 48  },
-  { from: 1_600_000, to: 2_000_000, baseMonths: 48,  step: 34_000,  maxMonths: 60  },
-  { from: 2_000_000, to: 2_600_000, baseMonths: 60,  step: 50_000,  maxMonths: 72  },
-  { from: 2_600_000, to: Infinity,  baseMonths: 84,  step: 100_000, maxMonths: 120 },
+  { from: 200_000, to: 400_000, baseMonths: 6, step: 34_000, maxMonths: 12 },
+  { from: 400_000, to: 800_000, baseMonths: 12, step: 34_000, maxMonths: 24 },
+  { from: 800_000, to: 1_200_000, baseMonths: 24, step: 34_000, maxMonths: 36 },
+  { from: 1_200_000, to: 1_600_000, baseMonths: 36, step: 34_000, maxMonths: 48 },
+  { from: 1_600_000, to: 2_000_000, baseMonths: 48, step: 34_000, maxMonths: 60 },
+  { from: 2_000_000, to: 2_600_000, baseMonths: 60, step: 50_000, maxMonths: 72 },
+  { from: 2_600_000, to: Infinity, baseMonths: 84, step: 100_000, maxMonths: 120 },
 ];
 
 export function calculateObligation(cost: number): ObligationResult {
   if (cost < 200_000) {
-    return { months: 0, years: 0, remainderMonths: 0, label: "No obligation (below 200,000 ETB)", requiresContract: false };
+    return {
+      months: 0,
+      years: 0,
+      remainderMonths: 0,
+      label: "No obligation (below 200,000 ETB)",
+      requiresContract: false,
+    };
   }
 
-  const tier = TIERS.find((t) => cost > t.from && cost <= t.to) ||
-               (cost >= 200_000 && cost <= 400_000 ? TIERS[0] : null);
+  // Find the appropriate tier based on cost
+  const tier = TIERS.find((t) => cost > t.from && cost <= t.to) || 
+               (cost === 200_000 ? TIERS[0] : TIERS[TIERS.length - 1]);
 
   if (!tier) {
     return { months: 0, years: 0, remainderMonths: 0, label: "Unable to calculate", requiresContract: false };

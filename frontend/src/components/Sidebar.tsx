@@ -146,6 +146,12 @@ const eduNavItems: NavItem[] = [
     icon: <Clock className="h-5 w-5" />,
     roles: ["HR_OFFICER", "CYBER_DEVELOPMENT_CENTER", "ADMIN"],
   },
+  {
+    href: "/education/reports",
+    labelKey: "navEducationAnalytics",
+    icon: <BarChart3 className="h-5 w-5" />,
+    roles: ["DEPARTMENT_HEAD", "HR_OFFICER", "CYBER_DEVELOPMENT_CENTER", "ADMIN"],
+  },
 ];
 
 // ─── Training Nav ──────────────────────────────────────────────────────────
@@ -184,6 +190,12 @@ const trainingNavItems: NavItem[] = [
     href: "/training/obligation-tracking",
     labelKey: "navTrainingObligations",
     icon: <Clock className="h-5 w-5" />,
+    roles: ["HR_OFFICER", "PROCUREMENT", "ADMIN"],
+  },
+  {
+    href: "/training/reports",
+    labelKey: "navTrainingReports",
+    icon: <BarChart3 className="h-5 w-5" />,
     roles: ["HR_OFFICER", "PROCUREMENT", "ADMIN"],
   },
 ];
