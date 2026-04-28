@@ -305,7 +305,7 @@ export default function TrainingReportsPage() {
                  { icon: User, label: "Requester", value: selectedItem.requesterName },
                  { icon: Building2, label: "Department", value: selectedItem.department },
                  { icon: FileText, label: "Title", value: selectedItem.trainingTitle },
-                 { icon: DollarSign, label: "Cost", value: `${selectedItem.estimatedCost.toLocaleString()} Birr` },
+                 { icon: DollarSign, label: "Total Cost", value: `${selectedItem.estimatedCost.toLocaleString()} Birr` },
                  { icon: Users, label: "Participants", value: selectedItem.numTrainees },
                  { icon: Calendar, label: "Duration", value: selectedItem.trainingDuration },
                  { icon: MapPin, label: "Location", value: selectedItem.trainingLocation },

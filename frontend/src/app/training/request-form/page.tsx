@@ -242,16 +242,18 @@ export default function TrainingRequestFormPage() {
                       placeholder="0.00"
                     />
                   </div>
-                  {form.estimatedCost &&
-                    parseFloat(form.estimatedCost) >= COST_THRESHOLD &&
+                  {form.estimatedCost && form.numTrainees && (
                     (() => {
-                      const obl = calculateObligation(
-                        parseFloat(form.estimatedCost),
-                      );
+                      const numTrainees = parseInt(form.numTrainees) || 1;
+                      const individualCost = parseFloat(form.estimatedCost) / numTrainees;
+                      const obl = calculateObligation(individualCost);
+                      
+                      if (individualCost < COST_THRESHOLD) return null;
+
                       return (
                         <div className="mt-2 space-y-1">
                           <p className="text-[10px] font-bold text-amber-600 flex items-center gap-1">
-                            ⚠ Cost ≥ 200,000 Birr — Contract &amp; service
+                            ⚠ Individual Cost ({individualCost.toLocaleString()} Birr) ≥ 200,000 Birr — Contract &amp; service
                             obligation required
                           </p>
                           <p className="text-[10px] font-bold text-blue-700">
@@ -261,7 +263,8 @@ export default function TrainingRequestFormPage() {
                           </p>
                         </div>
                       );
-                    })()}
+                    })()
+                  )}
                 </div>
               </div>
               <div>

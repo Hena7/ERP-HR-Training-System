@@ -88,11 +88,13 @@ export default function TrainingContractFormPage() {
           houseNo: "",
         }),
       );
-      // Auto-fill cost and duration from requested estimate
-      const obl = calculateObligation(r.estimatedCost);
+      // Auto-fill cost and duration from requested estimate (individual basis)
+      const numTrainees = r.numTrainees || 1;
+      const individualCost = r.estimatedCost / numTrainees;
+      const obl = calculateObligation(individualCost);
       setForm((prev) => ({
         ...prev,
-        totalCost: String(r.estimatedCost),
+        totalCost: String(individualCost),
         contractDurationMonths: obl.requiresContract ? String(obl.months) : "",
       }));
     }
@@ -488,6 +490,9 @@ export default function TrainingContractFormPage() {
                       placeholder="0.00"
                     />
                   </div>
+                  <p className="mt-1 text-[10px] text-gray-400">
+                    Individual Cost per trainee.
+                  </p>
                   {form.totalCost &&
                     parseFloat(form.totalCost) >= 200000 &&
                     (() => {

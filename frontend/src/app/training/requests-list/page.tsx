@@ -124,7 +124,7 @@ export default function TrainingRequestsListPage() {
                   "REQ-ID",
                   t("department"),
                   t("trainingTitle"),
-                  t("estimatedCost"),
+                  t("estimatedCost") + " (Total)",
                   t("numTrainees"),
                   t("status"),
                   t("actions"),
@@ -238,7 +238,7 @@ export default function TrainingRequestsListPage() {
                 },
                 {
                   icon: DollarSign,
-                  label: t("estimatedCost"),
+                  label: t("estimatedCost") + " (Total)",
                   value: `${selected.estimatedCost.toLocaleString()} Birr`,
                 },
                 {

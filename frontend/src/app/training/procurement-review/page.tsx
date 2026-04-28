@@ -54,7 +54,8 @@ export default function ProcurementReviewPage() {
 
   const handleApprove = async (req: TrainingRequest) => {
     setBusyId(req.id);
-    if (req.estimatedCost >= THRESHOLD) {
+    const individualCost = req.estimatedCost / (req.numTrainees || 1);
+    if (individualCost >= THRESHOLD) {
       await trainingRequestApi.updateStatus(
         req.id,
         "CONTRACT_REQUIRED",
@@ -100,13 +101,11 @@ export default function ProcurementReviewPage() {
         <div className="flex items-center gap-3 rounded-xl bg-blue-50/50 border border-blue-100 px-5 py-4">
           <AlertTriangle className="h-5 w-5 text-blue-600 flex-shrink-0" />
           <p className="text-sm font-bold text-blue-900">
-            Cost &lt; 200,000 Birr → Approve Directly &nbsp;|&nbsp; Cost ≥
+            Individual Cost &lt; 200,000 Birr → Approve Directly &nbsp;|&nbsp; Individual Cost ≥
             200,000 Birr → Require Contract &amp; Service Obligation
           </p>
-          <p className="text-xs text-blue-700 mt-1">
-            Obligation: 200k–400k = 6–12 mo • 400k–800k = 1–2 yr • 800k–1.2M =
-            2–3 yr • 1.2M–1.6M = 3–4 yr • 1.6M–2M = 4–5 yr • 2M–2.6M = 5–6 yr •
-            &gt;2.6M = 7–10 yr
+          <p className="text-[10px] text-blue-700 mt-1">
+            (Individual Cost = Total Estimated Cost / Number of Trainees)
           </p>
         </div>
 
@@ -167,22 +166,23 @@ export default function ProcurementReviewPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`inline-flex items-center gap-1 text-sm font-bold ${req.estimatedCost >= THRESHOLD ? "text-red-600" : "text-emerald-600"}`}
+                        className={`inline-flex items-center gap-1 text-sm font-bold ${(req.estimatedCost / (req.numTrainees || 1)) >= THRESHOLD ? "text-red-600" : "text-emerald-600"}`}
                       >
                         {req.estimatedCost.toLocaleString()} Birr
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      {req.estimatedCost >= THRESHOLD ? (
+                      {(req.estimatedCost / (req.numTrainees || 1)) >= THRESHOLD ? (
                         (() => {
-                          const obl = calculateObligation(req.estimatedCost);
+                          const individualCost = req.estimatedCost / (req.numTrainees || 1);
+                          const obl = calculateObligation(individualCost);
                           return (
                             <span className="inline-flex flex-col">
                               <span className="text-xs font-bold text-amber-700">
                                 {obl.label}
                               </span>
                               <span className="text-[10px] text-gray-400">
-                                {obl.months} months total
+                                {individualCost.toLocaleString()} per trainee
                               </span>
                             </span>
                           );
@@ -208,9 +208,9 @@ export default function ProcurementReviewPage() {
                         <button
                           onClick={() => setShowNoteModal(req)}
                           disabled={busyId === req.id}
-                          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${req.estimatedCost >= THRESHOLD ? "bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white"}`}
+                          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${(req.estimatedCost / (req.numTrainees || 1)) >= THRESHOLD ? "bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white"}`}
                         >
-                          {req.estimatedCost >= THRESHOLD ? (
+                          {(req.estimatedCost / (req.numTrainees || 1)) >= THRESHOLD ? (
                             <>
                               <FileSignature /> {t("requireContract")}
                             </>
