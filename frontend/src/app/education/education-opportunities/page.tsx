@@ -3,13 +3,22 @@
 import { useEffect, useMemo, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import StatusBadge from "@/components/StatusBadge";
-import { BookOpen, Plus, Search, Edit, Trash2, Users, ChevronDown, ChevronRight } from "lucide-react";
+import {
+  BookOpen,
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Users,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { EducationOpportunity } from "@/types";
 import { educationOpportunityApi } from "@/lib/api";
 
-// â”€â”€â”€ INSA Organizational Hierarchy â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// INSA Organizational Hierarchy
 interface OrgNode {
   id: string;
   label: string;
@@ -19,24 +28,32 @@ interface OrgNode {
 const INSA_ORG_TREE: OrgNode[] = [
   {
     id: "1674",
-    label: "1674--áŠ¢áˆ˜á‹µáŠ  áŠ á‹²áˆµ",
+    label: "1674--ኢመደአ አዲስ",
     children: [
       {
         id: "1691",
-        label: "1691--á‹‹áŠ“ á‹³á‹­áˆ¬áŠ­á‰°áˆ­",
+        label: "1691--ዋና ዳይርክተር",
         children: [
           {
             id: "1693",
-            label: "1693--á‹¨áŠ¢áŠ•áŽáˆ­áˆœáˆ½áŠ• áŠ áˆ¹áˆ«áŠ•áˆµ á‹˜áˆ­á",
+            label: "1693--የኢንፎርሜሽን አሹራንስ ዘርፍ",
             children: [
-              { id: "1693-D1", label: "Directorate 1" },
+              {
+                id: "1693-D1",
+                label: "Directorate 1",
+                children: [
+                  { id: "1693-Div1", label: "Division 1" },
+                  { id: "1693-Div2", label: "Division 2" },
+                  { id: "1693-Div3", label: "Division 3" },
+                ],
+              },
               { id: "1693-D2", label: "Directorate 2" },
               { id: "1693-D3", label: "Directorate 3" },
             ],
           },
           {
             id: "1694",
-            label: "1694--á‹¨áŠ¢áŠ•áŽáˆ­áˆœáˆ½áŠ• á‹‹áˆ­áŒáˆ­ áŠ¥áŠ“ áˆ˜áˆ¨áŒƒ á‹˜áˆ­á",
+            label: "1694--የኢንፎርሜሽን ዋርፌር እና መረጃ ዘርፍ",
             children: [
               { id: "1694-D1", label: "Directorate 1" },
               { id: "1694-D2", label: "Directorate 2" },
@@ -45,7 +62,7 @@ const INSA_ORG_TREE: OrgNode[] = [
           },
           {
             id: "1695",
-            label: "1695--áˆ€áŒˆáˆ«á‹Š á‹¨á‹²áŒ‚á‰³áˆ â€¹áŒ áˆˆáˆ â€ºá‰µ áˆáˆ›á‰µ á‹˜áˆ­á",
+            label: "1695--ሀገራዊ የዲጂታል መሰረተ ልማት ዘርፍ",
             children: [
               { id: "1695-D1", label: "Directorate 1" },
               { id: "1695-D2", label: "Directorate 2" },
@@ -54,26 +71,25 @@ const INSA_ORG_TREE: OrgNode[] = [
           },
           {
             id: "1692",
-            label: "1692--á‹‹áŠ“ á‹³á‹­áˆ¬áŠ­á‰°áˆ­ áŠ áˆµá‰°á‹³á‹³áˆª(á‹Žá‰½)",
+            label: "1692--ዋና ዳይሬክተር አማካሪ(ዎች)",
+          },
+          {
+            id: "1696",
+            label: "1696--የተቀናጀ ድጋፍ ዘርፍ",
             children: [
-              {
-                id: "1696",
-                label: "1696--á‹¨á‰°á‰€áŠ“áŒ€ á‹µáŒ‹á á‹˜áˆ­á",
-                children: [
-                  { id: "1696-D1", label: "Directorate 1" },
-                  { id: "1696-D2", label: "Directorate 2" },
-                  { id: "1696-D3", label: "Directorate 3" },
-                ],
-              },
-              {
-                id: "1697",
-                label: "1697--á‹‹áŠ“ á‹³á‹­áˆ¬áŠ­á‰°áˆ­ á‰°áŒ áˆª",
-                children: [
-                  { id: "1697-D1", label: "Directorate 1" },
-                  { id: "1697-D2", label: "Directorate 2" },
-                  { id: "1697-D3", label: "Directorate 3" },
-                ],
-              },
+              { id: "1696-D1", label: "Directorate 1" },
+              { id: "1696-D2", label: "Directorate 2" },
+              { id: "1696-D3", label: "Directorate 3" },
+            ],
+          },
+
+          {
+            id: "1697",
+            label: "1697--ዋና ዳይሬክተር ተጠሪ",
+            children: [
+              { id: "1697-D1", label: "Directorate 1" },
+              { id: "1697-D2", label: "Directorate 2" },
+              { id: "1697-D3", label: "Directorate 3" },
             ],
           },
         ],
@@ -108,7 +124,7 @@ function findNodeById(nodes: OrgNode[], id: string): OrgNode | null {
   return null;
 }
 
-// â”€â”€â”€ Form Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// types for form
 type DeptQuota = { candidates: number; standby: number };
 
 type OpportunityFormData = {
@@ -135,7 +151,7 @@ const emptyForm: OpportunityFormData = {
   deadline: "",
 };
 
-// â”€â”€â”€ Org Tree Node Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Org Tree Node Component
 function OrgTreeNode({
   node,
   selectedIds,
@@ -150,7 +166,9 @@ function OrgTreeNode({
   const [expanded, setExpanded] = useState(depth < 2);
   const hasChildren = node.children && node.children.length > 0;
   const allDescendants = getAllDescendantIds(node);
-  const selectedCount = allDescendants.filter((id) => selectedIds.has(id)).length;
+  const selectedCount = allDescendants.filter((id) =>
+    selectedIds.has(id),
+  ).length;
   const isFullySelected = selectedCount === allDescendants.length;
   const isPartiallySelected = selectedCount > 0 && !isFullySelected;
   const isLeaf = !hasChildren;
@@ -159,7 +177,11 @@ function OrgTreeNode({
     <div className={`${depth > 0 ? "ml-5 border-l border-gray-100 pl-3" : ""}`}>
       <div
         className={`flex items-center gap-2 py-1.5 px-2 rounded-lg transition-colors ${
-          isFullySelected ? "bg-blue-50" : isPartiallySelected ? "bg-blue-50/40" : "hover:bg-gray-50"
+          isFullySelected
+            ? "bg-blue-50"
+            : isPartiallySelected
+              ? "bg-blue-50/40"
+              : "hover:bg-gray-50"
         }`}
       >
         {hasChildren && (
@@ -461,15 +483,24 @@ export default function EducationOpportunitiesPage() {
 
   // Suggestions from existing opportunities
   const typeSuggestions = useMemo(
-    () => Array.from(new Set(opportunities.map((o) => o.educationType))).filter(Boolean).sort(),
+    () =>
+      Array.from(new Set(opportunities.map((o) => o.educationType)))
+        .filter(Boolean)
+        .sort(),
     [opportunities],
   );
   const levelSuggestions = useMemo(
-    () => Array.from(new Set(opportunities.map((o) => o.educationLevel))).filter(Boolean).sort(),
+    () =>
+      Array.from(new Set(opportunities.map((o) => o.educationLevel)))
+        .filter(Boolean)
+        .sort(),
     [opportunities],
   );
   const institutionSuggestions = useMemo(
-    () => Array.from(new Set(opportunities.map((o) => o.institution))).filter(Boolean).sort(),
+    () =>
+      Array.from(new Set(opportunities.map((o) => o.institution)))
+        .filter(Boolean)
+        .sort(),
     [opportunities],
   );
 
@@ -535,7 +566,9 @@ export default function EducationOpportunitiesPage() {
         {isDepartmentHead && !isCenterUser && userDepartment && (
           <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-800">
             Your department:{" "}
-            <span className="font-semibold text-blue-900">{userDepartment}</span>
+            <span className="font-semibold text-blue-900">
+              {userDepartment}
+            </span>
           </div>
         )}
 
@@ -547,7 +580,10 @@ export default function EducationOpportunitiesPage() {
               </h2>
             </div>
 
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <form
+              onSubmit={handleSubmit}
+              className="grid grid-cols-1 gap-4 md:grid-cols-2"
+            >
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   {t("educationType")}
@@ -558,10 +594,14 @@ export default function EducationOpportunitiesPage() {
                   required
                   className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                   value={formData.educationType}
-                  onChange={(e) => setFormData({ ...formData, educationType: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, educationType: e.target.value })
+                  }
                 />
                 <datalist id="type-suggestions">
-                  {typeSuggestions.map((s) => <option key={s} value={s} />)}
+                  {typeSuggestions.map((s) => (
+                    <option key={s} value={s} />
+                  ))}
                 </datalist>
               </div>
 
@@ -575,10 +615,14 @@ export default function EducationOpportunitiesPage() {
                   required
                   className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                   value={formData.educationLevel}
-                  onChange={(e) => setFormData({ ...formData, educationLevel: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, educationLevel: e.target.value })
+                  }
                 />
                 <datalist id="level-suggestions">
-                  {levelSuggestions.map((s) => <option key={s} value={s} />)}
+                  {levelSuggestions.map((s) => (
+                    <option key={s} value={s} />
+                  ))}
                 </datalist>
               </div>
 
@@ -592,10 +636,14 @@ export default function EducationOpportunitiesPage() {
                   required
                   className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                   value={formData.institution}
-                  onChange={(e) => setFormData({ ...formData, institution: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, institution: e.target.value })
+                  }
                 />
                 <datalist id="inst-suggestions">
-                  {institutionSuggestions.map((s) => <option key={s} value={s} />)}
+                  {institutionSuggestions.map((s) => (
+                    <option key={s} value={s} />
+                  ))}
                 </datalist>
               </div>
 
@@ -607,7 +655,12 @@ export default function EducationOpportunitiesPage() {
                   <select
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                     value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        status: e.target.value as any,
+                      })
+                    }
                   >
                     <option value="OPEN">{t("OPEN")}</option>
                     <option value="CLOSED">{t("CLOSED")}</option>
@@ -623,7 +676,9 @@ export default function EducationOpportunitiesPage() {
                     required
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                     value={formData.deadline}
-                    onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, deadline: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -657,11 +712,16 @@ export default function EducationOpportunitiesPage() {
                 <div className="md:col-span-2">
                   <label className="mb-2 block text-sm font-medium text-gray-700">
                     Department Quotas{" "}
-                    <span className="text-xs text-gray-400 font-normal">(candidates & standby per department)</span>
+                    <span className="text-xs text-gray-400 font-normal">
+                      (candidates & standby per department)
+                    </span>
                   </label>
                   <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                     {selectedLeafNodes.map((node) => {
-                      const quota = formData.departmentQuotas[node.id] || { candidates: 1, standby: 1 };
+                      const quota = formData.departmentQuotas[node.id] || {
+                        candidates: 1,
+                        standby: 1,
+                      };
                       return (
                         <div
                           key={node.id}
@@ -671,20 +731,36 @@ export default function EducationOpportunitiesPage() {
                             {node.label}
                           </span>
                           <div className="flex items-center gap-2 flex-shrink-0">
-                            <label className="text-[10px] font-bold uppercase text-gray-400">Cand.</label>
+                            <label className="text-[10px] font-bold uppercase text-gray-400">
+                              Cand.
+                            </label>
                             <input
                               type="number"
                               min={0}
                               value={quota.candidates}
-                              onChange={(e) => handleQuotaChange(node.id, "candidates", Number(e.target.value))}
+                              onChange={(e) =>
+                                handleQuotaChange(
+                                  node.id,
+                                  "candidates",
+                                  Number(e.target.value),
+                                )
+                              }
                               className="w-14 rounded-lg border border-gray-200 bg-gray-50 px-2 py-1 text-center text-sm font-bold focus:border-blue-500 focus:outline-none"
                             />
-                            <label className="text-[10px] font-bold uppercase text-gray-400">Stby.</label>
+                            <label className="text-[10px] font-bold uppercase text-gray-400">
+                              Stby.
+                            </label>
                             <input
                               type="number"
                               min={0}
                               value={quota.standby}
-                              onChange={(e) => handleQuotaChange(node.id, "standby", Number(e.target.value))}
+                              onChange={(e) =>
+                                handleQuotaChange(
+                                  node.id,
+                                  "standby",
+                                  Number(e.target.value),
+                                )
+                              }
                               className="w-14 rounded-lg border border-gray-200 bg-gray-50 px-2 py-1 text-center text-sm font-bold focus:border-blue-500 focus:outline-none"
                             />
                           </div>
@@ -703,7 +779,9 @@ export default function EducationOpportunitiesPage() {
                   className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
                   rows={3}
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                 />
               </div>
 
@@ -751,7 +829,9 @@ export default function EducationOpportunitiesPage() {
                   <th className="px-6 py-5">Target Departments</th>
                   <th className="px-6 py-5">{t("deadline")}</th>
                   <th className="px-6 py-5">{t("status")}</th>
-                  {isCenterUser && <th className="px-6 py-5 text-right">{t("actions")}</th>}
+                  {isCenterUser && (
+                    <th className="px-6 py-5 text-right">{t("actions")}</th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y text-gray-600">
@@ -763,14 +843,19 @@ export default function EducationOpportunitiesPage() {
                         ? [opp.department]
                         : [];
                   return (
-                    <tr key={opp.id} className="hover:bg-gray-50/50 transition-colors group">
+                    <tr
+                      key={opp.id}
+                      className="hover:bg-gray-50/50 transition-colors group"
+                    >
                       <td className="px-6 py-5 font-bold text-gray-900 uppercase tracking-tight">
                         {opp.educationType}
                       </td>
                       <td className="px-6 py-5 font-medium text-gray-600 italic text-xs">
                         {opp.educationLevel}
                       </td>
-                      <td className="px-6 py-5 font-medium text-gray-800">{opp.institution}</td>
+                      <td className="px-6 py-5 font-medium text-gray-800">
+                        {opp.institution}
+                      </td>
                       <td className="px-6 py-5">
                         <div className="flex flex-wrap gap-1">
                           {targets.slice(0, 3).map((department) => (
@@ -794,7 +879,9 @@ export default function EducationOpportunitiesPage() {
                       <td className="px-6 py-5">
                         <StatusBadge
                           status={
-                            opp.deadline && new Date(opp.deadline) < new Date(new Date().setHours(0, 0, 0, 0))
+                            opp.deadline &&
+                            new Date(opp.deadline) <
+                              new Date(new Date().setHours(0, 0, 0, 0))
                               ? "EXPIRED"
                               : opp.status
                           }
@@ -825,7 +912,10 @@ export default function EducationOpportunitiesPage() {
                 })}
                 {visibleOpportunities.length === 0 && (
                   <tr>
-                    <td colSpan={isCenterUser ? 7 : 6} className="p-8 text-center text-gray-500">
+                    <td
+                      colSpan={isCenterUser ? 7 : 6}
+                      className="p-8 text-center text-gray-500"
+                    >
                       {t("noData")}
                     </td>
                   </tr>
@@ -838,4 +928,3 @@ export default function EducationOpportunitiesPage() {
     </DashboardLayout>
   );
 }
-
