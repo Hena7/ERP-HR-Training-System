@@ -43,6 +43,19 @@ export const trainingGuarantorApi = {
 };
 
 // ─────────────────────────────────────────────
+// Training Witness
+// ─────────────────────────────────────────────
+export const trainingWitnessApi = {
+  create: (data: any) => trainingApi.post("/api/training-witnesses", data),
+
+  getByContract: (contractId: number) => trainingApi.get(`/api/training-witnesses/contract/${contractId}`),
+
+  update: (id: number, data: any) => trainingApi.put(`/api/training-witnesses/${id}`, data),
+
+  delete: (id: number) => trainingApi.delete(`/api/training-witnesses/${id}`),
+};
+
+// ─────────────────────────────────────────────
 // Obligation Tracking
 // ─────────────────────────────────────────────
 export const trainingObligationApi = {

@@ -1,7 +1,8 @@
 /**
  * Training Service Obligation Calculator
  *
- * Rules (cost in ETB):
+ * Rules (cost in ETB) — tiers are configurable by Admin/CDC via the Training Settings page.
+ * Defaults:
  *  200,000 –  400,000 : base  6 months, +1 month per 34,000 above 200,000, max 12 months
  *  400,001 –  800,000 : base 12 months, +1 month per 34,000 above 400,000, max 24 months
  *  800,001 – 1,200,000: base 24 months, +1 month per 34,000 above 800,000, max 36 months
@@ -19,7 +20,15 @@ export interface ObligationResult {
   requiresContract: boolean;
 }
 
-const TIERS = [
+export interface ObligationTier {
+  from: number;
+  to: number;
+  baseMonths: number;
+  step: number;
+  maxMonths: number;
+}
+
+const DEFAULT_TIERS: ObligationTier[] = [
   { from: 200_000, to: 400_000, baseMonths: 6, step: 34_000, maxMonths: 12 },
   { from: 400_000, to: 800_000, baseMonths: 12, step: 34_000, maxMonths: 24 },
   { from: 800_000, to: 1_200_000, baseMonths: 24, step: 34_000, maxMonths: 36 },
@@ -29,7 +38,41 @@ const TIERS = [
   { from: 2_600_000, to: Infinity, baseMonths: 84, step: 100_000, maxMonths: 120 },
 ];
 
+const STORAGE_KEY = "training_obligation_formula";
+
+/** Returns the currently active formula tiers.
+ *  Admin/CDC can override via the Training Settings page (stored in localStorage).
+ */
+export function getFormulaTiers(): ObligationTier[] {
+  if (typeof window === "undefined") return DEFAULT_TIERS;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored) as ObligationTier[];
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Restore Infinity which cannot be serialised in JSON
+        return parsed.map((t) => ({ ...t, to: t.to === null ? Infinity : t.to }));
+      }
+    }
+  } catch {
+    /* ignore parse errors */
+  }
+  return DEFAULT_TIERS;
+}
+
+export function saveFormulaTiers(tiers: ObligationTier[]): void {
+  // Store Infinity as null for JSON compatibility
+  const serialisable = tiers.map((t) => ({ ...t, to: t.to === Infinity ? null : t.to }));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(serialisable));
+}
+
+export function resetFormulaTiers(): void {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
 export function calculateObligation(cost: number): ObligationResult {
+  const TIERS = getFormulaTiers();
+
   if (cost < 200_000) {
     return {
       months: 0,
@@ -40,9 +83,9 @@ export function calculateObligation(cost: number): ObligationResult {
     };
   }
 
-  // Find the appropriate tier based on cost
-  const tier = TIERS.find((t) => cost > t.from && cost <= t.to) || 
-               (cost === 200_000 ? TIERS[0] : TIERS[TIERS.length - 1]);
+  const tier =
+    TIERS.find((t) => cost > t.from && cost <= t.to) ||
+    (cost === 200_000 ? TIERS[0] : TIERS[TIERS.length - 1]);
 
   if (!tier) {
     return { months: 0, years: 0, remainderMonths: 0, label: "Unable to calculate", requiresContract: false };
@@ -64,3 +107,5 @@ export function calculateObligation(cost: number): ObligationResult {
 export function formatCost(n: number): string {
   return n.toLocaleString("en-ET", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
+
+export { DEFAULT_TIERS };

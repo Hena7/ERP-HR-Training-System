@@ -9,13 +9,9 @@ import {
   CheckCircle2,
   ClipboardCheck,
   XCircle,
-  RotateCcw,
   Calculator,
   Award,
-  User,
-  AlertCircle,
 } from "lucide-react";
-import { calculateEducationScore } from "@/lib/scoring";
 
 type VerificationStatus = "VERIFIED" | "REJECTED" | "RETURNED_TO_DEPT";
 
@@ -91,28 +87,9 @@ export default function HRVerificationsPage() {
     return ((semester1 + semester2) / 2).toFixed(2);
   }, [form.semester1Score, form.semester2Score]);
 
-  const scoringResult = useMemo(() => {
-    if (!form.requestId) return null;
-
-    return calculateEducationScore({
-      experienceYears: Number(form.experienceYears) || 0,
-      experienceMonths: Number(form.experienceMonths) || 0,
-      performance1: Number(form.semester1Score) || 0,
-      performance2: Number(form.semester2Score) || 0,
-      hasDiscipline: form.hasDiscipline,
-      gender: form.gender,
-      isDisabled: form.isDisabled,
-    });
-  }, [
-    form.requestId,
-    form.experienceYears,
-    form.experienceMonths,
-    form.semester1Score,
-    form.semester2Score,
-    form.hasDiscipline,
-    form.gender,
-    form.isDisabled,
-  ]);
+  // NOTE: Score calculation is intentionally hidden from HR.
+  // The calculated scores are computed automatically when submitted
+  // and are only visible to the Committee on the Committee Decisions page.
 
   const resetForm = () => {
     setForm(initialForm);
@@ -173,6 +150,18 @@ export default function HRVerificationsPage() {
     setSubmittingStatus(status);
 
     try {
+      // Import scoring here to compute without displaying to HR
+      const { calculateEducationScore } = await import("@/lib/scoring");
+      const scoring = calculateEducationScore({
+        experienceYears: Number(form.experienceYears) || 0,
+        experienceMonths: Number(form.experienceMonths) || 0,
+        performance1: semester1Score,
+        performance2: semester2Score,
+        hasDiscipline: form.hasDiscipline,
+        gender: form.gender,
+        isDisabled: form.isDisabled,
+      });
+
       await hrVerificationApi.verify({
         requestId: form.requestId,
         semester1Score,
@@ -184,11 +173,11 @@ export default function HRVerificationsPage() {
         experienceMonths: Number(form.experienceMonths),
         isDisabled: form.isDisabled,
         gender: form.gender,
-        experienceSubScore: scoringResult?.experienceScore,
-        performanceSubScore: scoringResult?.performanceScore,
-        disciplineSubScore: scoringResult?.disciplineScore,
-        affirmativeBonus: scoringResult?.affirmativeBonus,
-        totalCalculatedScore: scoringResult?.finalTotalScore,
+        experienceSubScore: scoring.experienceScore,
+        performanceSubScore: scoring.performanceScore,
+        disciplineSubScore: scoring.disciplineScore,
+        affirmativeBonus: scoring.affirmativeBonus,
+        totalCalculatedScore: scoring.finalTotalScore,
         status,
       });
 
@@ -250,69 +239,80 @@ export default function HRVerificationsPage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                <tr>
-                  <th className="px-6 py-4">ID</th>
-                  <th className="px-6 py-4">{t("fullName")}</th>
-                  <th className="px-6 py-4">{t("department")}</th>
-                  <th className="px-6 py-4">{t("educationOpportunity")}</th>
-                  <th className="px-6 py-4">{t("institution")}</th>
-                  <th className="px-6 py-4 text-right">{t("actions")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {requests.length > 0 ? (
-                  requests.map((request) => {
-                    const isSelected = form.requestId === request.id;
+            {requests.length > 0 ? (() => {
+              // Group by department + opportunity key
+              const groups: Record<string, typeof requests> = {};
+              requests.forEach((req) => {
+                const dept = req.employeeDepartment || "Unknown Department";
+                const opp = req.fieldOfStudy || (req as any).educationType || "Unknown Opportunity";
+                const key = `${dept}|||${opp}`;
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(req);
+              });
 
-                    return (
-                      <tr
-                        key={request.id}
-                        className="hover:bg-gray-50/50 transition-colors"
-                      >
-                        <td className="px-6 py-4 text-xs font-bold text-blue-600">
-                          REQ-{request.id.toString().slice(-6)}
-                        </td>
-                        <td className="px-6 py-4 font-bold text-gray-900">
-                          {request.employeeName}
-                        </td>
-                        <td className="px-6 py-4 font-medium text-gray-600">
-                          {request.employeeDepartment}
-                        </td>
-                        <td className="px-6 py-4 font-medium text-gray-700 text-xs italic">
-                          {request.fieldOfStudy || (request as any).educationType} ({(request as any).targetEducationLevel || (request as any).educationLevel})
-                        </td>
-                        <td className="px-6 py-4 font-medium text-gray-500">
-                          {request.institution}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => handleRequestSelect(request)}
-                            className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
-                              isSelected
-                                ? "bg-blue-600 text-white shadow-blue-200"
-                                : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
-                            }`}
-                          >
-                            {isSelected ? "Selected" : "Review"}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-4 py-8 text-center text-gray-500"
-                    >
-                      {t("noData")}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+              return Object.entries(groups).map(([key, groupReqs]) => {
+                const [dept, opp] = key.split("|||");
+                return (
+                  <div key={key} className="border-b border-gray-100 last:border-b-0">
+                    {/* Group Header */}
+                    <div className="flex items-center gap-3 bg-gradient-to-r from-blue-50/80 to-indigo-50/40 px-6 py-3 border-b border-blue-100/60">
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center rounded-lg bg-blue-600 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-sm">
+                          {dept}
+                        </span>
+                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">—</span>
+                        <span className="text-xs font-bold italic text-gray-700">{opp}</span>
+                      </div>
+                      <span className="ml-auto rounded-full bg-blue-100 px-2.5 py-0.5 text-[10px] font-black text-blue-700">
+                        {groupReqs.length} candidate{groupReqs.length !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                        <tr>
+                          <th className="px-6 py-3">ID</th>
+                          <th className="px-6 py-3">{t("fullName")}</th>
+                          <th className="px-6 py-3">{t("institution")}</th>
+                          <th className="px-6 py-3 text-right">{t("actions")}</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {groupReqs.map((request) => {
+                          const isSelected = form.requestId === request.id;
+                          return (
+                            <tr key={request.id} className="hover:bg-gray-50/50 transition-colors">
+                              <td className="px-6 py-4 text-xs font-bold text-blue-600">
+                                REQ-{request.id.toString().slice(-6)}
+                              </td>
+                              <td className="px-6 py-4 font-bold text-gray-900">
+                                {request.employeeName}
+                              </td>
+                              <td className="px-6 py-4 font-medium text-gray-500 text-xs">
+                                {request.institution}
+                              </td>
+                              <td className="px-6 py-4 text-right">
+                                <button
+                                  onClick={() => handleRequestSelect(request)}
+                                  className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
+                                    isSelected
+                                      ? "bg-blue-600 text-white shadow-blue-200"
+                                      : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
+                                  }`}
+                                >
+                                  {isSelected ? "Selected" : "Review"}
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              });
+            })() : (
+              <div className="px-4 py-8 text-center text-gray-500">{t("noData")}</div>
+            )}
           </div>
         </div>
 
@@ -538,62 +538,7 @@ export default function HRVerificationsPage() {
                   </div>
                 </div>
 
-                {/* Real-time Scoring Preview */}
-                {scoringResult && (
-                  <div className="flex flex-col rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50/30 p-6 shadow-sm shadow-blue-50/50 xl:col-span-1 lg:col-span-2">
-                    <div className="flex items-center gap-2 mb-4 text-blue-800">
-                      <Calculator className="h-5 w-5" />
-                      <h3 className="text-sm font-bold uppercase tracking-widest">
-                        Score Breakdown
-                      </h3>
-                    </div>
-                    <div className="grid grid-cols-2 gap-y-4 gap-x-4 sm:grid-cols-4 lg:grid-cols-4">
-                      <div className="space-y-1">
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
-                          Exp (30%)
-                        </p>
-                        <p className="text-lg font-bold text-gray-900">
-                          {scoringResult.experienceScore.toFixed(2)}
-                        </p>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
-                          Perf (60%)
-                        </p>
-                        <p className="text-lg font-bold text-gray-900">
-                          {scoringResult.performanceScore.toFixed(2)}
-                        </p>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
-                          Disc (10%)
-                        </p>
-                        <p className="text-lg font-bold text-gray-900">
-                          {scoringResult.disciplineScore.toFixed(2)}
-                        </p>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
-                          Bonus
-                        </p>
-                        <p className="text-lg font-bold text-indigo-600">
-                          +{scoringResult.affirmativeBonus.toFixed(2)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-auto pt-6 border-t border-blue-100 flex items-center justify-between">
-                      <div className="flex flex-col">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
-                          Final Total Score
-                        </p>
-                        <p className="text-3xl font-black text-blue-900 tracking-tighter">
-                          {scoringResult.finalTotalScore.toFixed(2)}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2 bg-white/60 px-2.5 py-1.5 rounded-lg border border-blue-100 backdrop-blur-sm"></div>
-                    </div>
-                  </div>
-                )}
+                {/* Score breakdown intentionally hidden from HR — visible only on Committee page */}
               </div>
 
               <div className="space-y-4 rounded-xl border border-gray-100 bg-gray-50/30 p-6">
@@ -722,7 +667,6 @@ export default function HRVerificationsPage() {
                   <th className="px-6 py-4 text-blue-600">
                     {t("averageScore")}
                   </th>
-                  <th className="px-6 py-4">Calc. Score</th>
                   <th className="px-6 py-4">{t("disciplineRecord")}</th>
                   <th className="px-6 py-4">{t("status")}</th>
                   <th className="px-6 py-4">{t("verifiedBy")}</th>
@@ -751,9 +695,6 @@ export default function HRVerificationsPage() {
                       <td className="px-6 py-4 font-bold text-blue-700 tracking-tight">
                         {verification.averageScore}%
                       </td>
-                      <td className="px-6 py-4 font-black text-indigo-700">
-                        {verification.totalCalculatedScore?.toFixed(2) || "-"}
-                      </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col gap-1">
                           <span
@@ -777,7 +718,7 @@ export default function HRVerificationsPage() {
                 ) : (
                   <tr>
                     <td
-                      colSpan={9}
+                      colSpan={8}
                       className="px-4 py-8 text-center text-gray-500"
                     >
                       {t("noData")}

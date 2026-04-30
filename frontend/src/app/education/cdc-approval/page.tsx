@@ -190,70 +190,85 @@ export default function CDCScoringPage() {
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                    <tr>
-                      <th className="px-6 py-4">ID</th>
-                      <th className="px-6 py-4">{t("fullName")}</th>
-                      <th className="px-6 py-4">Department</th>
-                      <th className="px-6 py-4">Education</th>
-                      <th className="px-6 py-4">Auto-Score (HR)</th>
-                      <th className="px-6 py-4">Gender</th>
-                      <th className="px-6 py-4 text-right">{t("actions")}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {requests.length > 0 ? (
-                      requests.map((request) => {
-                        const isSelected = form.requestId === request.id;
-                        const hrVer = hrVerifications[request.id];
+                {requests.length > 0 ? (() => {
+                  const groups: Record<string, typeof requests> = {};
+                  requests.forEach((req) => {
+                    const dept = req.employeeDepartment || "Unknown Department";
+                    const opp = req.fieldOfStudy || (req as any).educationType || "Unknown Opportunity";
+                    const key = `${dept}|||${opp}`;
+                    if (!groups[key]) groups[key] = [];
+                    groups[key].push(req);
+                  });
 
-                        return (
-                          <tr key={request.id} className="hover:bg-gray-50/50 transition-colors">
-                            <td className="px-6 py-4 text-xs font-bold text-blue-600">REQ-{request.id.toString().slice(-6)}</td>
-                            <td className="px-6 py-4 font-bold text-gray-900">
-                              {request.employeeName}
-                            </td>
-                            <td className="px-6 py-4 text-xs italic text-gray-600">
-                              {request.employeeDepartment || "—"}
-                            </td>
-                            <td className="px-6 py-4 font-medium text-gray-700 italic text-xs">
-                              {request.fieldOfStudy || (request as any).educationType} ({(request as any).targetEducationLevel || (request as any).educationLevel})
-                            </td>
-                            <td className="px-6 py-4">
-                               <span className="font-black text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg border border-indigo-100">
-                                 {hrVer?.totalCalculatedScore?.toFixed(2) || hrVer?.averageScore || "-"}%
-                               </span>
-                            </td>
-                            <td className="px-6 py-4">
-                                 <span className={`inline-flex rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${hrVer?.gender === "Female" ? "bg-pink-50 text-pink-600 border border-pink-100" : "bg-blue-50 text-blue-600 border border-blue-100"}`}>
-                                    {hrVer?.gender || "Male"}
-                                 </span>
-                            </td>
-                            <td className="px-6 py-4 text-right">
-                              <button
-                                onClick={() => handleRequestSelect(request)}
-                                className={`rounded-lg px-5 py-2 text-xs font-bold transition-all shadow-sm uppercase tracking-widest ${
-                                  isSelected
-                                    ? "bg-indigo-600 text-white shadow-indigo-200"
-                                    : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-indigo-600 hover:text-white"
-                                }`}
-                              >
-                                {isSelected ? "Reviewing..." : "Review Result"}
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    ) : (
-                      <tr>
-                        <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
-                          No HR-verified requests pending CDC review.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                  return Object.entries(groups).map(([key, groupReqs]) => {
+                    const [dept, opp] = key.split("|||");
+                    return (
+                      <div key={key} className="border-b border-gray-100 last:border-b-0">
+                        <div className="flex items-center gap-3 bg-gradient-to-r from-indigo-50/80 to-blue-50/40 px-6 py-3 border-b border-indigo-100/60">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center rounded-lg bg-indigo-600 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-sm">
+                              {dept}
+                            </span>
+                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">—</span>
+                            <span className="text-xs font-bold italic text-gray-700">{opp}</span>
+                          </div>
+                          <span className="ml-auto rounded-full bg-indigo-100 px-2.5 py-0.5 text-[10px] font-black text-indigo-700">
+                            {groupReqs.length} candidate{groupReqs.length !== 1 ? "s" : ""}
+                          </span>
+                        </div>
+                        <table className="w-full text-left text-sm">
+                          <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                            <tr>
+                              <th className="px-6 py-3">ID</th>
+                              <th className="px-6 py-3">{t("fullName")}</th>
+                              <th className="px-6 py-3">Auto-Score (HR)</th>
+                              <th className="px-6 py-3">Gender</th>
+                              <th className="px-6 py-3 text-right">{t("actions")}</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y">
+                            {groupReqs.map((request) => {
+                              const isSelected = form.requestId === request.id;
+                              const hrVer = hrVerifications[request.id];
+                              return (
+                                <tr key={request.id} className="hover:bg-gray-50/50 transition-colors">
+                                  <td className="px-6 py-4 text-xs font-bold text-blue-600">REQ-{request.id.toString().slice(-6)}</td>
+                                  <td className="px-6 py-4 font-bold text-gray-900">{request.employeeName}</td>
+                                  <td className="px-6 py-4">
+                                    <span className="font-black text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg border border-indigo-100">
+                                      {hrVer?.totalCalculatedScore?.toFixed(2) || hrVer?.averageScore || "-"}%
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    <span className={`inline-flex rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${hrVer?.gender === "Female" ? "bg-pink-50 text-pink-600 border border-pink-100" : "bg-blue-50 text-blue-600 border border-blue-100"}`}>
+                                      {hrVer?.gender || "Male"}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4 text-right">
+                                    <button
+                                      onClick={() => handleRequestSelect(request)}
+                                      className={`rounded-lg px-5 py-2 text-xs font-bold transition-all shadow-sm uppercase tracking-widest ${
+                                        isSelected
+                                          ? "bg-indigo-600 text-white shadow-indigo-200"
+                                          : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-indigo-600 hover:text-white"
+                                      }`}
+                                    >
+                                      {isSelected ? "Reviewing..." : "Review Result"}
+                                    </button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    );
+                  });
+                })() : (
+                  <div className="px-4 py-8 text-center text-gray-500">
+                    No HR-verified requests pending CDC review.
+                  </div>
+                )}
               </div>
             </div>
             

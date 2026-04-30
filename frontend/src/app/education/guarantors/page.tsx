@@ -164,10 +164,11 @@ export default function GuarantorsPage() {
             {!showForm && selectedContract && (
               <button
                 onClick={() => {
+                  const contractObj = contracts.find((c: any) => c.id === Number(selectedContract));
+                  const max = contractObj && contractObj.estimatedCost >= 800000 ? 2 : 1;
                   const currentCount = activeTab === "guarantors" ? guarantors.length : witnesses.length;
-                  const max = 2;
                   if (currentCount >= max) {
-                    alert(activeTab === "guarantors" ? t("maxGuarantors") : t("maxWitnesses"));
+                    alert(`Maximum allowed (${max}) reached for this contract's cost tier.`);
                     return;
                   }
                   setEditId(null);

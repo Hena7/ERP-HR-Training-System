@@ -63,6 +63,16 @@ export interface TrainingGuarantor {
   createdAt: string;
 }
 
+export interface TrainingWitness {
+  id: number;
+  contractId: number;
+  fullName: string;
+  nationalId: string;
+  address: string;
+  phone?: string;
+  createdAt: string;
+}
+
 export interface TrainingObligation {
   id: number;
   contractId: number;

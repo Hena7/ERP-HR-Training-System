@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   committeeDecisionApi,
   educationRequestApi,
   cdcScoringApi,
+  educationOpportunityApi,
 } from "@/lib/api";
-import { CommitteeDecision, EducationRequest, CDCScoring } from "@/types";
+import { CommitteeDecision, EducationRequest, CDCScoring, EducationOpportunity } from "@/types";
 import {
   Users,
   Edit,
@@ -16,22 +18,22 @@ import {
   BarChart3,
   ClipboardList,
   FileText,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 
 export default function CommitteeDecisionsPage() {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const [decisions, setDecisions] = useState<CommitteeDecision[]>([]);
   const [scoredRequests, setScoredRequests] = useState<EducationRequest[]>([]);
-  const [allRequests, setAllRequests] = useState<
-    Record<number, EducationRequest>
-  >({});
-  const [selectedScoring, setSelectedScoring] = useState<CDCScoring | null>(
-    null,
-  );
+  const [allRequests, setAllRequests] = useState<Record<number, EducationRequest>>({});
+  const [opportunities, setOpportunities] = useState<EducationOpportunity[]>([]);
+  
+  const [selectedScoring, setSelectedScoring] = useState<CDCScoring | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [quota, setQuota] = useState<number>(5);
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  
   const [form, setForm] = useState({
     requestId: "",
     decision: "APPROVED",
@@ -45,10 +47,11 @@ export default function CommitteeDecisionsPage() {
 
   const loadData = async () => {
     try {
-      const [decRes, reqRes, allReqRes] = await Promise.all([
-        committeeDecisionApi.getAll(0, 50),
-        educationRequestApi.getByStatus("SCORED", 0, 100),
-        educationRequestApi.getAll(0, 500),
+      const [decRes, reqRes, allReqRes, oppRes] = await Promise.all([
+        committeeDecisionApi.getAll(0, 500),
+        educationRequestApi.getByStatus("SCORED", 0, 500),
+        educationRequestApi.getAll(0, 1000),
+        educationOpportunityApi.getAll(0, 200),
       ]);
 
       const scReqs = (reqRes.data.content || []).sort(
@@ -56,117 +59,48 @@ export default function CommitteeDecisionsPage() {
       );
       setDecisions(decRes.data.content || []);
       setScoredRequests(scReqs);
+      setOpportunities(oppRes.data.content || []);
 
       const reqMap: Record<number, EducationRequest> = {};
       (allReqRes.data.content || []).forEach((r: EducationRequest) => {
         reqMap[r.id] = r;
       });
       setAllRequests(reqMap);
-
-      // Select top candidates by default based on quota
-      const topIds = scReqs.slice(0, quota).map((r: any) => r.id);
-      setSelectedIds(topIds);
     } catch {
       // API not available
     }
   };
 
-  const handleBulkReport = async () => {
-    if (selectedIds.length === 0) return;
-    if (
-      !confirm(
-        `Are you sure you want to send a detailed report to CDC for ${selectedIds.length} candidates?`,
-      )
-    )
-      return;
+  const toggleDecision = async (req: EducationRequest, decision: string) => {
+    try {
+      setLoading(true);
+      await committeeDecisionApi.decide({
+        requestId: req.id,
+        decision,
+        comment: `Committee member voted: ${decision}`,
+      });
+      await loadData();
+    } catch {
+      alert("Failed to submit vote.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBulkReport = async (groupIds: number[]) => {
+    if (groupIds.length === 0) return;
+    if (!confirm(`Are you sure you want to forward these ${groupIds.length} candidates to the Director?`)) return;
 
     setLoading(true);
     try {
-      await educationRequestApi.reportByCommitteeBulk(selectedIds);
-      loadData();
-      setSelectedIds([]);
-      alert("Report successfully sent to CDC for final approval.");
+      await educationRequestApi.reportByCommitteeBulk(groupIds);
+      await loadData();
+      alert("Report successfully sent to Director for final approval.");
     } catch (err: any) {
-      const msg =
-        err?.response?.data?.message || err?.message || "Failed to send report";
+      const msg = err?.response?.data?.message || err?.message || "Failed to send report";
       alert(msg);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const toggleSelection = (id: number) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
-    );
-  };
-
-  const handleRequestChange = async (requestId: string) => {
-    setForm({ ...form, requestId });
-    if (requestId) {
-      try {
-        const res = await cdcScoringApi.getByRequestId(Number(requestId));
-        setSelectedScoring(res.data);
-      } catch {
-        setSelectedScoring(null);
-      }
-    } else {
-      setSelectedScoring(null);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const payload = {
-        requestId: Number(form.requestId),
-        decision: form.decision,
-        comment: form.comment,
-      };
-
-      if (editId) {
-        await committeeDecisionApi.update(editId, payload);
-      } else {
-        await committeeDecisionApi.decide(payload);
-      }
-      setShowForm(false);
-      setEditId(null);
-      setForm({ requestId: "", decision: "APPROVED", comment: "" });
-      setSelectedScoring(null);
-      loadData();
-    } catch {
-      alert("Failed to save decision");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleEdit = async (d: CommitteeDecision) => {
-    setForm({
-      requestId: String(d.requestId),
-      decision: d.decision || "APPROVED",
-      comment: d.comment || "",
-    });
-    setEditId(d.id);
-    setShowForm(true);
-    // Load scoring for edit
-    try {
-      const res = await cdcScoringApi.getByRequestId(d.requestId);
-      setSelectedScoring(res.data);
-    } catch {
-      setSelectedScoring(null);
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    if (confirm("Are you sure you want to delete this committee decision?")) {
-      try {
-        await committeeDecisionApi.delete(id);
-        loadData();
-      } catch {
-        alert("Failed to delete decision");
-      }
     }
   };
 
@@ -182,289 +116,40 @@ export default function CommitteeDecisionsPage() {
     try {
       const res = await cdcScoringApi.getByRequestId(request.id);
       setSelectedScoring(res.data);
-      // Auto-scroll to form
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
       setSelectedScoring(null);
     }
   };
 
+  // Group by dept + opportunity
+  const grouped: Record<string, EducationRequest[]> = {};
+  scoredRequests.forEach((req) => {
+    const dept = req.employeeDepartment || "Unknown";
+    const oppStr = req.fieldOfStudy || (req as any).educationType || "Unknown";
+    const key = `${dept}|||${oppStr}`;
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(req);
+  });
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
-              <Users className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {t("committeeDecisions")}
-              </h1>
-              <p className="text-sm text-gray-500 font-medium italic">
-                Rank candidates by score and select top picks for institutional
-                approval.
-              </p>
-            </div>
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
+            <Users className="h-6 w-6 text-white" />
           </div>
-
-          <div className="flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50/50 p-3 shadow-sm">
-            <div className="space-y-0.5">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-blue-600 px-1">
-                Quota
-              </p>
-              <input
-                type="number"
-                value={quota}
-                onChange={(e) => {
-                  const val = Number(e.target.value);
-                  setQuota(val);
-                  setSelectedIds(scoredRequests.slice(0, val).map((r) => r.id));
-                }}
-                className="w-16 rounded-lg border border-blue-200 bg-white px-3 py-1 text-sm font-bold text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              />
-            </div>
-            <button
-              onClick={handleBulkReport}
-              disabled={selectedIds.length === 0 || loading}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-700 disabled:opacity-50 transition-all flex items-center gap-2"
-            >
-              <FileText className="h-3.5 w-3.5" />
-              Send Report ({selectedIds.length})
-            </button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Committee Decisions
+            </h1>
+            <p className="text-sm text-gray-500 font-medium italic">
+              Rank candidates per department, vote, and forward to Director (requires 4/7 approvals).
+            </p>
           </div>
         </div>
 
-        {showForm && (
-          <div
-            id="decision-form"
-            className="rounded-xl border border-gray-100 bg-white p-8 shadow-xl"
-          >
-            <h2 className="mb-6 text-sm font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2">
-              <ClipboardList className="h-4 w-4 text-blue-600" />
-              {editId
-                ? t("edit") || "Edit Decision"
-                : "Review Participation & Decide"}
-            </h2>
-            <form
-              onSubmit={handleSubmit}
-              className="grid grid-cols-1 gap-4 md:grid-cols-2"
-            >
-              <div className="space-y-1.5">
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                  {t("educationRequests")}
-                </label>
-                <select
-                  required
-                  disabled={!editId}
-                  value={form.requestId}
-                  onChange={(e) => handleRequestChange(e.target.value)}
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all disabled:opacity-60"
-                >
-                  <option value="">--</option>
-                  {scoredRequests.map((r) => (
-                    <option key={r.id} value={r.id}>
-                      #{r.id} - {r.employeeName}
-                    </option>
-                  ))}
-                  {editId && (
-                    <option value={form.requestId}>
-                      Current Request #{form.requestId}
-                    </option>
-                  )}
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                  {t("decision")}
-                </label>
-                <select
-                  value={form.decision}
-                  onChange={(e) =>
-                    setForm({ ...form, decision: e.target.value })
-                  }
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
-                >
-                  <option value="APPROVED">{t("approve")}</option>
-                  <option value="REJECTED">{t("reject")}</option>
-                </select>
-              </div>
-
-              {form.requestId && allRequests[Number(form.requestId)] && (
-                <div className="md:col-span-2 flex flex-col gap-5 rounded-xl border border-gray-100 bg-gray-50/50 p-6">
-                  <div className="flex items-center gap-2 mb-1 border-b border-gray-200/60 pb-3">
-                    <FileText className="h-4 w-4 text-gray-500" />
-                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                      Request Information
-                    </h3>
-                  </div>
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">
-                        {t("fullName")}
-                      </p>
-                      <p className="text-sm font-bold text-gray-900">
-                        {allRequests[Number(form.requestId)].employeeName}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">
-                        Education & Institution
-                      </p>
-                      <p className="text-sm font-bold text-gray-900">
-                        {allRequests[Number(form.requestId)].fieldOfStudy ||
-                          allRequests[Number(form.requestId)]
-                            .educationCategory ||
-                          allRequests[Number(form.requestId)].educationType ||
-                          "—"}
-                      </p>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
-                        @{" "}
-                        {allRequests[Number(form.requestId)].institution || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">
-                        Level & Program
-                      </p>
-                      <p className="text-sm font-bold text-gray-900">
-                        {allRequests[Number(form.requestId)]
-                          .targetEducationLevel ||
-                          allRequests[Number(form.requestId)].award ||
-                          allRequests[Number(form.requestId)].educationLevel ||
-                          "—"}
-                      </p>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
-                        {allRequests[Number(form.requestId)].programTime ||
-                          "Regular"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">
-                        Duration & Budget Year
-                      </p>
-                      <p className="text-sm font-bold text-gray-900">
-                        {allRequests[Number(form.requestId)].duration
-                          ? `${allRequests[Number(form.requestId)].duration} Years`
-                          : "-"}
-                      </p>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
-                        Yr{" "}
-                        {allRequests[Number(form.requestId)].budgetYear || "-"}
-                      </p>
-                    </div>
-                  </div>
-                  {((allRequests[Number(form.requestId)] as any).remark ||
-                    allRequests[Number(form.requestId)].description) && (
-                    <div className="border-t border-gray-200/60 pt-4 mt-1">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-                        Description / Remark
-                      </p>
-                      <p className="text-sm font-medium text-gray-700 leading-relaxed">
-                        {(allRequests[Number(form.requestId)] as any).remark ||
-                          allRequests[Number(form.requestId)].description}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {selectedScoring && (
-                <div className="md:col-span-2 rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50/50 to-white p-6 shadow-sm">
-                  <div className="flex items-center gap-2 mb-6">
-                    <BarChart3 className="h-5 w-5 text-blue-600" />
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-blue-800">
-                      Automated Scoring Result
-                    </h3>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-                    <div className="space-y-1">
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
-                        Experience
-                      </p>
-                      <p className="text-lg font-bold text-gray-900">
-                        {selectedScoring.experienceScore.toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
-                        Performance
-                      </p>
-                      <p className="text-lg font-bold text-gray-900">
-                        {selectedScoring.performanceScore.toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
-                        Discipline
-                      </p>
-                      <p className="text-lg font-bold text-gray-900">
-                        {selectedScoring.disciplineScore.toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
-                        Bonus
-                      </p>
-                      <p className="text-lg font-bold text-indigo-600">
-                        +
-                        {Math.max(
-                          0,
-                          selectedScoring.totalScore -
-                            (selectedScoring.experienceScore +
-                              selectedScoring.performanceScore +
-                              selectedScoring.disciplineScore),
-                        ).toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-end justify-center sm:border-l sm:border-blue-100 sm:pl-4">
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-blue-600 mb-0.5">
-                        Final Score
-                      </p>
-                      <span className="rounded-lg bg-blue-600 px-4 py-1.5 text-2xl font-black text-white shadow-md shadow-blue-100">
-                        {selectedScoring.totalScore}%
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div className="md:col-span-2 space-y-1.5">
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                  {t("comment")}
-                </label>
-                <textarea
-                  value={form.comment}
-                  onChange={(e) =>
-                    setForm({ ...form, comment: e.target.value })
-                  }
-                  rows={3}
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
-                  placeholder="Enter committee remarks..."
-                />
-              </div>
-              <div className="flex gap-4 pt-4 md:col-span-2">
-                {/* <button
-                  type="submit"
-                  disabled={loading}
-                  className="rounded-lg bg-blue-600 px-8 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-200 hover:bg-blue-700 disabled:opacity-50 transition-all"
-                >
-                  {loading ? t("loading") : t("submit")}
-                </button> */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowForm(false);
-                    setEditId(null);
-                  }}
-                  className="rounded-lg border border-gray-200 px-8 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-all"
-                >
-                  {t("cancel")}
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-
+        {/* Grouped Candidates */}
         <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
           <div className="border-b border-gray-50 bg-gray-50/30 px-6 py-4 flex items-center justify-between">
             <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2">
@@ -473,212 +158,179 @@ export default function CommitteeDecisionsPage() {
             </h2>
             <div className="flex items-center gap-4 text-[10px] font-bold text-gray-400">
               <div className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
-                Within Quota
+                <span className="h-2 w-2 rounded-full bg-emerald-500"></span> Within Quota
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-gray-300"></span>
-                Backup / Over Quota
+                <span className="h-2 w-2 rounded-full bg-gray-300"></span> Over Quota
               </div>
             </div>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                <tr>
-                  <th className="px-6 py-4 w-12 text-center">
-                    <input
-                      type="checkbox"
-                      onChange={(e) =>
-                        setSelectedIds(
-                          e.target.checked
-                            ? scoredRequests.map((r) => r.id)
-                            : [],
-                        )
-                      }
-                      checked={
-                        selectedIds.length === scoredRequests.length &&
-                        scoredRequests.length > 0
-                      }
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                  </th>
-                  <th className="px-6 py-4">Rank</th>
-                  <th className="px-6 py-4">Employee</th>
-                  <th className="px-6 py-4">Department</th>
-                  <th className="px-6 py-4">Education</th>
-                  <th className="px-6 py-4 text-blue-600">Total Score (%)</th>
-                  <th className="px-6 py-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y text-gray-600">
-                {scoredRequests.length > 0 ? (
-                  scoredRequests.map((r, index) => {
-                    const isWithinQuota = index < quota;
-                    const isSelected = selectedIds.includes(r.id);
-                    return (
-                      <tr
-                        key={r.id}
-                        className={`transition-colors ${isSelected ? "bg-blue-50/30" : "hover:bg-gray-50/50"}`}
+
+          {Object.keys(grouped).length > 0 ? (
+            Object.entries(grouped).map(([key, groupReqs]) => {
+              const [dept, oppStr] = key.split("|||");
+              
+              // Find matching opportunity to get dynamic quota
+              const opp = opportunities.find(o => o.educationType === oppStr || o.fieldOfStudy === oppStr);
+              let candidatesQuota = 3;
+              let standbyQuota = 2;
+              
+              if (opp && (opp as any).departmentQuotas && (opp as any).departmentQuotas[dept]) {
+                const q = (opp as any).departmentQuotas[dept];
+                candidatesQuota = q.candidates || 0;
+                standbyQuota = q.standby || 0;
+              }
+              const totalQuota = candidatesQuota + standbyQuota;
+
+              // Sort by score
+              const sortedReqs = [...groupReqs].sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0));
+
+              // Determine which candidates can be forwarded (>= 4 approvals AND within quota)
+              const forwardableIds = sortedReqs
+                .filter((r, idx) => {
+                  const isWithinQuota = idx < totalQuota;
+                  const approvals = decisions.filter(d => d.requestId === r.id && d.decision === "APPROVED").length;
+                  return isWithinQuota && approvals >= 4;
+                })
+                .map(r => r.id);
+
+              return (
+                <div key={key} className="border-b border-gray-100 last:border-b-0">
+                  <div className="flex items-center gap-3 bg-gradient-to-r from-blue-50/80 to-indigo-50/40 px-6 py-3 border-b border-blue-100/60">
+                    <span className="inline-flex items-center rounded-lg bg-blue-600 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-sm">
+                      {dept}
+                    </span>
+                    <span className="text-xs font-bold italic text-gray-700">{oppStr}</span>
+                    <span className="ml-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                      Quota: {totalQuota} <span className="lowercase text-gray-400">({candidatesQuota} cand. + {standbyQuota} standby)</span>
+                    </span>
+                    <div className="ml-auto">
+                      <button
+                        onClick={() => handleBulkReport(forwardableIds)}
+                        disabled={forwardableIds.length === 0 || loading}
+                        className="rounded-lg bg-indigo-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50 transition-all flex items-center gap-2"
                       >
-                        <td className="px-6 py-4 text-center">
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => toggleSelection(r.id)}
-                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                          />
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-black ${isWithinQuota ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500"}`}
-                          >
-                            {index + 1}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 font-bold text-gray-900">
-                          {r.employeeName}
-                        </td>
-                        <td className="px-6 py-4 text-xs italic text-gray-600">
-                          {r.employeeDepartment || "—"}
-                        </td>
-                        <td className="px-6 py-4 font-medium text-xs italic">
-                          {r.fieldOfStudy ||
-                            r.educationCategory ||
-                            r.educationType ||
-                            "—"}{" "}
-                          (
-                          {r.targetEducationLevel ||
-                            r.award ||
-                            r.educationLevel ||
-                            "—"}
-                          )
-                        </td>
-                        <td className="px-6 py-4 font-bold text-blue-700">
-                          <span
-                            className={
-                              isWithinQuota ? "text-emerald-600 font-black" : ""
-                            }
-                          >
-                            {r.totalScore ? `${r.totalScore}%` : "-"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => handleReview(r)}
-                            disabled={loading}
-                            className="rounded-lg bg-white border border-gray-100 px-4 py-1.5 text-xs font-bold text-gray-600 shadow-sm hover:border-blue-200 hover:text-blue-600 transition-all ml-auto uppercase tracking-wider"
-                          >
-                            Details
-                          </button>
-                        </td>
+                        <FileText className="h-3.5 w-3.5" />
+                        Forward to Director ({forwardableIds.length})
+                      </button>
+                    </div>
+                  </div>
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                      <tr>
+                        <th className="px-6 py-3">Rank</th>
+                        <th className="px-6 py-3">Employee</th>
+                        <th className="px-6 py-3 text-blue-600">Score</th>
+                        <th className="px-6 py-3 text-center">Approvals (4/7)</th>
+                        <th className="px-6 py-3 text-right">Actions</th>
                       </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-4 py-12 text-center text-gray-400 italic"
-                    >
-                      No scored requests available for ranking.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                    </thead>
+                    <tbody className="divide-y text-gray-600">
+                      {sortedReqs.map((r, idx) => {
+                        const isWithinQuota = idx < totalQuota;
+                        const myDecision = decisions.find(d => d.requestId === r.id && d.decidedBy === user?.username);
+                        const approvals = decisions.filter(d => d.requestId === r.id && d.decision === "APPROVED").length;
+                        const rejections = decisions.filter(d => d.requestId === r.id && d.decision === "REJECTED").length;
+                        const canForward = isWithinQuota && approvals >= 4;
+
+                        return (
+                          <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
+                            <td className="px-6 py-4">
+                              <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-black ${isWithinQuota ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500"}`}>
+                                {idx + 1}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 font-bold text-gray-900">{r.employeeName}</td>
+                            <td className="px-6 py-4 font-bold text-blue-700">
+                              <span className={isWithinQuota ? "text-emerald-600 font-black" : ""}>
+                                {r.totalScore ? `${r.totalScore}%` : "-"}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              <div className="flex flex-col items-center gap-1">
+                                <span className={`inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-[10px] font-black ${approvals >= 4 ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-600"}`}>
+                                  {approvals}/7
+                                </span>
+                                {rejections > 0 && <span className="text-[9px] text-red-500 font-bold">{rejections} rejections</span>}
+                                {canForward && <span className="text-[9px] text-indigo-500 font-bold uppercase tracking-widest">Ready</span>}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                              <div className="flex justify-end gap-2">
+                                <button
+                                  onClick={() => handleReview(r)}
+                                  className="rounded-lg bg-gray-50 p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all border border-gray-100"
+                                  title="View Details"
+                                >
+                                  <BarChart3 className="h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={() => toggleDecision(r, "APPROVED")}
+                                  disabled={loading || myDecision?.decision === "APPROVED"}
+                                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all disabled:opacity-50 ${myDecision?.decision === "APPROVED" ? "bg-emerald-100 text-emerald-700" : "bg-gray-50 text-emerald-600 border border-gray-200 hover:bg-emerald-600 hover:text-white"}`}
+                                >
+                                  <CheckCircle2 className="h-3.5 w-3.5" />
+                                  Approve
+                                </button>
+                                <button
+                                  onClick={() => toggleDecision(r, "REJECTED")}
+                                  disabled={loading || myDecision?.decision === "REJECTED"}
+                                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all disabled:opacity-50 ${myDecision?.decision === "REJECTED" ? "bg-red-100 text-red-700" : "bg-gray-50 text-red-600 border border-gray-200 hover:bg-red-600 hover:text-white"}`}
+                                >
+                                  <XCircle className="h-3.5 w-3.5" />
+                                  Reject
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })
+          ) : (
+            <div className="px-6 py-12 text-center text-gray-400 italic">
+              No scored requests available for ranking.
+            </div>
+          )}
         </div>
 
-        <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
-          <div className="border-b border-gray-50 bg-gray-50/30 px-6 py-4">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400">
-              {t("committeeDecisionsHistory") || "Decision History"}
-            </h2>
+        {/* Form and History ... (keeping detail view modal style below if showForm is true) */}
+        {showForm && selectedScoring && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-8">
+              <h3 className="text-lg font-bold text-gray-900 border-b pb-4 mb-4">Detailed Scoring</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-gray-50 rounded-xl">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Experience</p>
+                  <p className="text-xl font-black text-gray-900">{selectedScoring.experienceScore.toFixed(2)}</p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-xl">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Performance</p>
+                  <p className="text-xl font-black text-gray-900">{selectedScoring.performanceScore.toFixed(2)}</p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-xl">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Discipline</p>
+                  <p className="text-xl font-black text-gray-900">{selectedScoring.disciplineScore.toFixed(2)}</p>
+                </div>
+                <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600">Total Score</p>
+                  <p className="text-xl font-black text-blue-700">{selectedScoring.totalScore.toFixed(2)}%</p>
+                </div>
+              </div>
+              <div className="mt-8 flex justify-end">
+                <button
+                  onClick={() => { setShowForm(false); setSelectedScoring(null); }}
+                  className="rounded-xl border border-gray-200 px-6 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-all"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                <tr>
-                  <th className="px-6 py-4">ID</th>
-                  <th className="px-6 py-4">{t("educationRequests")} ID</th>
-                  <th className="px-6 py-4">Department</th>
-                  <th className="px-6 py-4 text-blue-600">Total Score (%)</th>
-                  <th className="px-6 py-4">{t("decision")}</th>
-                  <th className="px-6 py-4">{t("comment")}</th>
-                  <th className="px-6 py-4">{t("decidedBy")}</th>
-                  <th className="px-6 py-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {decisions.length > 0 ? (
-                  decisions.map((d) => {
-                    const req = allRequests[d.requestId];
-                    return (
-                      <tr
-                        key={d.id}
-                        className="hover:bg-gray-50/50 transition-colors"
-                      >
-                        <td className="px-6 py-4 text-xs font-bold text-blue-600">
-                          DEC-{d.id.toString().slice(-6)}
-                        </td>
-                        <td className="px-6 py-4 text-xs font-bold text-gray-500">
-                          REQ-{d.requestId.toString().slice(-6)}
-                        </td>
-                        <td className="px-6 py-4 text-xs italic text-gray-600">
-                          {req?.employeeDepartment || "—"}
-                        </td>
-                        <td className="px-6 py-4 font-bold text-blue-700">
-                          {req?.totalScore ? `${req.totalScore}%` : "-"}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider italic ${d.decision === "APPROVED" ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-red-50 text-red-600 border border-red-100"}`}
-                          >
-                            {d.decision === "APPROVED"
-                              ? t("approve")
-                              : t("reject")}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-xs font-medium text-gray-600">
-                          {d.comment}
-                        </td>
-                        <td className="px-6 py-4 text-xs font-medium text-gray-400 italic">
-                          {d.decidedBy}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex justify-end gap-3">
-                            <button
-                              onClick={() => handleEdit(d)}
-                              className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors hover:bg-blue-50 rounded-lg"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(d.id)}
-                              className="p-1.5 text-gray-400 hover:text-red-600 transition-colors hover:bg-red-50 rounded-lg"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={7}
-                      className="px-4 py-8 text-center text-gray-500"
-                    >
-                      {t("noData")}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        )}
       </div>
     </DashboardLayout>
   );

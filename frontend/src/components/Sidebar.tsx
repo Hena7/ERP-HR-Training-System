@@ -22,6 +22,8 @@ import {
   Clipboard,
   ShoppingCart,
   Package,
+  Award,
+  Settings,
 } from "lucide-react";
 import { TranslationKey } from "@/lib/i18n";
 
@@ -105,6 +107,12 @@ const eduNavItems: NavItem[] = [
     labelKey: "navDecisions",
     icon: <Users className="h-5 w-5" />,
     roles: ["COMMITTEE_MEMBER", "ADMIN"],
+  },
+  {
+    href: "/education/director-approval",
+    labelKey: "navDirectorApproval",
+    icon: <Award className="h-5 w-5" />,
+    roles: ["DIRECTOR", "ADMIN"],
   },
   {
     href: "/education/contracts",
@@ -197,6 +205,12 @@ const trainingNavItems: NavItem[] = [
     labelKey: "navTrainingReports",
     icon: <BarChart3 className="h-5 w-5" />,
     roles: ["HR_OFFICER", "PROCUREMENT", "ADMIN"],
+  },
+  {
+    href: "/training/settings",
+    labelKey: "navTrainingSettings",
+    icon: <Settings className="h-5 w-5" />,
+    roles: ["ADMIN", "CYBER_DEVELOPMENT_CENTER"],
   },
 ];
 

@@ -641,7 +641,7 @@ export default function EducationRequestsPage() {
                     ))}
                     {candidates.length === 0 && (
                       <tr>
-                        <td colSpan={6} className="py-24 text-center">
+                        <td colSpan={7} className="py-24 text-center">
                           <div className="flex flex-col items-center">
                             <div className="mb-4 rounded-full bg-gray-50 p-4">
                               <Users className="h-10 w-10 text-gray-200" />
@@ -660,6 +660,33 @@ export default function EducationRequestsPage() {
                   </tbody>
                 </table>
               </div>
+              
+              {(() => {
+                const opp = opportunities.find(o => o.id === Number(batchEducation.opportunityId));
+                let quota = 0;
+                if (opp && (opp as any).departmentQuotas && user?.department && (opp as any).departmentQuotas[user.department]) {
+                  const q = (opp as any).departmentQuotas[user.department];
+                  quota = (q.candidates || 0) + (q.standby || 0);
+                }
+                if (quota > 0 && candidates.length > quota) {
+                  return (
+                    <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="rounded-full bg-amber-100 p-1.5">
+                          <Target className="h-4 w-4 text-amber-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-amber-800">Quota Exceeded</p>
+                          <p className="text-xs text-amber-700 mt-1">
+                            You have selected <strong>{candidates.length}</strong> candidates, which exceeds the defined quota (<strong>{quota}</strong>) for your department. The committee will filter the top candidates based on scores.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
 
               <div className="mt-10 flex items-center justify-end gap-4 border-t border-gray-100 pt-8">
                 <button
