@@ -108,6 +108,27 @@ export default function TrainingContractFormPage() {
     setTrainees(newTrainees);
   };
 
+  const fetchTraineeDetails = async (index: number) => {
+    const id = trainees[index].employeeId;
+    if (!id) return;
+    try {
+      const res = await employeeApi.getByEmployeeId(id);
+      if (res.data) {
+        const newTrainees = [...trainees];
+        newTrainees[index] = {
+          ...newTrainees[index],
+          fullName: `${res.data.firstName} ${res.data.lastName}`,
+          phone: res.data.phone,
+          email: res.data.email,
+          department: res.data.department,
+        };
+        setTrainees(newTrainees);
+      }
+    } catch (err) {
+      alert("Employee not found with ID: " + id);
+    }
+  };
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
@@ -345,15 +366,25 @@ export default function TrainingContractFormPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                       <div>
                         <label className={labelClass}>{t("employeeId")}</label>
-                        <input
-                          className={fieldClass}
-                          value={trainee.employeeId}
-                          onChange={(e) =>
-                            updateTrainee(idx, "employeeId", e.target.value)
-                          }
-                          required
-                          placeholder="EMP-001"
-                        />
+                        <div className="relative">
+                          <input
+                            className={fieldClass}
+                            value={trainee.employeeId}
+                            onChange={(e) =>
+                              updateTrainee(idx, "employeeId", e.target.value)
+                            }
+                            required
+                            placeholder="EMP-001"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => fetchTraineeDetails(idx)}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md bg-blue-50 p-1.5 text-blue-600 hover:bg-blue-100 transition-colors"
+                            title="Fetch details"
+                          >
+                            <RefreshCw className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
                       <div>
                         <label className={labelClass}>{t("fullName")}</label>
