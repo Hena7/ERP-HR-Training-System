@@ -203,7 +203,7 @@ function OrgTreeNode({
           <div className="relative flex-shrink-0">
             <input
               type="checkbox"
-              className="peer h-4 w-4 cursor-pointer appearance-none rounded border border-gray-300 bg-white transition-all checked:border-blue-600 checked:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 indeterminate:border-blue-400 indeterminate:bg-blue-400"
+              className="peer h-4 w-4 cursor-pointer rounded border border-gray-300 bg-white transition-all checked:border-blue-600 checked:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 indeterminate:border-blue-100 indeterminate:bg-blue-100"
               checked={isFullySelected}
               ref={(el) => {
                 if (el) el.indeterminate = isPartiallySelected;
@@ -284,6 +284,21 @@ export default function EducationOpportunitiesPage() {
   const [editId, setEditId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [formData, setFormData] = useState<OpportunityFormData>(emptyForm);
+  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+
+  const toggleRow = (id: number) => {
+    setExpandedRows((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const getDeptLabel = (id: string) => {
+    const node = findNodeById(INSA_ORG_TREE, id);
+    return node ? node.label : id;
+  };
 
   const userDepartment =
     (user as { department?: string } | null)?.department || "";
@@ -342,7 +357,7 @@ export default function EducationOpportunitiesPage() {
     });
   }, [opportunities, isDepartmentHead, isCenterUser, userDepartment, search]);
 
-  /** Handle toggling a node â€” cascades to all descendants */
+  // handle toggling a node which cascades to all descendants
   const handleNodeToggle = (node: OrgNode) => {
     const allIds = getAllDescendantIds(node);
     const isFullySelected = allIds.every((id) => selectedIdSet.has(id));
@@ -857,19 +872,27 @@ export default function EducationOpportunitiesPage() {
                         {opp.institution}
                       </td>
                       <td className="px-6 py-5">
-                        <div className="flex flex-wrap gap-1">
-                          {targets.slice(0, 3).map((department) => (
+                        <div className="flex flex-wrap gap-1.5 max-w-md">
+                          {(expandedRows.has(opp.id)
+                            ? targets
+                            : targets.slice(0, 3)
+                          ).map((department) => (
                             <span
                               key={`${opp.id}-${department}`}
-                              className="rounded-lg bg-blue-50 border border-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-600 uppercase tracking-widest"
+                              className="rounded-lg bg-blue-50/50 border border-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-600 uppercase tracking-widest shadow-sm"
                             >
-                              {department}
+                              {getDeptLabel(department)}
                             </span>
                           ))}
                           {targets.length > 3 && (
-                            <span className="rounded-lg bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-500">
-                              +{targets.length - 3} more
-                            </span>
+                            <button
+                              onClick={() => toggleRow(opp.id)}
+                              className="rounded-lg bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-500 hover:bg-gray-200 transition-colors border border-gray-200"
+                            >
+                              {expandedRows.has(opp.id)
+                                ? "Show Less"
+                                : `+${targets.length - 3} more...`}
+                            </button>
                           )}
                         </div>
                       </td>

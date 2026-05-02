@@ -243,6 +243,7 @@ export const translations = {
     navObligations: "Service Obligations",
     navUsers: "Users",
     educationModule: "Education Module",
+    navDirectorApproval: "Director Approval",
 
     // ─── Training Module ───────────────────────────────────────────────────
     trainingModule: "Training Module",
@@ -292,6 +293,7 @@ export const translations = {
     navTrainingReports: "Reports & Analytics",
     trainingReports: "Training Reports & Analytics",
     requester: "Requester",
+    navTrainingSettings: "Training Settings",
   },
 
   am: {
@@ -534,6 +536,7 @@ export const translations = {
     navCompletions: "ማጠናቀቂያ",
     navObligations: "የአገልግሎት ግዴታዎች",
     navUsers: "ተጠቃሚዎች",
+    navDirectorApproval: "የዳይሬክተር ማረጋገጫ",
 
     // ─── Training Module ───────────────────────────────────────────────────
     trainingModule: "ስልጠና ሞዱል",
@@ -584,6 +587,7 @@ export const translations = {
     trainingReports: "የስልጠና ሪፖርት እና ትንታኔ",
     educationModule: "የትምህርት ሞዱል",
     requester: "የጠየቀ",
+    navTrainingSettings: "ስልጠና ቅንብሮች",
   },
 } as const;
 
