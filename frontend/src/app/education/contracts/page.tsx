@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { contractApi, educationRequestApi } from "@/lib/api";
 import { Contract, EducationRequest } from "@/types";
 import { FileSignature, Plus, Edit, Trash2, Eye, X } from "lucide-react";
+import GroupedTable from "@/components/GroupedTable";
 
 export default function ContractsPage() {
   const { t } = useLanguage();
@@ -639,107 +640,81 @@ export default function ContractsPage() {
           </div>
         )}
 
-        <div className="rounded-xl border bg-white shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b bg-gray-50 text-xs uppercase text-gray-500">
-                <tr>
-                  <th className="px-4 py-3">ID</th>
-                  <th className="px-4 py-3">{t("fullName")}</th>
-                  <th className="px-4 py-3">Department</th>
-                  <th className="px-4 py-3">Award / Program</th>
-                  <th className="px-4 py-3">{t("university")}</th>
-                  <th className="px-4 py-3">{t("studyCountry")}</th>
-                  <th className="px-4 py-3">{t("durationYears")}</th>
-                  <th className="px-4 py-3">{t("studyMode")}</th>
-                  <th className="px-4 py-3">Signed Date</th>
-                  <th className="px-4 py-3">
-                    {t("scannedDocument" as any) || "Doc"}
-                  </th>
-                  <th className="px-4 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {contracts.length > 0 ? (
-                  contracts.map((c) => (
-                    <tr key={c.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3">{c.id}</td>
-                      <td className="px-4 py-3 font-medium">
-                        {c.employeeName ||
-                          approvedRequests.find((r) => r.id === c.requestId)
-                            ?.employeeName ||
-                          `EMP-${c.employeeId}`}
-                      </td>
-                      <td className="px-4 py-3 text-xs italic text-gray-600">
-                        {c.employeeDepartment || "—"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {c.award ? (
-                          <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-amber-600 uppercase tracking-tight">
-                              Award: {c.award}
-                            </span>
-                            <span className="font-medium">{c.program}</span>
-                          </div>
-                        ) : (
-                          c.program
-                        )}
-                      </td>
-                      <td className="px-4 py-3">{c.university}</td>
-                      <td className="px-4 py-3">{c.studyCountry}</td>
-                      <td className="px-4 py-3">{c.durationYears}</td>
-                      <td className="px-4 py-3">
-                        {c.studyMode === "ON_JOB" ? t("onJob") : t("offJob")}
-                      </td>
-                      <td className="px-4 py-3 font-medium text-gray-700">
-                         {c.contractSignedDate ? new Date(c.contractSignedDate).toLocaleDateString() : "—"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {c.scannedDocument ? (
-                          <button
-                            onClick={() => setViewDoc(c.scannedDocument!)}
-                            className="text-blue-600 hover:underline flex items-center gap-1"
-                          >
-                            <Eye className="h-3 w-3" />
-                            {t("viewDocument")}
-                          </button>
-                        ) : (
-                          <span className="text-gray-400 text-xs">
-                            {t("noDocument")}
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex justify-end gap-2">
-                          <button
-                            onClick={() => handleEdit(c)}
-                            className="p-1 text-gray-500 hover:text-blue-600 transition-colors"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(c.id)}
-                            className="p-1 text-gray-500 hover:text-red-600 transition-colors"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={9}
-                      className="px-4 py-8 text-center text-gray-500"
-                    >
-                      {t("noData")}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+        <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+          <div className="border-b border-gray-50 bg-gray-50/30 px-6 py-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400">
+              Education Commitments — Grouped by Program
+            </h2>
           </div>
+          <GroupedTable
+            rows={contracts}
+            groupBy={(c) => c.program || c.award || "General"}
+            subGroupBy={(c) => c.employeeDepartment || "—"}
+            rowKey={(c) => c.id}
+            columns={[
+              {
+                header: "ID",
+                render: (c) => (
+                  <span className="font-bold text-blue-600">CTR-{c.id}</span>
+                ),
+              },
+              {
+                header: t("fullName"),
+                render: (c) => (
+                  <span className="font-bold text-gray-900">
+                    {c.employeeName || approvedRequests.find((r) => r.id === c.requestId)?.employeeName || `EMP-${c.employeeId}`}
+                  </span>
+                ),
+              },
+              {
+                header: t("university"),
+                render: (c) => <span className="text-gray-700">{c.university || "—"}</span>,
+              },
+              {
+                header: t("studyCountry"),
+                render: (c) => <span className="text-gray-600">{c.studyCountry || "—"}</span>,
+              },
+              {
+                header: t("durationYears"),
+                render: (c) => <span className="font-bold">{c.durationYears || "—"} yrs</span>,
+              },
+              {
+                header: t("studyMode"),
+                render: (c) => (
+                  <span className={`rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${c.studyMode === "ON_JOB" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+                    {c.studyMode === "ON_JOB" ? t("onJob") : t("offJob")}
+                  </span>
+                ),
+              },
+              {
+                header: "Signed Date",
+                render: (c) => (
+                  <span className="text-gray-500">{c.contractSignedDate ? new Date(c.contractSignedDate).toLocaleDateString() : "—"}</span>
+                ),
+              },
+              {
+                header: "Doc",
+                render: (c) => c.scannedDocument ? (
+                  <button onClick={() => setViewDoc(c.scannedDocument!)} className="text-blue-600 hover:underline flex items-center gap-1">
+                    <Eye className="h-3 w-3" /> View
+                  </button>
+                ) : (
+                  <span className="text-gray-400 text-[10px]">—</span>
+                ),
+              },
+            ]}
+            renderActions={(c) => (
+              <div className="flex justify-end gap-2">
+                <button onClick={() => handleEdit(c)} className="rounded-lg border border-gray-100 p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all">
+                  <Edit className="h-4 w-4" />
+                </button>
+                <button onClick={() => handleDelete(c.id)} className="rounded-lg border border-gray-100 p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all">
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+            emptyMessage={t("noData")}
+          />
         </div>
       </div>
 

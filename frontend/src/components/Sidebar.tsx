@@ -24,6 +24,7 @@ import {
   Package,
   Award,
   Settings,
+  DollarSign,
 } from "lucide-react";
 import { TranslationKey } from "@/lib/i18n";
 
@@ -127,6 +128,12 @@ const eduNavItems: NavItem[] = [
     roles: ["DEPARTMENT_HEAD", "HR_OFFICER", "ADMIN"],
   },
   {
+    href: "/education/finance-reports",
+    labelKey: "navFinance",
+    icon: <DollarSign className="h-5 w-5" />,
+    roles: ["EMPLOYEE", "ADMIN", "HR_OFFICER"],
+  },
+  {
     href: "/education/progress-reports",
     labelKey: "navReports",
     icon: <BarChart3 className="h-5 w-5" />,
@@ -158,7 +165,12 @@ const eduNavItems: NavItem[] = [
     href: "/education/reports",
     labelKey: "navEducationAnalytics",
     icon: <BarChart3 className="h-5 w-5" />,
-    roles: ["DEPARTMENT_HEAD", "HR_OFFICER", "CYBER_DEVELOPMENT_CENTER", "ADMIN"],
+    roles: [
+      "DEPARTMENT_HEAD",
+      "HR_OFFICER",
+      "CYBER_DEVELOPMENT_CENTER",
+      "ADMIN",
+    ],
   },
 ];
 

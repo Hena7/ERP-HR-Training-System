@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { progressReportApi, contractApi } from "@/lib/api";
 import { ProgressReport, Contract } from "@/types";
 import { BarChart3, Edit, Trash2, FileText } from "lucide-react";
+import GroupedTable from "@/components/GroupedTable";
 
 const fieldClass =
   "w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all";
@@ -100,51 +101,42 @@ export default function ProgressReportsPage() {
               Education Contracts
             </h2>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                <tr>
-                  <th className="px-6 py-4">ID</th>
-                  <th className="px-6 py-4">{t("fullName")}</th>
-                  <th className="px-6 py-4">{t("department")}</th>
-                  <th className="px-6 py-4">{t("contractSignedDate")}</th>
-                  <th className="px-6 py-4 text-right">{t("actions")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {contracts.length > 0 ? contracts.map((c) => {
-                  const isSelected = selectedContractId === c.id;
-                  return (
-                    <tr key={c.id} className={`transition-colors ${isSelected ? "bg-blue-50/60" : "hover:bg-gray-50/50"}`}>
-                      <td className="px-6 py-4 text-xs font-bold text-blue-600">CTR-{c.id.toString().slice(-6)}</td>
-                      <td className="px-6 py-4 font-bold text-gray-900">{c.employeeName}</td>
-                      <td className="px-6 py-4 font-medium text-gray-600">{c.employeeDepartment || "—"}</td>
-                      <td className="px-6 py-4 font-medium text-gray-500 text-xs">{c.contractSignedDate ? new Date(c.contractSignedDate).toLocaleDateString() : "—"}</td>
-                      <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => handleSelectContract(c.id)}
-                          className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
-                            isSelected
-                              ? "bg-blue-600 text-white shadow-blue-200"
-                              : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
-                          }`}
-                        >
-                          {isSelected ? "Selected" : "Select"}
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                }) : (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-gray-400">
-                      <FileText className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                      {t("noData")}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <GroupedTable
+            rows={contracts}
+            groupBy={(c: any) => c.program || c.award || "General"}
+            subGroupBy={(c: any) => c.employeeDepartment || "—"}
+            rowKey={(c: any) => c.id}
+            columns={[
+              {
+                header: "ID",
+                render: (c: any) => <span className="font-bold text-blue-600">CTR-{c.id.toString().slice(-6)}</span>,
+              },
+              {
+                header: t("fullName"),
+                render: (c: any) => <span className="font-bold text-gray-900">{c.employeeName || "—"}</span>,
+              },
+              {
+                header: t("contractSignedDate"),
+                render: (c: any) => <span className="text-gray-500">{c.contractSignedDate ? new Date(c.contractSignedDate).toLocaleDateString() : "—"}</span>,
+              },
+            ]}
+            renderActions={(c: any) => {
+              const isSelected = selectedContractId === c.id;
+              return (
+                <button
+                  onClick={() => handleSelectContract(c.id)}
+                  className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
+                    isSelected
+                      ? "bg-blue-600 text-white shadow-blue-200"
+                      : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
+                  }`}
+                >
+                  {isSelected ? "Selected" : "Select"}
+                </button>
+              );
+            }}
+            emptyMessage={t("noData")}
+          />
         </div>
 
         {/* Selection Banner */}
@@ -216,43 +208,50 @@ export default function ProgressReportsPage() {
               Submitted Reports
             </h2>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                <tr>
-                  <th className="px-6 py-4">ID</th>
-                  <th className="px-6 py-4">{t("contracts")} ID</th>
-                  <th className="px-6 py-4">{t("reportMonth")}</th>
-                  <th className="px-6 py-4">{t("description")}</th>
-                  <th className="px-6 py-4 text-right">{t("actions")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {reports.length > 0 ? reports.map((r) => (
-                  <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-4 text-xs font-bold text-blue-600">RPT-{r.id.toString().slice(-6)}</td>
-                    <td className="px-6 py-4 text-xs font-bold text-gray-500">CTR-{r.contractId?.toString().slice(-6)}</td>
-                    <td className="px-6 py-4 font-medium text-gray-700">{r.reportMonth}</td>
-                    <td className="px-6 py-4 font-medium text-gray-600 max-w-xs truncate">{r.description}</td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        <button onClick={() => handleEdit(r)} className="rounded-lg border border-gray-100 p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button onClick={() => handleDelete(r.id)} className="rounded-lg border border-gray-100 p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )) : (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-gray-400">{t("noData")}</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <GroupedTable
+            rows={reports}
+            groupBy={(r) => {
+              const c = contracts.find(c => c.id === r.contractId);
+              return (c as any)?.program || (c as any)?.award || "General";
+            }}
+            subGroupBy={(r) => {
+              const c = contracts.find(c => c.id === r.contractId);
+              return (c as any)?.employeeDepartment || "—";
+            }}
+            rowKey={(r) => r.id}
+            columns={[
+              {
+                header: "ID",
+                render: (r) => <span className="font-bold text-blue-600">RPT-{r.id.toString().slice(-6)}</span>,
+              },
+              {
+                header: t("fullName"),
+                render: (r) => {
+                  const c = contracts.find(c => c.id === r.contractId);
+                  return <span className="font-bold text-gray-900">{(c as any)?.employeeName || `CTR-${r.contractId?.toString().slice(-6)}`}</span>;
+                },
+              },
+              {
+                header: t("reportMonth"),
+                render: (r) => <span className="font-medium text-gray-700">{r.reportMonth}</span>,
+              },
+              {
+                header: t("description"),
+                render: (r) => <span className="text-gray-600 max-w-xs truncate block">{r.description}</span>,
+              },
+            ]}
+            renderActions={(r) => (
+              <div className="flex justify-end gap-2">
+                <button onClick={() => handleEdit(r)} className="rounded-lg border border-gray-100 p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                  <Edit className="h-4 w-4" />
+                </button>
+                <button onClick={() => handleDelete(r.id)} className="rounded-lg border border-gray-100 p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors">
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+            emptyMessage={t("noData")}
+          />
         </div>
       </div>
     </DashboardLayout>

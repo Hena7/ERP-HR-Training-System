@@ -244,6 +244,7 @@ export const translations = {
     navUsers: "Users",
     educationModule: "Education Module",
     navDirectorApproval: "Director Approval",
+    navFinance: "Finance Reporting",
 
     // ─── Training Module ───────────────────────────────────────────────────
     trainingModule: "Training Module",
@@ -537,6 +538,7 @@ export const translations = {
     navObligations: "የአገልግሎት ግዴታዎች",
     navUsers: "ተጠቃሚዎች",
     navDirectorApproval: "የዳይሬክተር ማረጋገጫ",
+    navFinance: "የፋይናንስ ሪፖርት",
 
     // ─── Training Module ───────────────────────────────────────────────────
     trainingModule: "ስልጠና ሞዱል",

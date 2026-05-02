@@ -12,6 +12,7 @@ import {
   Calculator,
   Award,
 } from "lucide-react";
+import GroupedTable from "@/components/GroupedTable";
 
 type VerificationStatus = "VERIFIED" | "REJECTED" | "RETURNED_TO_DEPT";
 
@@ -238,82 +239,50 @@ export default function HRVerificationsPage() {
             </h2>
           </div>
 
-          <div className="overflow-x-auto">
-            {requests.length > 0 ? (() => {
-              // Group by department + opportunity key
-              const groups: Record<string, typeof requests> = {};
-              requests.forEach((req) => {
-                const dept = req.employeeDepartment || "Unknown Department";
-                const opp = req.fieldOfStudy || (req as any).educationType || "Unknown Opportunity";
-                const key = `${dept}|||${opp}`;
-                if (!groups[key]) groups[key] = [];
-                groups[key].push(req);
-              });
-
-              return Object.entries(groups).map(([key, groupReqs]) => {
-                const [dept, opp] = key.split("|||");
-                return (
-                  <div key={key} className="border-b border-gray-100 last:border-b-0">
-                    {/* Group Header */}
-                    <div className="flex items-center gap-3 bg-gradient-to-r from-blue-50/80 to-indigo-50/40 px-6 py-3 border-b border-blue-100/60">
-                      <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center rounded-lg bg-blue-600 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-sm">
-                          {dept}
-                        </span>
-                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">—</span>
-                        <span className="text-xs font-bold italic text-gray-700">{opp}</span>
-                      </div>
-                      <span className="ml-auto rounded-full bg-blue-100 px-2.5 py-0.5 text-[10px] font-black text-blue-700">
-                        {groupReqs.length} candidate{groupReqs.length !== 1 ? "s" : ""}
-                      </span>
-                    </div>
-                    <table className="w-full text-left text-sm">
-                      <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                        <tr>
-                          <th className="px-6 py-3">ID</th>
-                          <th className="px-6 py-3">{t("fullName")}</th>
-                          <th className="px-6 py-3">{t("institution")}</th>
-                          <th className="px-6 py-3 text-right">{t("actions")}</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y">
-                        {groupReqs.map((request) => {
-                          const isSelected = form.requestId === request.id;
-                          return (
-                            <tr key={request.id} className="hover:bg-gray-50/50 transition-colors">
-                              <td className="px-6 py-4 text-xs font-bold text-blue-600">
-                                REQ-{request.id.toString().slice(-6)}
-                              </td>
-                              <td className="px-6 py-4 font-bold text-gray-900">
-                                {request.employeeName}
-                              </td>
-                              <td className="px-6 py-4 font-medium text-gray-500 text-xs">
-                                {request.institution}
-                              </td>
-                              <td className="px-6 py-4 text-right">
-                                <button
-                                  onClick={() => handleRequestSelect(request)}
-                                  className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
-                                    isSelected
-                                      ? "bg-blue-600 text-white shadow-blue-200"
-                                      : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
-                                  }`}
-                                >
-                                  {isSelected ? "Selected" : "Review"}
-                                </button>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                );
-              });
-            })() : (
-              <div className="px-4 py-8 text-center text-gray-500">{t("noData")}</div>
-            )}
-          </div>
+          <GroupedTable
+            rows={requests}
+            groupBy={(req) => req.fieldOfStudy || (req as any).educationType || "General"}
+            subGroupBy={(req) => req.employeeDepartment || "Unknown Department"}
+            rowKey={(req) => req.id}
+            columns={[
+              {
+                header: "ID",
+                render: (req) => (
+                  <span className="font-bold text-blue-600">
+                    REQ-{req.id.toString().slice(-6)}
+                  </span>
+                ),
+              },
+              {
+                header: t("fullName"),
+                render: (req) => (
+                  <span className="font-bold text-gray-900">{req.employeeName}</span>
+                ),
+              },
+              {
+                header: t("institution"),
+                render: (req) => (
+                  <span className="text-gray-500">{req.institution || "—"}</span>
+                ),
+              },
+            ]}
+            renderActions={(request) => {
+              const isSelected = form.requestId === request.id;
+              return (
+                <button
+                  onClick={() => handleRequestSelect(request)}
+                  className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
+                    isSelected
+                      ? "bg-blue-600 text-white shadow-blue-200"
+                      : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
+                  }`}
+                >
+                  {isSelected ? "Selected" : "Review"}
+                </button>
+              );
+            }}
+            emptyMessage={t("noData")}
+          />
         </div>
 
         <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
