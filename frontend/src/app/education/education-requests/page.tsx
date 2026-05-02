@@ -27,6 +27,7 @@ import {
   UserPlus,
   Eye,
   X,
+  RefreshCw,
 } from "lucide-react";
 import StatusBadge from "@/components/StatusBadge";
 
@@ -208,6 +209,26 @@ export default function EducationRequestsPage() {
     });
     setSearchTerm("");
     setShowCandidateModal(true);
+  };
+
+  const fetchEmployeeDetails = async () => {
+    const id = currentCandidate.candidateId;
+    if (!id) return;
+    try {
+      const res = await employeeApi.getByEmployeeId(id);
+      if (res.data) {
+        setCurrentCandidate({
+          ...currentCandidate,
+          id: res.data.id,
+          name: `${res.data.firstName} ${res.data.lastName}`,
+          dept: res.data.department,
+          phone: res.data.phone,
+          isManual: false,
+        });
+      }
+    } catch (err) {
+      alert("Employee not found with ID: " + id);
+    }
   };
 
   const saveCandidate = () => {
@@ -1093,20 +1114,32 @@ export default function EducationRequestsPage() {
                 <label className="text-xs font-black uppercase tracking-widest text-gray-400">
                   Employee ID / ID Card Number
                 </label>
-                <input
-                  type="text"
-                  required
-                  readOnly={!currentCandidate.isManual}
-                  value={currentCandidate.candidateId}
-                  onChange={(e) =>
-                    setCurrentCandidate({
-                      ...currentCandidate,
-                      candidateId: e.target.value,
-                    })
-                  }
-                  className={`w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none ${!currentCandidate.isManual ? "opacity-70" : ""}`}
-                  placeholder="e.g. EMP123"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    required
+                    readOnly={!currentCandidate.isManual && !!currentCandidate.id}
+                    value={currentCandidate.candidateId}
+                    onChange={(e) =>
+                      setCurrentCandidate({
+                        ...currentCandidate,
+                        candidateId: e.target.value,
+                      })
+                    }
+                    className={`w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none ${!currentCandidate.isManual && !!currentCandidate.id ? "opacity-70" : ""}`}
+                    placeholder="e.g. EMP123"
+                  />
+                  {currentCandidate.isManual && (
+                    <button
+                      type="button"
+                      onClick={fetchEmployeeDetails}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md bg-blue-50 p-1.5 text-blue-600 hover:bg-blue-100 transition-colors"
+                      title="Fetch details"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className="col-span-2 space-y-1.5">

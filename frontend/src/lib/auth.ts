@@ -90,6 +90,9 @@ export const authOptions: NextAuthOptions = {
           else if (decoded.preferred_username)
             session.user.name = decoded.preferred_username;
           else if (decoded.given_name) session.user.name = decoded.given_name;
+          
+          if (decoded.preferred_username)
+            session.user.username = decoded.preferred_username;
 
           if (decoded.employee_id)
             session.user.employeeId = decoded.employee_id;

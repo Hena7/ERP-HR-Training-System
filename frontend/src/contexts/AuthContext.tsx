@@ -40,6 +40,7 @@ export function useAuth() {
             fullName: (session.user?.name && session.user?.name !== "Keycloak User") 
               ? session.user.name 
               : (session.user?.email ? session.user.email.split('@')[0] : "Keycloak User"),
+            username: (session as any).user?.username || "",
             email: session.user?.email || "user@example.com",
             department: (session as any).user?.department || "",
             employeeId: (session as any).user?.employeeId || "",

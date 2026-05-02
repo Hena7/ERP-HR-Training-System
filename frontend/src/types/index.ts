@@ -30,6 +30,7 @@ export interface AuthResponse {
   token: string;
   email: string;
   fullName: string;
+  username?: string;
   role: UserRole;
   employeeId?: string;
   department?: string;
@@ -206,4 +207,19 @@ export interface EducationOpportunity {
   deadline: string;
   createdAt: string;
   updatedAt: string;
+}
+export interface EducationFinanceReport {
+  id: number;
+  contractId: number;
+  employeeId: string;
+  reportingPeriod: string;
+  periodValue: string;
+  tuitionFees: number;
+  livingAllowance: number;
+  otherExpenses: number;
+  totalAmount: number;
+  currency: string;
+  description: string;
+  submittedAt: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
 }

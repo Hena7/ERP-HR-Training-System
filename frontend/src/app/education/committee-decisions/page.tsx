@@ -171,7 +171,7 @@ export default function CommitteeDecisionsPage() {
               const [dept, oppStr] = key.split("|||");
               
               // Find matching opportunity to get dynamic quota
-              const opp = opportunities.find(o => o.educationType === oppStr || o.fieldOfStudy === oppStr);
+              const opp = opportunities.find(o => o.educationType === oppStr);
               let candidatesQuota = 3;
               let standbyQuota = 2;
               

@@ -59,4 +59,10 @@ public class EmployeeController {
     public ResponseEntity<EmployeeResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(employeeService.getById(id));
     }
+
+    @GetMapping("/id-card/{employeeId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_OFFICER', 'DEPARTMENT_HEAD', 'CYBER_DEVELOPMENT_CENTER')")
+    public ResponseEntity<EmployeeResponse> getByEmployeeId(@PathVariable String employeeId) {
+        return ResponseEntity.ok(employeeService.getByEmployeeId(employeeId));
+    }
 }

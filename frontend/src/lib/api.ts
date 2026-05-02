@@ -83,6 +83,7 @@ export const employeeApi = {
   getAll: (page = 0, size = 10) => api.get(`/api/employees?page=${page}&size=${size}`),
   getByDepartment: (department: string) => api.get(`/api/employees/department/${department}`),
   getById: (id: number) => api.get(`/api/employees/${id}`),
+  getByEmployeeId: (employeeId: string) => api.get(`/api/employees/id-card/${employeeId}`),
   create: (data: any) => api.post("/api/employees", data),
   update: (id: number, data: any) => api.put(`/api/employees/${id}`, data),
   delete: (id: number) => api.delete(`/api/employees/${id}`),
@@ -187,4 +188,11 @@ export const serviceObligationApi = {
   getAll: (page = 0, size = 10) => api.get(`/api/service-obligations?page=${page}&size=${size}`),
   update: (id: number, data: any) => api.put(`/api/service-obligations/${id}`, data),
   delete: (id: number) => api.delete(`/api/service-obligations/${id}`),
+};
+
+export const educationFinanceReportApi = {
+  create: (data: any) => api.post("/api/finance-reports", data),
+  getByContract: (contractId: number) => api.get(`/api/finance-reports/contract/${contractId}`),
+  getByEmployee: (employeeId: string) => api.get(`/api/finance-reports/employee/${employeeId}`),
+  getAll: () => api.get("/api/finance-reports"),
 };

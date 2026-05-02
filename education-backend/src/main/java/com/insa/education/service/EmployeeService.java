@@ -41,6 +41,13 @@ public class EmployeeService {
     }
 
     @Transactional(readOnly = true)
+    public EmployeeResponse getByEmployeeId(String employeeId) {
+        Employee employee = employeeRepository.findByEmployeeId(employeeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with employeeId: " + employeeId));
+        return mapper.toEmployeeResponse(employee);
+    }
+
+    @Transactional(readOnly = true)
     public Page<EmployeeResponse> getAll(Pageable pageable) {
         return employeeRepository.findAll(pageable)
                 .map(mapper::toEmployeeResponse);
