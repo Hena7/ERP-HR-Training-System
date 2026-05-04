@@ -65,6 +65,7 @@ export interface EducationRequest {
   totalScore?: number;
   fieldOfStudy?: string;
   candidateId?: string;
+  committeeApprovalCount?: number;
   createdAt: string;
   updatedAt: string;
 }

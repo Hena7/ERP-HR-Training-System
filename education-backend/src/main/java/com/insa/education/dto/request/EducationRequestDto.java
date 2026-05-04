@@ -48,4 +48,6 @@ public class EducationRequestDto {
     private Double totalScore;
 
     private String candidateId;
+
+    private Integer committeeApprovalCount;
 }

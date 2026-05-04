@@ -47,16 +47,18 @@ export default function CommitteeDecisionsPage() {
 
   const loadData = async () => {
     try {
-      const [decRes, reqRes, allReqRes, oppRes] = await Promise.all([
+      const [decRes, scoredRes, reviewRes, allReqRes, oppRes] = await Promise.all([
         committeeDecisionApi.getAll(0, 500),
         educationRequestApi.getByStatus("SCORED", 0, 500),
+        educationRequestApi.getByStatus("COMMITTEE_REVIEW", 0, 500),
         educationRequestApi.getAll(0, 1000),
         educationOpportunityApi.getAll(0, 200),
       ]);
 
-      const scReqs = (reqRes.data.content || []).sort(
-        (a: any, b: any) => (b.totalScore || 0) - (a.totalScore || 0),
-      );
+      const scReqs = [
+        ...(scoredRes.data.content || []),
+        ...(reviewRes.data.content || []),
+      ].sort((a: any, b: any) => (b.totalScore || 0) - (a.totalScore || 0));
       setDecisions(decRes.data.content || []);
       setScoredRequests(scReqs);
       setOpportunities(oppRes.data.content || []);
@@ -189,7 +191,7 @@ export default function CommitteeDecisionsPage() {
               const forwardableIds = sortedReqs
                 .filter((r, idx) => {
                   const isWithinQuota = idx < totalQuota;
-                  const approvals = decisions.filter(d => d.requestId === r.id && d.decision === "APPROVED").length;
+                  const approvals = r.committeeApprovalCount || 0;
                   return isWithinQuota && approvals >= 4;
                 })
                 .map(r => r.id);
@@ -229,7 +231,7 @@ export default function CommitteeDecisionsPage() {
                       {sortedReqs.map((r, idx) => {
                         const isWithinQuota = idx < totalQuota;
                         const myDecision = decisions.find(d => d.requestId === r.id && d.decidedBy === user?.username);
-                        const approvals = decisions.filter(d => d.requestId === r.id && d.decision === "APPROVED").length;
+                        const approvals = r.committeeApprovalCount || 0;
                         const rejections = decisions.filter(d => d.requestId === r.id && d.decision === "REJECTED").length;
                         const canForward = isWithinQuota && approvals >= 4;
 

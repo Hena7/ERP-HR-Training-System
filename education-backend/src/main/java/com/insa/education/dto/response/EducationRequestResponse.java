@@ -34,6 +34,7 @@ public class EducationRequestResponse {
     private String commitmentSource;
     private Double totalScore;
     private String candidateId;
+    private Integer committeeApprovalCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

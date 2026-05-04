@@ -50,6 +50,7 @@ public class EducationMapper {
                 .commitmentSource(entity.getCommitmentSource() != null ? entity.getCommitmentSource().name() : null)
                 .totalScore(entity.getTotalScore())
                 .candidateId(entity.getCandidateId())
+                .committeeApprovalCount(entity.getCommitteeApprovalCount())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

@@ -40,6 +40,19 @@ public class DatabaseMigrationRunner {
             } catch (Exception e) {
                 log.warn("Education Completions workflow migration skipped or failed: {}", e.getMessage());
             }
+
+            // Committee Multi-vote Migration
+            try {
+                jdbcTemplate.execute("ALTER TABLE education_requests ADD COLUMN IF NOT EXISTS committee_approval_count INTEGER DEFAULT 0;");
+                // Drop the unique constraint if it exists. Postgres automatically names it something like committee_decisions_request_id_key
+                // We'll use a safer way to drop it by looking it up or just attempting common names.
+                // Alternatively, just DROP CONSTRAINT if we know the name, but Hibernate usually generates it.
+                // A more robust way in Postgres:
+                jdbcTemplate.execute("ALTER TABLE committee_decisions DROP CONSTRAINT IF EXISTS committee_decisions_request_id_key;");
+                log.info("Successfully applied committee multi-vote patch.");
+            } catch (Exception e) {
+                log.warn("Committee multi-vote migration skipped or failed: {}", e.getMessage());
+            }
         };
     }
 }

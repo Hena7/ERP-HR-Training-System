@@ -97,24 +97,7 @@ const eduNavItems: NavItem[] = [
     icon: <ClipboardCheck className="h-5 w-5" />,
     roles: ["HR_OFFICER", "ADMIN"],
   },
-  {
-    href: "/education/completions",
-    labelKey: "navCompletions",
-    icon: <GraduationCap className="h-5 w-5" />,
-    roles: ["CYBER_DEVELOPMENT_CENTER", "ADMIN"],
-  },
-  {
-    href: "/education/hr-completions",
-    labelKey: "navHrCompletions",
-    icon: <ClipboardCheck className="h-5 w-5" />,
-    roles: ["HR_OFFICER", "ADMIN"],
-  },
-  {
-    href: "/education/kmc-completions",
-    labelKey: "navKmcCompletions",
-    icon: <GraduationCap className="h-5 w-5" />,
-    roles: ["CYBER_DEVELOPMENT_CENTER", "ADMIN"],
-  },
+
   {
     href: "/education/service-obligations",
     labelKey: "navObligations",
@@ -179,6 +162,18 @@ const eduNavItems: NavItem[] = [
       "CYBER_DEVELOPMENT_CENTER",
       "ADMIN",
     ],
+  },
+  {
+    href: "/education/hr-completions",
+    labelKey: "navHrCompletions",
+    icon: <ClipboardCheck className="h-5 w-5" />,
+    roles: ["HR_OFFICER", "ADMIN"],
+  },
+  {
+    href: "/education/kmc-completions",
+    labelKey: "navKmcCompletions",
+    icon: <GraduationCap className="h-5 w-5" />,
+    roles: ["CYBER_DEVELOPMENT_CENTER", "ADMIN"],
   },
   {
     href: "/education/service-obligations",

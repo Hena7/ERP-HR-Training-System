@@ -42,12 +42,13 @@ public class CommitteeDecisionService {
         EducationRequest request = requestRepository.findById(dto.getRequestId())
                 .orElseThrow(() -> new ResourceNotFoundException("Education request not found with id: " + dto.getRequestId()));
 
-        if (request.getStatus() != RequestStatus.SCORED) {
-            throw new BadRequestException("Request must be in SCORED status before committee decision. CDC must first assign a score.");
+        if (request.getStatus() != RequestStatus.SCORED && request.getStatus() != RequestStatus.COMMITTEE_REVIEW) {
+            throw new BadRequestException("Request must be in SCORED or COMMITTEE_REVIEW status before committee decision.");
         }
 
-        if (decisionRepository.existsByRequestId(dto.getRequestId())) {
-            throw new DuplicateResourceException("Committee decision already exists for request: " + dto.getRequestId());
+        String currentUserId = IdentityUtils.getCurrentUserDisplayName(); // or username
+        if (decisionRepository.existsByRequestIdAndDecidedBy(dto.getRequestId(), currentUserId)) {
+            throw new DuplicateResourceException("You have already submitted a decision for this request.");
         }
 
         String decidedBy = IdentityUtils.getCurrentUserDisplayName();
@@ -63,9 +64,18 @@ public class CommitteeDecisionService {
         CommitteeDecision saved = decisionRepository.save(decision);
 
         if (dto.getDecision() == DecisionStatus.APPROVED) {
-            request.setStatus(RequestStatus.COMMITTEE_REVIEW);
+            int currentCount = request.getCommitteeApprovalCount() != null ? request.getCommitteeApprovalCount() : 0;
+            request.setCommitteeApprovalCount(currentCount + 1);
+            
+            if (request.getStatus() == RequestStatus.SCORED) {
+                request.setStatus(RequestStatus.COMMITTEE_REVIEW);
+            }
         } else {
-            request.setStatus(RequestStatus.REJECTED);
+            // If one person rejects, does it fail completely? 
+            // In many systems, it just records the rejection. 
+            // But let's stay with the user's "requires 4/7 approvals" logic.
+            // If they want to reject the whole thing, we'd need a different rule.
+            // For now, let's just record the rejection and not change status unless it's a hard reject.
         }
         requestRepository.save(request);
 

@@ -301,7 +301,7 @@ public class EducationRequestService {
                 .orElseThrow(() -> new ResourceNotFoundException("Education request not found with id: " + requestId));
 
         // Create a committee decision record if it doesn't exist for the history table
-        if (!committeeDecisionRepository.existsByRequestId(requestId)) {
+        if (committeeDecisionRepository.findAllByRequestId(requestId).isEmpty()) {
             CommitteeDecision decision = CommitteeDecision.builder()
                     .request(request)
                     .decision(DecisionStatus.APPROVED)

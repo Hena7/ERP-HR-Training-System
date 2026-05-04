@@ -96,6 +96,10 @@ public class EducationRequest {
     @Column(name = "candidate_id", length = 50)
     private String candidateId;
 
+    @Column(name = "committee_approval_count")
+    @Builder.Default
+    private Integer committeeApprovalCount = 0;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
