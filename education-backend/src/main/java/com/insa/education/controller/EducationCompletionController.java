@@ -34,4 +34,15 @@ public class EducationCompletionController {
     public ResponseEntity<Page<EducationCompletionResponse>> getAll(Pageable pageable) {
         return ResponseEntity.ok(completionService.getAll(pageable));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<EducationCompletionResponse> update(@PathVariable Long id, @RequestBody EducationCompletionDto dto) {
+        return ResponseEntity.ok(completionService.update(id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        completionService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }

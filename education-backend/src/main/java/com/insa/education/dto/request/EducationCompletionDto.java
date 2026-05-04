@@ -21,4 +21,12 @@ public class EducationCompletionDto {
     private LocalDate returnToWorkDate;
 
     private LocalDate researchPresentationDate;
+
+    private Boolean sentToHr;
+
+    private Boolean notifiedKmc;
+
+    private Boolean hrAcknowledged;
+
+    private Boolean kmcAcknowledged;
 }

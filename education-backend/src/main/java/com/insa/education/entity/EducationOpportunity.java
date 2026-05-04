@@ -52,7 +52,7 @@ public class EducationOpportunity {
             name = "education_opportunity_target_departments",
             joinColumns = @JoinColumn(name = "opportunity_id")
     )
-    @Column(name = "department_name", nullable = false)
+    @Column(name = "department_name", nullable = true)
     @Builder.Default
     private List<String> targetDepartments = new ArrayList<>();
 

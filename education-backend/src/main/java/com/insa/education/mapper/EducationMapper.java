@@ -158,6 +158,10 @@ public class EducationMapper {
                 .completionDate(entity.getCompletionDate())
                 .returnToWorkDate(entity.getReturnToWorkDate())
                 .researchPresentationDate(entity.getResearchPresentationDate())
+                .sentToHr(entity.getSentToHr())
+                .notifiedKmc(entity.getNotifiedKmc())
+                .hrAcknowledged(entity.getHrAcknowledged())
+                .kmcAcknowledged(entity.getKmcAcknowledged())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }

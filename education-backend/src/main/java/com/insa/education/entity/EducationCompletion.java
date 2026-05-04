@@ -34,6 +34,22 @@ public class EducationCompletion {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "sent_to_hr")
+    @Builder.Default
+    private Boolean sentToHr = false;
+
+    @Column(name = "notified_kmc")
+    @Builder.Default
+    private Boolean notifiedKmc = false;
+
+    @Column(name = "hr_acknowledged")
+    @Builder.Default
+    private Boolean hrAcknowledged = false;
+
+    @Column(name = "kmc_acknowledged")
+    @Builder.Default
+    private Boolean kmcAcknowledged = false;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

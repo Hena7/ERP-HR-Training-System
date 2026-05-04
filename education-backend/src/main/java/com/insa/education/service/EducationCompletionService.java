@@ -53,6 +53,10 @@ public class EducationCompletionService {
                 .completionDate(dto.getCompletionDate())
                 .returnToWorkDate(dto.getReturnToWorkDate())
                 .researchPresentationDate(dto.getResearchPresentationDate())
+                .sentToHr(dto.getSentToHr() != null ? dto.getSentToHr() : false)
+                .notifiedKmc(dto.getNotifiedKmc() != null ? dto.getNotifiedKmc() : false)
+                .hrAcknowledged(dto.getHrAcknowledged() != null ? dto.getHrAcknowledged() : false)
+                .kmcAcknowledged(dto.getKmcAcknowledged() != null ? dto.getKmcAcknowledged() : false)
                 .build();
 
         EducationCompletion saved = completionRepository.save(completion);
@@ -98,5 +102,31 @@ public class EducationCompletionService {
     @Transactional(readOnly = true)
     public Page<EducationCompletionResponse> getAll(Pageable pageable) {
         return completionRepository.findAll(pageable).map(mapper::toCompletionResponse);
+    }
+
+    @Transactional
+    public EducationCompletionResponse update(Long id, EducationCompletionDto dto) {
+        EducationCompletion completion = completionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Completion not found with id: " + id));
+
+        if (dto.getCompletionDate() != null) completion.setCompletionDate(dto.getCompletionDate());
+        if (dto.getReturnToWorkDate() != null) completion.setReturnToWorkDate(dto.getReturnToWorkDate());
+        if (dto.getResearchPresentationDate() != null) completion.setResearchPresentationDate(dto.getResearchPresentationDate());
+        
+        if (dto.getSentToHr() != null) completion.setSentToHr(dto.getSentToHr());
+        if (dto.getNotifiedKmc() != null) completion.setNotifiedKmc(dto.getNotifiedKmc());
+        if (dto.getHrAcknowledged() != null) completion.setHrAcknowledged(dto.getHrAcknowledged());
+        if (dto.getKmcAcknowledged() != null) completion.setKmcAcknowledged(dto.getKmcAcknowledged());
+
+        EducationCompletion updated = completionRepository.save(completion);
+        return mapper.toCompletionResponse(updated);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        if (!completionRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Completion not found with id: " + id);
+        }
+        completionRepository.deleteById(id);
     }
 }

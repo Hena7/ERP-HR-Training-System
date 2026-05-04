@@ -98,6 +98,36 @@ const eduNavItems: NavItem[] = [
     roles: ["HR_OFFICER", "ADMIN"],
   },
   {
+    href: "/education/completions",
+    labelKey: "navCompletions",
+    icon: <GraduationCap className="h-5 w-5" />,
+    roles: ["CYBER_DEVELOPMENT_CENTER", "ADMIN"],
+  },
+  {
+    href: "/education/hr-completions",
+    labelKey: "navHrCompletions",
+    icon: <ClipboardCheck className="h-5 w-5" />,
+    roles: ["HR_OFFICER", "ADMIN"],
+  },
+  {
+    href: "/education/kmc-completions",
+    labelKey: "navKmcCompletions",
+    icon: <GraduationCap className="h-5 w-5" />,
+    roles: ["CYBER_DEVELOPMENT_CENTER", "ADMIN"],
+  },
+  {
+    href: "/education/service-obligations",
+    labelKey: "navObligations",
+    icon: <Clock className="h-5 w-5" />,
+    roles: ["CYBER_DEVELOPMENT_CENTER", "HR_OFFICER", "ADMIN"],
+  },
+  {
+    href: "/education/director-approval",
+    labelKey: "navDirectorApproval",
+    icon: <Award className="h-5 w-5" />,
+    roles: ["DIRECTOR", "ADMIN"],
+  },
+  {
     href: "/education/cdc-approval",
     labelKey: "navCdcApproval",
     icon: <BarChart3 className="h-5 w-5" />,
@@ -109,12 +139,7 @@ const eduNavItems: NavItem[] = [
     icon: <Users className="h-5 w-5" />,
     roles: ["COMMITTEE_MEMBER", "ADMIN"],
   },
-  {
-    href: "/education/director-approval",
-    labelKey: "navDirectorApproval",
-    icon: <Award className="h-5 w-5" />,
-    roles: ["DIRECTOR", "ADMIN"],
-  },
+
   {
     href: "/education/contracts",
     labelKey: "navContracts",

@@ -245,6 +245,8 @@ export const translations = {
     educationModule: "Education Module",
     navDirectorApproval: "Director Approval",
     navFinance: "Finance Reporting",
+    navHrCompletions: "HR Completions",
+    navKmcCompletions: "KMC Completions",
 
     // ─── Training Module ───────────────────────────────────────────────────
     trainingModule: "Training Module",
@@ -539,6 +541,8 @@ export const translations = {
     navUsers: "ተጠቃሚዎች",
     navDirectorApproval: "የዳይሬክተር ማረጋገጫ",
     navFinance: "የፋይናንስ ሪፖርት",
+    navHrCompletions: "የHR ማጠናቀቂያ",
+    navKmcCompletions: "የKMC ማጠናቀቂያ",
 
     // ─── Training Module ───────────────────────────────────────────────────
     trainingModule: "ስልጠና ሞዱል",
