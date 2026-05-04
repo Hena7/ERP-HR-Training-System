@@ -107,6 +107,8 @@ export const educationRequestApi = {
   reportByCommittee: (id: number) => api.patch(`/api/education-requests/${id}/report-by-committee`),
   reportByCommitteeBulk: (ids: number[]) => api.post(`/api/education-requests/committee-report`, ids),
   finalApproval: (id: number) => api.patch(`/api/education-requests/${id}/final-approval`),
+  directorApproval: (id: number, decision: string, reason?: string) => 
+    api.patch(`/api/education-requests/${id}/director-approval`, null, { params: { decision, reason } }),
   delete: (id: number) => api.delete(`/api/education-requests/${id}`),
 };
 

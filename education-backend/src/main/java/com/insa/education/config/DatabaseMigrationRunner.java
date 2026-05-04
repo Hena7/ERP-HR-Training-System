@@ -53,6 +53,29 @@ public class DatabaseMigrationRunner {
             } catch (Exception e) {
                 log.warn("Committee multi-vote migration skipped or failed: {}", e.getMessage());
             }
+
+            // Education Opportunities Department Migration
+            try {
+                // If department_id exists, rename it to department. This helps recover legacy data.
+                // We'll use a series of try-catches to handle different states safely.
+                try {
+                    jdbcTemplate.execute("ALTER TABLE education_opportunities RENAME COLUMN department_id TO department;");
+                    log.info("Renamed department_id to department in education_opportunities");
+                } catch (Exception e) {
+                    // Ignore if department_id doesn't exist
+                }
+
+                try {
+                    jdbcTemplate.execute("ALTER TABLE education_opportunities ALTER COLUMN department TYPE VARCHAR(255);");
+                } catch (Exception e) {
+                    // Ignore if cannot alter
+                }
+
+                jdbcTemplate.execute("ALTER TABLE education_opportunities ADD COLUMN IF NOT EXISTS department VARCHAR(255);");
+                log.info("Successfully ensured department column exists in education_opportunities.");
+            } catch (Exception e) {
+                log.warn("Education Opportunities department migration skipped or failed: {}", e.getMessage());
+            }
         };
     }
 }

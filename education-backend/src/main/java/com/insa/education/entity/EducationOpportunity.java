@@ -44,7 +44,7 @@ public class EducationOpportunity {
     @Column(nullable = false)
     private String institution;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String department;
 
     @ElementCollection(fetch = FetchType.EAGER)

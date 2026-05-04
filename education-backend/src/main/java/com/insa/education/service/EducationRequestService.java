@@ -312,11 +312,15 @@ public class EducationRequestService {
             log.info("Auto-created committee decision record for bulk report: requestId={}", requestId);
         }
 
+        if (request.getCommitteeApprovalCount() < 4) {
+            throw new BadRequestException("Request must have at least 4 committee approvals to be reported.");
+        }
+
         return transitionStatus(
                 requestId,
                 RequestStatus.SCORED,
                 RequestStatus.COMMITTEE_REPORTED,
-                "Reported by Committee for final CDC sign-off"
+                "Reported by Committee for Director approval"
         );
     }
 
@@ -339,6 +343,29 @@ public class EducationRequestService {
         return requestIds.stream()
                 .map(this::reportByCommittee)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * DIRECTOR step:
+     * COMMITTEE_REPORTED -> APPROVED
+     */
+    @Transactional
+    public EducationRequestResponse directorApproval(Long requestId, String decision, String reason) {
+        if ("REJECTED".equalsIgnoreCase(decision)) {
+            return transitionStatus(
+                    requestId,
+                    RequestStatus.COMMITTEE_REPORTED,
+                    RequestStatus.REJECTED,
+                    "Director rejected request: " + reason
+            );
+        }
+
+        return transitionStatus(
+                requestId,
+                RequestStatus.COMMITTEE_REPORTED,
+                RequestStatus.APPROVED,
+                "Director granted final approval"
+        );
     }
 
     /**

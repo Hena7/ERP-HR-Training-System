@@ -23,7 +23,7 @@ export default function DirectorApprovalPage() {
     try {
       const [reportedRes, approvedRes, verRes] = await Promise.all([
         educationRequestApi.getByStatus("COMMITTEE_REPORTED", 0, 200),
-        educationRequestApi.getByStatus("DIRECTOR_APPROVED", 0, 200),
+        educationRequestApi.getByStatus("APPROVED", 0, 200),
         hrVerificationApi.getAll(0, 200),
       ]);
 
@@ -43,7 +43,7 @@ export default function DirectorApprovalPage() {
     if (!confirm("Approve this candidate and forward to CDC Final Approval?")) return;
     setLoading(true);
     try {
-      await (educationRequestApi as any).directorApproval(requestId, "APPROVED");
+      await educationRequestApi.directorApproval(requestId, "APPROVED");
       await loadData();
     } catch {
       alert("Failed to approve.");
@@ -57,7 +57,7 @@ export default function DirectorApprovalPage() {
     if (!reason) return;
     setLoading(true);
     try {
-      await (educationRequestApi as any).directorApproval(requestId, "REJECTED", reason);
+      await educationRequestApi.directorApproval(requestId, "REJECTED", reason);
       await loadData();
     } catch {
       alert("Failed to reject.");
@@ -199,7 +199,7 @@ export default function DirectorApprovalPage() {
           <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
             <div className="border-b border-gray-50 bg-emerald-50/30 px-6 py-4">
               <h2 className="text-xs font-bold uppercase tracking-widest text-emerald-600">
-                Director-Approved (Forwarded to CDC)
+                Director-Approved (Ready for Commitment)
               </h2>
             </div>
             <table className="w-full text-left text-sm">
