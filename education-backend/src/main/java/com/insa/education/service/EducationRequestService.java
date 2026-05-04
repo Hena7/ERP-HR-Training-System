@@ -141,7 +141,7 @@ public class EducationRequestService {
             String displayName  = (employee != null)
                     ? employee.getFirstName() + " " + employee.getLastName()
                     : (resolvedName != null ? resolvedName : cand.getCandidateId());
-            String displayDept  = (employee != null) ? employee.getDepartment() : resolvedDept;
+            String displayDept  = (employee != null && employee.getDepartment() != null) ? employee.getDepartment().getName() : resolvedDept;
             String displayPhone = (employee != null) ? employee.getPhone()  : resolvedPhone;
 
             EducationRequest request = EducationRequest.builder()
@@ -381,7 +381,7 @@ public class EducationRequestService {
     private void validateOpportunityAccess(Employee employee, EducationOpportunity opportunity) {
         if (opportunity == null) return;
 
-        String employeeDepartment = normalizeDepartment(employee.getDepartment());
+        String employeeDepartment = normalizeDepartment(employee.getDepartment() != null ? employee.getDepartment().getName() : null);
         List<String> targetDepartments = opportunity.getTargetDepartments();
 
         if (employeeDepartment == null) {

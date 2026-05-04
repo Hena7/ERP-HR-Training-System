@@ -175,7 +175,7 @@ public class EducationOpportunityService {
         // 2. Fallback to Employee record in database
         Employee employee = findCurrentEmployee(authentication);
         if (employee != null) {
-            return normalizeDepartment(employee.getDepartment());
+            return normalizeDepartment(employee.getDepartment() != null ? employee.getDepartment().getName() : null);
         }
 
         return null;
