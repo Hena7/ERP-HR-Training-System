@@ -33,10 +33,11 @@ import {
   Calendar,
   Building2,
   FileText,
-  Clock,
   X,
   MapPin,
   User,
+  CheckCircle2,
+  GraduationCap,
 } from "lucide-react";
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
@@ -49,6 +50,7 @@ export default function TrainingReportsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
   const [filterDept, setFilterDept] = useState("All");
+  const [rosterTab, setRosterTab] = useState<"ongoing" | "completed">("ongoing");
 
   useEffect(() => {
     const loadData = async () => {
@@ -110,6 +112,17 @@ export default function TrainingReportsPage() {
     return ["All", ...Array.from(d)];
   }, [requests]);
 
+  // Training roster: split by contract status
+  const ongoingTrainees = useMemo(
+    () => contracts.filter((c) => c.status === "ACTIVE"),
+    [contracts],
+  );
+
+  const completedTrainees = useMemo(
+    () => contracts.filter((c) => c.status === "COMPLETED" || c.status === "VIOLATED"),
+    [contracts],
+  );
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -156,10 +169,12 @@ export default function TrainingReportsPage() {
           {[
             { label: "Total Investment", value: `${stats.totalCost.toLocaleString()} Birr`, icon: DollarSign, color: "text-blue-600", bg: "bg-blue-50" },
             { label: "Trainee Impact", value: stats.totalTrainees, icon: Users, color: "text-emerald-600", bg: "bg-emerald-50" },
-            { label: "Active Obligations", value: stats.activeObligations, icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
-            { label: "Approval Rate", value: `${stats.approvalRate}%`, icon: Award, color: "text-indigo-600", bg: "bg-indigo-50" },
+            { label: "Currently Training", value: ongoingTrainees.length, icon: GraduationCap, color: "text-blue-700", bg: "bg-blue-100", highlight: true },
+            { label: "Training Completed", value: completedTrainees.length, icon: CheckCircle2, color: "text-emerald-700", bg: "bg-emerald-100" },
           ].map((card, i) => (
-            <div key={i} className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-md transition-all">
+            <div key={i} className={`group rounded-2xl border bg-white p-6 shadow-sm hover:shadow-md transition-all ${
+              (card as any).highlight ? "border-blue-200 ring-1 ring-blue-100" : "border-gray-100"
+            }`}>
               <div className="flex items-center gap-4">
                 <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${card.bg} ${card.color} transition-transform group-hover:scale-110`}>
                   <card.icon className="h-6 w-6" />
@@ -227,6 +242,182 @@ export default function TrainingReportsPage() {
                 </PieChart>
               </ResponsiveContainer>
             </div>
+          </div>
+        </div>
+
+        {/* ── Employee Training Status Roster ── */}
+        <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+          <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">
+                  Employee Training Status
+                </h3>
+                <p className="text-[10px] font-medium text-gray-400">
+                  Real-time view of who is currently in training and who has completed it
+                </p>
+              </div>
+              {/* Tab Toggle */}
+              <div className="flex items-center gap-1 rounded-xl border border-gray-200 bg-gray-100/60 p-1">
+                <button
+                  onClick={() => setRosterTab("ongoing")}
+                  className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-xs font-black transition-all ${
+                    rosterTab === "ongoing"
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "text-gray-500 hover:text-gray-800"
+                  }`}
+                >
+                  <span className="inline-block h-2 w-2 rounded-full bg-current opacity-80" />
+                  Ongoing
+                  <span className={`ml-1 rounded-full px-1.5 py-0.5 text-[9px] font-black ${
+                    rosterTab === "ongoing" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-600"
+                  }`}>
+                    {ongoingTrainees.length}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setRosterTab("completed")}
+                  className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-xs font-black transition-all ${
+                    rosterTab === "completed"
+                      ? "bg-emerald-600 text-white shadow-sm"
+                      : "text-gray-500 hover:text-gray-800"
+                  }`}
+                >
+                  <span className="inline-block h-2 w-2 rounded-full bg-current opacity-80" />
+                  Completed
+                  <span className={`ml-1 rounded-full px-1.5 py-0.5 text-[9px] font-black ${
+                    rosterTab === "completed" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-600"
+                  }`}>
+                    {completedTrainees.length}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Status Summary Cards */}
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="flex items-center gap-4 rounded-xl border border-blue-100 bg-blue-50/60 px-5 py-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-md shadow-blue-200">
+                  <GraduationCap className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <p className="text-2xl font-black text-blue-700">{ongoingTrainees.length}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-500">
+                    Currently Training
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 rounded-xl border border-emerald-100 bg-emerald-50/60 px-5 py-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 shadow-md shadow-emerald-200">
+                  <CheckCircle2 className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <p className="text-2xl font-black text-emerald-700">{completedTrainees.length}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">
+                    Training Completed
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Roster Table */}
+          <div className="overflow-x-auto">
+            {rosterTab === "ongoing" ? (
+              ongoingTrainees.length > 0 ? (
+                <table className="w-full text-left text-sm">
+                  <thead className="border-b border-gray-100 bg-blue-50/40 text-[10px] font-black uppercase tracking-widest text-blue-600">
+                    <tr>
+                      <th className="px-6 py-3">Employee</th>
+                      <th className="px-6 py-3">Department</th>
+                      <th className="px-6 py-3">Training Type</th>
+                      <th className="px-6 py-3">Country</th>
+                      <th className="px-6 py-3">City</th>
+                      <th className="px-6 py-3">Duration (mo)</th>
+                      <th className="px-6 py-3">Total Cost</th>
+                      <th className="px-6 py-3">Signed Date</th>
+                      <th className="px-6 py-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {ongoingTrainees.map((c) => (
+                      <tr key={c.id} className="hover:bg-blue-50/20 transition-colors">
+                        <td className="px-6 py-3">
+                          <span className="font-bold text-gray-900">{c.employeeName || `EMP-${c.employeeId}`}</span>
+                        </td>
+                        <td className="px-6 py-3 text-xs italic text-gray-500">{c.employeeDepartment || "—"}</td>
+                        <td className="px-6 py-3">
+                          <span className="font-semibold text-gray-800">{c.trainingType || "—"}</span>
+                        </td>
+                        <td className="px-6 py-3 text-xs text-gray-600">{c.trainingCountry || "—"}</td>
+                        <td className="px-6 py-3 text-xs text-gray-600">{c.trainingCity || "—"}</td>
+                        <td className="px-6 py-3 text-xs font-bold text-gray-700">{c.contractDurationMonths ? `${c.contractDurationMonths} mo` : "—"}</td>
+                        <td className="px-6 py-3 text-xs font-black text-blue-700">{c.totalCost ? `${c.totalCost.toLocaleString()} Birr` : "—"}</td>
+                        <td className="px-6 py-3 text-xs text-gray-500">{c.signedDate ? new Date(c.signedDate).toLocaleDateString() : "—"}</td>
+                        <td className="px-6 py-3">
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-2.5 py-1 text-[10px] font-bold text-blue-700">
+                            <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+                            Active
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="px-6 py-12 text-center text-sm text-gray-400">
+                  No employees are currently in an active training programme.
+                </div>
+              )
+            ) : (
+              completedTrainees.length > 0 ? (
+                <table className="w-full text-left text-sm">
+                  <thead className="border-b border-gray-100 bg-emerald-50/40 text-[10px] font-black uppercase tracking-widest text-emerald-700">
+                    <tr>
+                      <th className="px-6 py-3">Employee</th>
+                      <th className="px-6 py-3">Department</th>
+                      <th className="px-6 py-3">Training Type</th>
+                      <th className="px-6 py-3">Country</th>
+                      <th className="px-6 py-3">Duration (mo)</th>
+                      <th className="px-6 py-3">Total Cost</th>
+                      <th className="px-6 py-3">Signed Date</th>
+                      <th className="px-6 py-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {completedTrainees.map((c) => (
+                      <tr key={c.id} className="hover:bg-emerald-50/20 transition-colors">
+                        <td className="px-6 py-3">
+                          <span className="font-bold text-gray-900">{c.employeeName || `EMP-${c.employeeId}`}</span>
+                        </td>
+                        <td className="px-6 py-3 text-xs italic text-gray-500">{c.employeeDepartment || "—"}</td>
+                        <td className="px-6 py-3">
+                          <span className="font-semibold text-gray-800">{c.trainingType || "—"}</span>
+                        </td>
+                        <td className="px-6 py-3 text-xs text-gray-600">{c.trainingCountry || "—"}</td>
+                        <td className="px-6 py-3 text-xs font-bold text-gray-700">{c.contractDurationMonths ? `${c.contractDurationMonths} mo` : "—"}</td>
+                        <td className="px-6 py-3 text-xs font-black text-emerald-700">{c.totalCost ? `${c.totalCost.toLocaleString()} Birr` : "—"}</td>
+                        <td className="px-6 py-3 text-xs text-gray-500">{c.signedDate ? new Date(c.signedDate).toLocaleDateString() : "—"}</td>
+                        <td className="px-6 py-3">
+                          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold ${
+                            c.status === "VIOLATED"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-emerald-100 text-emerald-700"
+                          }`}>
+                            <CheckCircle2 className="h-3 w-3" />
+                            {c.status === "VIOLATED" ? "Violated" : "Completed"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="px-6 py-12 text-center text-sm text-gray-400">
+                  No employees have completed their training yet.
+                </div>
+              )
+            )}
           </div>
         </div>
 

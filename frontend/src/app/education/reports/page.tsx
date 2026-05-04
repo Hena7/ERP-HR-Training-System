@@ -7,6 +7,7 @@ import {
   educationRequestApi,
   contractApi,
   serviceObligationApi,
+  completionApi,
 } from "@/lib/api";
 import { EducationRequest } from "@/types";
 import {
@@ -56,22 +57,26 @@ export default function EducationReportsPage() {
   const [contracts, setContracts] = useState<any[]>([]);
   const [obligations, setObligations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [completions, setCompletions] = useState<any[]>([]);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
   const [filterLevel, setFilterLevel] = useState("All");
   const [filterStatus, setFilterStatus] = useState("All");
   const [historySearch, setHistorySearch] = useState("");
+  const [rosterTab, setRosterTab] = useState<"ongoing" | "completed">("ongoing");
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [reqs, ctrs, obls] = await Promise.all([
+        const [reqs, ctrs, obls, comps] = await Promise.all([
           educationRequestApi.getAll(0, 1000),
           contractApi.getAll(0, 1000),
           serviceObligationApi.getAll(0, 1000),
+          completionApi.getAll(0, 1000).catch(() => ({ data: { content: [] } })),
         ]);
         setRequests(reqs.data.content || reqs.data || []);
         setContracts(ctrs.data.content || ctrs.data || []);
         setObligations(obls.data.content || obls.data || []);
+        setCompletions(comps.data.content || comps.data || []);
       } catch (err) {
         console.error("Failed to load education report data", err);
       } finally {
@@ -92,6 +97,26 @@ export default function EducationReportsPage() {
     ).length;
     return { total, approved, contracted, completed };
   }, [requests, contracts]);
+
+  // Build employee roster: ongoing = has contract but NO completion record
+  const completedContractIds = useMemo(
+    () => new Set(completions.map((c: any) => c.contractId)),
+    [completions],
+  );
+
+  const ongoingEmployees = useMemo(
+    () => contracts.filter((c: any) => !completedContractIds.has(c.id)),
+    [contracts, completedContractIds],
+  );
+
+  const completedEmployees = useMemo(
+    () =>
+      completions.map((comp: any) => {
+        const contract = contracts.find((c: any) => c.id === comp.contractId);
+        return { ...comp, contract };
+      }),
+    [completions, contracts],
+  );
 
   const levelData = useMemo(() => {
     const map: Record<string, number> = {};
@@ -219,23 +244,28 @@ export default function EducationReportsPage() {
               bg: "bg-emerald-50",
             },
             {
-              label: "Active Commitments",
-              value: stats.contracted,
-              icon: Award,
+              label: "Currently Studying",
+              value: ongoingEmployees.length,
+              icon: GraduationCap,
               color: "text-blue-600",
               bg: "bg-blue-50",
+              highlight: true,
             },
             {
-              label: "Completed Studies",
-              value: stats.completed,
-              icon: TrendingUp,
+              label: "Education Completed",
+              value: completedEmployees.length,
+              icon: Award,
               color: "text-purple-600",
               bg: "bg-purple-50",
             },
           ].map((card, i) => (
             <div
               key={i}
-              className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-md transition-all"
+              className={`group rounded-2xl border bg-white p-6 shadow-sm hover:shadow-md transition-all ${
+                (card as any).highlight
+                  ? "border-blue-200 ring-1 ring-blue-100"
+                  : "border-gray-100"
+              }`}
             >
               <div className="flex items-center gap-4">
                 <div
@@ -445,6 +475,196 @@ export default function EducationReportsPage() {
               </p>
             </div>
           ))}
+        </div>
+
+        {/* ── Ongoing vs Completed Employee Roster ── */}
+        <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+          <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">
+                  Employee Education Status
+                </h3>
+                <p className="text-[10px] font-medium text-gray-400">
+                  Real-time view of who is currently studying and who has completed their education
+                </p>
+              </div>
+              {/* Tab Toggle */}
+              <div className="flex items-center gap-1 rounded-xl border border-gray-200 bg-gray-100/60 p-1">
+                <button
+                  onClick={() => setRosterTab("ongoing")}
+                  className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-xs font-black transition-all ${
+                    rosterTab === "ongoing"
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "text-gray-500 hover:text-gray-800"
+                  }`}
+                >
+                  <span className="inline-block h-2 w-2 rounded-full bg-current opacity-80" />
+                  Ongoing
+                  <span className={`ml-1 rounded-full px-1.5 py-0.5 text-[9px] font-black ${
+                    rosterTab === "ongoing" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-600"
+                  }`}>
+                    {ongoingEmployees.length}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setRosterTab("completed")}
+                  className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-xs font-black transition-all ${
+                    rosterTab === "completed"
+                      ? "bg-emerald-600 text-white shadow-sm"
+                      : "text-gray-500 hover:text-gray-800"
+                  }`}
+                >
+                  <span className="inline-block h-2 w-2 rounded-full bg-current opacity-80" />
+                  Completed
+                  <span className={`ml-1 rounded-full px-1.5 py-0.5 text-[9px] font-black ${
+                    rosterTab === "completed" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-600"
+                  }`}>
+                    {completedEmployees.length}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Status Summary Cards */}
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="flex items-center gap-4 rounded-xl border border-blue-100 bg-blue-50/60 px-5 py-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-md shadow-blue-200">
+                  <GraduationCap className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <p className="text-2xl font-black text-blue-700">{ongoingEmployees.length}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-500">
+                    Currently Studying
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 rounded-xl border border-emerald-100 bg-emerald-50/60 px-5 py-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 shadow-md shadow-emerald-200">
+                  <CheckCircle2 className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <p className="text-2xl font-black text-emerald-700">{completedEmployees.length}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">
+                    Education Completed
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Roster Table */}
+          <div className="overflow-x-auto">
+            {rosterTab === "ongoing" ? (
+              ongoingEmployees.length > 0 ? (
+                <table className="w-full text-left text-sm">
+                  <thead className="border-b border-gray-100 bg-blue-50/40 text-[10px] font-black uppercase tracking-widest text-blue-600">
+                    <tr>
+                      <th className="px-6 py-3">Employee</th>
+                      <th className="px-6 py-3">Department</th>
+                      <th className="px-6 py-3">Program / Field</th>
+                      <th className="px-6 py-3">University</th>
+                      <th className="px-6 py-3">Study Mode</th>
+                      <th className="px-6 py-3">Country</th>
+                      <th className="px-6 py-3">Duration</th>
+                      <th className="px-6 py-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {ongoingEmployees.map((c: any) => (
+                      <tr key={c.id} className="hover:bg-blue-50/20 transition-colors">
+                        <td className="px-6 py-3">
+                          <span className="font-bold text-gray-900">{c.employeeName || `EMP-${c.employeeId}`}</span>
+                        </td>
+                        <td className="px-6 py-3 text-xs italic text-gray-500">{c.employeeDepartment || "—"}</td>
+                        <td className="px-6 py-3">
+                          <span className="font-semibold text-gray-800">{c.program || c.award || "—"}</span>
+                        </td>
+                        <td className="px-6 py-3 text-xs text-gray-600">{c.university || "—"}</td>
+                        <td className="px-6 py-3">
+                          <span className={`rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${
+                            c.studyMode === "ON_JOB"
+                              ? "bg-emerald-50 text-emerald-700"
+                              : "bg-amber-50 text-amber-700"
+                          }`}>
+                            {c.studyMode === "ON_JOB" ? "On-Job" : "Off-Job"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-3 text-xs text-gray-600">{c.studyCountry || "Local"}</td>
+                        <td className="px-6 py-3 text-xs font-bold text-gray-700">{c.durationYears ? `${c.durationYears} yrs` : "—"}</td>
+                        <td className="px-6 py-3">
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-2.5 py-1 text-[10px] font-bold text-blue-700">
+                            <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+                            Active
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="px-6 py-12 text-center text-sm text-gray-400">
+                  No employees are currently on an active education programme.
+                </div>
+              )
+            ) : (
+              completedEmployees.length > 0 ? (
+                <table className="w-full text-left text-sm">
+                  <thead className="border-b border-gray-100 bg-emerald-50/40 text-[10px] font-black uppercase tracking-widest text-emerald-700">
+                    <tr>
+                      <th className="px-6 py-3">Employee</th>
+                      <th className="px-6 py-3">Department</th>
+                      <th className="px-6 py-3">Program / Field</th>
+                      <th className="px-6 py-3">University</th>
+                      <th className="px-6 py-3">Completion Date</th>
+                      <th className="px-6 py-3">Return-to-Work</th>
+                      <th className="px-6 py-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {completedEmployees.map((comp: any) => (
+                      <tr key={comp.id} className="hover:bg-emerald-50/20 transition-colors">
+                        <td className="px-6 py-3">
+                          <span className="font-bold text-gray-900">
+                            {comp.contract?.employeeName || `EMP-${comp.employeeId}`}
+                          </span>
+                        </td>
+                        <td className="px-6 py-3 text-xs italic text-gray-500">
+                          {comp.contract?.employeeDepartment || "—"}
+                        </td>
+                        <td className="px-6 py-3">
+                          <span className="font-semibold text-gray-800">
+                            {comp.contract?.program || comp.contract?.award || "—"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-3 text-xs text-gray-600">{comp.contract?.university || "—"}</td>
+                        <td className="px-6 py-3 text-xs font-bold text-gray-700">
+                          {comp.completionDate
+                            ? new Date(comp.completionDate).toLocaleDateString()
+                            : "—"}
+                        </td>
+                        <td className="px-6 py-3 text-xs font-bold text-gray-700">
+                          {comp.returnToWorkDate
+                            ? new Date(comp.returnToWorkDate).toLocaleDateString()
+                            : "—"}
+                        </td>
+                        <td className="px-6 py-3">
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold text-emerald-700">
+                            <CheckCircle2 className="h-3 w-3" />
+                            Completed
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="px-6 py-12 text-center text-sm text-gray-400">
+                  No employees have completed their education yet.
+                </div>
+              )
+            )}
+          </div>
         </div>
 
         {/* Historical Audit Log */}
