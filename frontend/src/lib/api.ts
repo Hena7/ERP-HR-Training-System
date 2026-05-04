@@ -196,3 +196,7 @@ export const educationFinanceReportApi = {
   getByEmployee: (employeeId: string) => api.get(`/api/finance-reports/employee/${employeeId}`),
   getAll: () => api.get("/api/finance-reports"),
 };
+
+export const departmentApi = {
+  getAll: () => api.get("/api/departments"),
+};

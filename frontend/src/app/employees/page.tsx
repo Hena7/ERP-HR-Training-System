@@ -4,8 +4,8 @@ import { useState, useEffect, useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { employeeApi } from "@/lib/api";
-import { Employee } from "@/types";
+import { employeeApi, departmentApi } from "@/lib/api";
+import { Employee, Department } from "@/types";
 import {
   Plus,
   Search,
@@ -23,6 +23,7 @@ export default function EmployeesPage() {
   const { t } = useLanguage();
   const { user } = useAuth();
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -36,7 +37,7 @@ export default function EmployeesPage() {
     gender: "MALE",
     email: "",
     phone: "",
-    department: "",
+    departmentId: "" as number | "",
     position: "",
     role: "EMPLOYEE" as any,
     password: "Password123",
@@ -47,8 +48,18 @@ export default function EmployeesPage() {
   const userDept = (user as any)?.department;
 
   useEffect(() => {
+    loadDepartments();
     loadEmployees();
   }, [userDept, user?.role]);
+
+  const loadDepartments = async () => {
+    try {
+      const res = await departmentApi.getAll();
+      setDepartments(res.data.content || res.data || []);
+    } catch (error) {
+      console.error("Failed to load departments:", error);
+    }
+  };
 
   const loadEmployees = async () => {
     setLoading(true);
@@ -71,7 +82,7 @@ export default function EmployeesPage() {
   const filteredEmployees = useMemo(() => {
     return employees.filter((emp) => {
       const searchStr =
-        `${emp.firstName} ${emp.lastName} ${emp.employeeId} ${emp.department}`.toLowerCase();
+        `${emp.firstName} ${emp.lastName} ${emp.employeeId} ${emp.departmentName}`.toLowerCase();
       return searchStr.includes(searchTerm.toLowerCase());
     });
   }, [employees, searchTerm]);
@@ -105,7 +116,7 @@ export default function EmployeesPage() {
       gender: emp.gender,
       email: emp.email,
       phone: emp.phone,
-      department: emp.department,
+      departmentId: emp.departmentId || "",
       position: emp.position,
       role: emp.role as any,
       password: "",
@@ -134,7 +145,7 @@ export default function EmployeesPage() {
       gender: "MALE",
       email: "",
       phone: "",
-      department: isDH ? userDept : "",
+      departmentId: "",
       position: "",
       role: "EMPLOYEE",
       password: "Password123",
@@ -255,7 +266,7 @@ export default function EmployeesPage() {
                         <div className="space-y-0.5">
                           <div className="flex items-center gap-1.5 text-gray-900 font-medium">
                             <Building2 className="h-3.5 w-3.5 text-gray-400" />
-                            {emp.department}
+                            {emp.departmentName}
                           </div>
                           <div className="text-xs text-gray-500 ml-5">
                             {emp.position || "Staff"}
@@ -405,16 +416,21 @@ export default function EmployeesPage() {
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
                   {t("department")}
                 </label>
-                <input
+                <select
                   required
-                  disabled={isDH}
-                  value={form.department}
+                  value={form.departmentId}
                   onChange={(e) =>
-                    setForm({ ...form, department: e.target.value })
+                    setForm({ ...form, departmentId: Number(e.target.value) })
                   }
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all disabled:opacity-50"
-                  placeholder="e.g. Software engineering"
-                />
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+                >
+                  <option value="" disabled>Select Department</option>
+                  {departments.map((dept) => (
+                    <option key={dept.id} value={dept.id}>
+                      {dept.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="space-y-1.5">

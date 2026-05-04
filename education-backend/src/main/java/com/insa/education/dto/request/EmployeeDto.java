@@ -32,8 +32,8 @@ public class EmployeeDto {
     @NotBlank(message = "Email is required")
     private String email;
 
-    @NotBlank(message = "Department is required")
-    private String department;
+    @NotNull(message = "Department ID is required")
+    private Long departmentId;
 
     private String position;
 

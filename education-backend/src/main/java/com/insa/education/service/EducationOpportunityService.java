@@ -6,6 +6,8 @@ import com.insa.education.entity.EducationOpportunity;
 import com.insa.education.entity.Employee;
 import com.insa.education.exception.BadRequestException;
 import com.insa.education.exception.ResourceNotFoundException;
+import com.insa.education.entity.Department;
+import com.insa.education.repository.DepartmentRepository;
 import com.insa.education.repository.EducationOpportunityRepository;
 import com.insa.education.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,21 +34,33 @@ public class EducationOpportunityService {
 
     private final EducationOpportunityRepository repository;
     private final EmployeeRepository employeeRepository;
+    private final DepartmentRepository departmentRepository;
 
     @Transactional
     public EducationOpportunityResponse create(EducationOpportunityDto dto) {
-        List<String> normalizedTargets = normalizeTargetDepartments(dto.getTargetDepartments());
-
-        if (normalizedTargets.isEmpty()) {
+        if (dto.getTargetDepartmentIds() == null || dto.getTargetDepartmentIds().isEmpty()) {
             throw new BadRequestException("At least one target department is required");
+        }
+
+        List<Department> targetDepartments = departmentRepository.findAllById(dto.getTargetDepartmentIds());
+        if (targetDepartments.isEmpty()) {
+            throw new BadRequestException("Invalid target department IDs provided");
+        }
+
+        Department department = null;
+        if (dto.getDepartmentId() != null) {
+            department = departmentRepository.findById(dto.getDepartmentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
+        } else {
+            department = targetDepartments.get(0);
         }
 
         EducationOpportunity opportunity = EducationOpportunity.builder()
                 .educationType(dto.getEducationType())
                 .educationLevel(dto.getEducationLevel())
                 .institution(dto.getInstitution())
-                .department(resolveLegacyDepartment(dto, normalizedTargets))
-                .targetDepartments(normalizedTargets)
+                .department(department)
+                .targetDepartments(new ArrayList<>(targetDepartments))
                 .description(dto.getDescription())
                 .status(dto.getStatus() != null ? dto.getStatus() : "OPEN")
                 .deadline(parseDeadline(dto.getDeadline()))
@@ -61,18 +75,29 @@ public class EducationOpportunityService {
         EducationOpportunity opportunity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Education Opportunity not found with id: " + id));
 
-        List<String> normalizedTargets = normalizeTargetDepartments(dto.getTargetDepartments());
-
-        if (normalizedTargets.isEmpty()) {
+        if (dto.getTargetDepartmentIds() == null || dto.getTargetDepartmentIds().isEmpty()) {
             throw new BadRequestException("At least one target department is required");
+        }
+
+        List<Department> targetDepartments = departmentRepository.findAllById(dto.getTargetDepartmentIds());
+        if (targetDepartments.isEmpty()) {
+            throw new BadRequestException("Invalid target department IDs provided");
+        }
+
+        Department department = null;
+        if (dto.getDepartmentId() != null) {
+            department = departmentRepository.findById(dto.getDepartmentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
+        } else {
+            department = targetDepartments.get(0);
         }
 
         opportunity.setEducationType(dto.getEducationType());
         opportunity.setEducationLevel(dto.getEducationLevel());
         opportunity.setInstitution(dto.getInstitution());
-        opportunity.setDepartment(resolveLegacyDepartment(dto, normalizedTargets));
+        opportunity.setDepartment(department);
         opportunity.getTargetDepartments().clear();
-        opportunity.getTargetDepartments().addAll(normalizedTargets);
+        opportunity.getTargetDepartments().addAll(targetDepartments);
         opportunity.setDescription(dto.getDescription());
         if (dto.getStatus() != null) {
             opportunity.setStatus(dto.getStatus());
@@ -140,16 +165,16 @@ public class EducationOpportunityService {
             return false;
         }
 
-        if (matchesDepartment(opportunity.getDepartment(), userDepartment)) {
+        if (opportunity.getDepartment() != null && matchesDepartment(opportunity.getDepartment().getName(), userDepartment)) {
             return true;
         }
 
-        if (opportunity.getTargetDepartments() == null) {
+        if (opportunity.getTargetDepartments() == null || opportunity.getTargetDepartments().isEmpty()) {
             return false;
         }
 
         return opportunity.getTargetDepartments().stream()
-                .map(this::normalizeDepartment)
+                .map(dept -> normalizeDepartment(dept.getName()))
                 .anyMatch(userDepartment::equals);
     }
 
@@ -192,28 +217,7 @@ public class EducationOpportunityService {
         return employeeRepository.findByEmail(authentication.getName()).orElse(null);
     }
 
-    private List<String> normalizeTargetDepartments(List<String> targetDepartments) {
-        List<String> result = new ArrayList<>();
-        if (targetDepartments == null) {
-            return result;
-        }
 
-        for (String department : targetDepartments) {
-            String normalized = normalizeDepartment(department);
-            if (normalized != null && !result.contains(normalized)) {
-                result.add(normalized);
-            }
-        }
-        return result;
-    }
-
-    private String resolveLegacyDepartment(EducationOpportunityDto dto, List<String> normalizedTargets) {
-        String legacyDepartment = normalizeDepartment(dto.getDepartment());
-        if (legacyDepartment != null) {
-            return legacyDepartment;
-        }
-        return normalizedTargets.get(0);
-    }
 
     private boolean matchesDepartment(String departmentValue, String userDepartment) {
         String normalized = normalizeDepartment(departmentValue);
@@ -256,8 +260,10 @@ public class EducationOpportunityService {
                 .educationType(opportunity.getEducationType())
                 .educationLevel(opportunity.getEducationLevel())
                 .institution(opportunity.getInstitution())
-                .department(opportunity.getDepartment())
-                .targetDepartments(opportunity.getTargetDepartments())
+                .departmentId(opportunity.getDepartment() != null ? opportunity.getDepartment().getId() : null)
+                .departmentName(opportunity.getDepartment() != null ? opportunity.getDepartment().getName() : null)
+                .targetDepartmentIds(opportunity.getTargetDepartments().stream().map(Department::getId).toList())
+                .targetDepartmentNames(opportunity.getTargetDepartments().stream().map(Department::getName).toList())
                 .description(opportunity.getDescription())
                 .status(opportunity.getStatus())
                 .deadline(formatDeadline(opportunity.getDeadline()))

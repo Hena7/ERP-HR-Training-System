@@ -6,6 +6,7 @@ import com.insa.education.entity.Employee;
 import com.insa.education.exception.BadRequestException;
 import com.insa.education.exception.ResourceNotFoundException;
 import com.insa.education.mapper.EducationMapper;
+import com.insa.education.repository.DepartmentRepository;
 import com.insa.education.repository.EmployeeRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,12 +21,12 @@ public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final EducationMapper mapper;
-    private final DepartmentService departmentService;
+    private final DepartmentRepository departmentRepository;
 
-    public EmployeeService(EmployeeRepository employeeRepository, EducationMapper mapper, DepartmentService departmentService) {
+    public EmployeeService(EmployeeRepository employeeRepository, EducationMapper mapper, DepartmentRepository departmentRepository) {
         this.employeeRepository = employeeRepository;
         this.mapper = mapper;
-        this.departmentService = departmentService;
+        this.departmentRepository = departmentRepository;
     }
 
     @Transactional(readOnly = true)
@@ -71,7 +72,8 @@ public class EmployeeService {
                 .gender(dto.getGender())
                 .phone(dto.getPhone())
                 .email(dto.getEmail())
-                .department(departmentService.findOrCreateByName(dto.getDepartment()))
+                .department(departmentRepository.findById(dto.getDepartmentId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + dto.getDepartmentId())))
                 .position(dto.getPosition())
                 .password(dto.getPassword())
                 .role(dto.getRole())
@@ -90,7 +92,8 @@ public class EmployeeService {
         employee.setLastName(dto.getLastName());
         employee.setGender(dto.getGender());
         employee.setPhone(dto.getPhone());
-        employee.setDepartment(departmentService.findOrCreateByName(dto.getDepartment()));
+        employee.setDepartment(departmentRepository.findById(dto.getDepartmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + dto.getDepartmentId())));
         employee.setPosition(dto.getPosition());
         employee.setRole(dto.getRole());
 

@@ -4,27 +4,39 @@ import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { userApi } from "@/lib/api";
+import { userApi, departmentApi } from "@/lib/api";
+import { Department } from "@/types";
 import { Plus, Trash2, Users } from "lucide-react";
 
 export default function UsersPage() {
   const { t } = useLanguage();
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
-    department: "",
+    departmentId: "" as number | "",
     role: "EMPLOYEE",
   });
   const [error, setError] = useState("");
 
   useEffect(() => {
+    loadDepartments();
     loadUsers();
   }, []);
+
+  const loadDepartments = async () => {
+    try {
+      const res = await departmentApi.getAll();
+      setDepartments(res.data.content || res.data || []);
+    } catch (err) {
+      console.error("Failed to load departments:", err);
+    }
+  };
 
   const loadUsers = async () => {
     try {
@@ -42,7 +54,7 @@ export default function UsersPage() {
       fullName: "",
       email: "",
       password: "",
-      department: "",
+      departmentId: "",
       role: "EMPLOYEE",
     });
   };
@@ -150,7 +162,7 @@ export default function UsersPage() {
                           {user.email}
                         </td>
                         <td className="px-6 py-4 text-gray-600">
-                          {user.department || "-"}
+                          {user.departmentName || user.department || "-"}
                         </td>
                         <td className="px-6 py-4">
                           <span className="inline-flex items-center rounded-lg bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-700 border border-blue-100 italic">
@@ -240,15 +252,21 @@ export default function UsersPage() {
                 <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-500">
                   Department
                 </label>
-                <input
-                  type="text"
+                <select
+                  required
                   className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
-                  value={formData.department}
+                  value={formData.departmentId}
                   onChange={(e) =>
-                    setFormData({ ...formData, department: e.target.value })
+                    setFormData({ ...formData, departmentId: Number(e.target.value) })
                   }
-                  placeholder="Enter department name"
-                />
+                >
+                  <option value="" disabled>Select Department</option>
+                  {departments.map((dept) => (
+                    <option key={dept.id} value={dept.id}>
+                      {dept.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>

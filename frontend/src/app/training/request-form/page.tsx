@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { trainingRequestApi } from "@/app/training/services/trainingApi";
+import { departmentApi } from "@/lib/api";
+import { Department } from "@/types";
 import {
   BookOpen,
   Building2,
@@ -23,8 +25,16 @@ export default function TrainingRequestFormPage() {
   const { t } = useLanguage();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+
+  // Fetch departments on mount
+  useEffect(() => {
+    departmentApi.getAll().then((res) => {
+      setDepartments(res.data.content || res.data || []);
+    }).catch(console.error);
+  }, []);
 
   const [form, setForm] = useState({
     department: user?.department || "",
@@ -131,14 +141,20 @@ export default function TrainingRequestFormPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>{t("department")}</label>
-                <input
+                <select
                   name="department"
                   value={form.department}
                   onChange={handleChange}
                   required
                   className={fieldClass}
-                  placeholder="e.g. Cyber Security"
-                />
+                >
+                  <option value="" disabled>Select Department</option>
+                  {departments.map((dept) => (
+                    <option key={dept.id} value={dept.name}>
+                      {dept.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className={labelClass}>{t("sector")}</label>

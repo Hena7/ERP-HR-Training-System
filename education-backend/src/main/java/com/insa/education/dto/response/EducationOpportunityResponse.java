@@ -14,8 +14,10 @@ public class EducationOpportunityResponse {
     private String educationType;
     private String educationLevel;
     private String institution;
-    private String department;
-    private List<String> targetDepartments;
+    private Long departmentId;
+    private String departmentName;
+    private List<Long> targetDepartmentIds;
+    private List<String> targetDepartmentNames;
     private String description;
     private String status;
     private String deadline;

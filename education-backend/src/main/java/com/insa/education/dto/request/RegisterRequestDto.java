@@ -32,7 +32,8 @@ public class RegisterRequestDto {
     @Email(message = "Email must be valid")
     private String email;
 
-    private String department;
+    @NotNull(message = "Department ID is required")
+    private Long departmentId;
 
     private String position;
 

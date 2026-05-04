@@ -1,3 +1,9 @@
+export interface Department {
+  id: number;
+  name: string;
+  createdAt?: string;
+}
+
 export interface Employee {
   id: number;
   employeeId: string;
@@ -6,7 +12,9 @@ export interface Employee {
   gender: string;
   phone: string;
   email: string;
-  department: string;
+  departmentId?: number;
+  departmentName?: string;
+  department?: string;
   position: string;
   role: string;
   currentEducationLevel?: string;
@@ -200,8 +208,12 @@ export interface EducationOpportunity {
   educationType: string;
   educationLevel: string;
   institution: string;
-  department: string;
-  targetDepartments: string[];
+  department?: string; // Legacy
+  departmentId?: number;
+  departmentName?: string;
+  targetDepartments?: string[]; // Legacy
+  targetDepartmentIds?: number[];
+  targetDepartmentNames?: string[];
   description: string;
   status: "OPEN" | "CLOSED" | "EXPIRED";
   deadline: string;

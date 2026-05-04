@@ -7,8 +7,9 @@ import {
   trainingRequestApi,
   trainingContractApi,
 } from "@/app/training/services/trainingApi";
-import { employeeApi } from "@/lib/api";
+import { employeeApi, departmentApi } from "@/lib/api";
 import { TrainingRequest } from "@/types/training";
+import { Department } from "@/types";
 import {
   FileSignature,
   User,
@@ -34,6 +35,7 @@ export default function TrainingContractFormPage() {
   const [employees, setEmployees] = useState<any[]>([]);
   const [selectedRequest, setSelectedRequest] =
     useState<TrainingRequest | null>(null);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -61,9 +63,13 @@ export default function TrainingContractFormPage() {
 
   useEffect(() => {
     setLoading(true);
-    trainingRequestApi.getAll().then(({ data }) => {
+    Promise.all([
+      departmentApi.getAll(),
+      trainingRequestApi.getAll()
+    ]).then(([deptRes, reqRes]) => {
+      setDepartments(deptRes.data.content || deptRes.data || []);
       setEligibleRequests(
-        data.filter((r: TrainingRequest) => r.status === "CONTRACT_REQUIRED"),
+        reqRes.data.filter((r: TrainingRequest) => r.status === "CONTRACT_REQUIRED"),
       );
       setLoading(false);
     }).catch(() => setLoading(false));
@@ -400,15 +406,21 @@ export default function TrainingContractFormPage() {
                       </div>
                       <div>
                         <label className={labelClass}>{t("department")}</label>
-                        <input
+                        <select
                           className={fieldClass}
                           value={trainee.department}
                           onChange={(e) =>
                             updateTrainee(idx, "department", e.target.value)
                           }
                           required
-                          placeholder="IT / HR / Finance..."
-                        />
+                        >
+                          <option value="" disabled>Select Department</option>
+                          {departments.map((dept) => (
+                            <option key={dept.id} value={dept.name}>
+                              {dept.name}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                       <div>
                         <label className={labelClass}>{t("email")}</label>

@@ -8,7 +8,9 @@ import com.insa.education.dto.response.EmployeeResponse;
 import com.insa.education.entity.Employee;
 import com.insa.education.exception.BadRequestException;
 import com.insa.education.exception.DuplicateResourceException;
+import com.insa.education.exception.ResourceNotFoundException;
 import com.insa.education.mapper.EducationMapper;
+import com.insa.education.repository.DepartmentRepository;
 import com.insa.education.repository.EmployeeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,20 +30,20 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final EducationMapper mapper;
-    private final DepartmentService departmentService;
+    private final DepartmentRepository departmentRepository;
 
     public AuthService(EmployeeRepository employeeRepository,
                        PasswordEncoder passwordEncoder,
                        JwtUtil jwtUtil,
                        AuthenticationManager authenticationManager,
                        EducationMapper mapper,
-                       DepartmentService departmentService) {
+                       DepartmentRepository departmentRepository) {
         this.employeeRepository = employeeRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.authenticationManager = authenticationManager;
         this.mapper = mapper;
-        this.departmentService = departmentService;
+        this.departmentRepository = departmentRepository;
     }
 
     @Transactional
@@ -60,7 +62,8 @@ public class AuthService {
                 .gender(dto.getGender())
                 .phone(dto.getPhone())
                 .email(dto.getEmail())
-                .department(departmentService.findOrCreateByName(dto.getDepartment()))
+                .department(departmentRepository.findById(dto.getDepartmentId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Department not found")))
                 .position(dto.getPosition())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .role(dto.getRole())

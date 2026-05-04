@@ -9,6 +9,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -44,17 +47,18 @@ public class EducationOpportunity {
     @Column(nullable = false)
     private String institution;
 
-    @Column(nullable = false)
-    private String department;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "department_id")
+    private Department department;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
             name = "education_opportunity_target_departments",
-            joinColumns = @JoinColumn(name = "opportunity_id")
+            joinColumns = @JoinColumn(name = "opportunity_id"),
+            inverseJoinColumns = @JoinColumn(name = "department_id")
     )
-    @Column(name = "department_name", nullable = false)
     @Builder.Default
-    private List<String> targetDepartments = new ArrayList<>();
+    private List<Department> targetDepartments = new ArrayList<>();
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -76,29 +80,10 @@ public class EducationOpportunity {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        normalizeTargetDepartments();
     }
 
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
-        normalizeTargetDepartments();
-    }
-
-    private void normalizeTargetDepartments() {
-        if (this.targetDepartments == null) {
-            this.targetDepartments = new ArrayList<>();
-            return;
-        }
-
-        List<String> normalized = this.targetDepartments.stream()
-                .filter(value -> value != null && !value.trim().isEmpty())
-                .map(String::trim)
-                .distinct()
-                .toList();
-        
-        // Update in-place to maintain JPA collection management
-        this.targetDepartments.clear();
-        this.targetDepartments.addAll(normalized);
     }
 }

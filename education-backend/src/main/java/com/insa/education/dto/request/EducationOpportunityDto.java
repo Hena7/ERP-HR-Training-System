@@ -23,13 +23,12 @@ public class EducationOpportunityDto {
     private String institution;
 
     /**
-     * Legacy single-department field kept for backward compatibility.
-     * New logic should use targetDepartments.
+     * Legacy single-department field mapped to departmentId.
      */
-    private String department;
+    private Long departmentId;
 
     @NotEmpty(message = "At least one target department is required")
-    private List<@NotBlank(message = "Target department cannot be blank") String> targetDepartments;
+    private List<Long> targetDepartmentIds;
 
     private String description;
     

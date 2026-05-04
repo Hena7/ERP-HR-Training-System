@@ -15,114 +15,10 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { EducationOpportunity } from "@/types";
-import { educationOpportunityApi } from "@/lib/api";
+import { EducationOpportunity, Department } from "@/types";
+import { educationOpportunityApi, departmentApi } from "@/lib/api";
 
-// INSA Organizational Hierarchy
-interface OrgNode {
-  id: string;
-  label: string;
-  children?: OrgNode[];
-}
 
-const INSA_ORG_TREE: OrgNode[] = [
-  {
-    id: "1674",
-    label: "1674--ኢመደአ አዲስ",
-    children: [
-      {
-        id: "1691",
-        label: "1691--ዋና ዳይርክተር",
-        children: [
-          {
-            id: "1693",
-            label: "1693--የኢንፎርሜሽን አሹራንስ ዘርፍ",
-            children: [
-              {
-                id: "1693-D1",
-                label: "Directorate 1",
-                children: [
-                  { id: "1693-Div1", label: "Division 1" },
-                  { id: "1693-Div2", label: "Division 2" },
-                  { id: "1693-Div3", label: "Division 3" },
-                ],
-              },
-              { id: "1693-D2", label: "Directorate 2" },
-              { id: "1693-D3", label: "Directorate 3" },
-            ],
-          },
-          {
-            id: "1694",
-            label: "1694--የኢንፎርሜሽን ዋርፌር እና መረጃ ዘርፍ",
-            children: [
-              { id: "1694-D1", label: "Directorate 1" },
-              { id: "1694-D2", label: "Directorate 2" },
-              { id: "1694-D3", label: "Directorate 3" },
-            ],
-          },
-          {
-            id: "1695",
-            label: "1695--ሀገራዊ የዲጂታል መሰረተ ልማት ዘርፍ",
-            children: [
-              { id: "1695-D1", label: "Directorate 1" },
-              { id: "1695-D2", label: "Directorate 2" },
-              { id: "1695-D3", label: "Directorate 3" },
-            ],
-          },
-          {
-            id: "1692",
-            label: "1692--ዋና ዳይሬክተር አማካሪ(ዎች)",
-          },
-          {
-            id: "1696",
-            label: "1696--የተቀናጀ ድጋፍ ዘርፍ",
-            children: [
-              { id: "1696-D1", label: "Directorate 1" },
-              { id: "1696-D2", label: "Directorate 2" },
-              { id: "1696-D3", label: "Directorate 3" },
-            ],
-          },
-
-          {
-            id: "1697",
-            label: "1697--ዋና ዳይሬክተር ተጠሪ",
-            children: [
-              { id: "1697-D1", label: "Directorate 1" },
-              { id: "1697-D2", label: "Directorate 2" },
-              { id: "1697-D3", label: "Directorate 3" },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-];
-
-/** Collect all descendant IDs (inclusive of node itself) */
-function getAllDescendantIds(node: OrgNode): string[] {
-  const ids: string[] = [node.id];
-  if (node.children) {
-    node.children.forEach((child) => ids.push(...getAllDescendantIds(child)));
-  }
-  return ids;
-}
-
-/** Collect all leaf IDs under a node */
-function getLeafIds(node: OrgNode): string[] {
-  if (!node.children || node.children.length === 0) return [node.id];
-  return node.children.flatMap(getLeafIds);
-}
-
-function findNodeById(nodes: OrgNode[], id: string): OrgNode | null {
-  for (const node of nodes) {
-    if (node.id === id) return node;
-    if (node.children) {
-      const found = findNodeById(node.children, id);
-      if (found) return found;
-    }
-  }
-  return null;
-}
 
 // types for form
 type DeptQuota = { candidates: number; standby: number };
@@ -131,9 +27,9 @@ type OpportunityFormData = {
   educationType: string;
   educationLevel: string;
   institution: string;
-  department: string;
-  targetDepartments: string[];
-  departmentQuotas: Record<string, DeptQuota>;
+  departmentId: number | "";
+  targetDepartmentIds: number[];
+  departmentQuotas: Record<number, DeptQuota>;
   description: string;
   status: "OPEN" | "CLOSED" | "EXPIRED";
   deadline: string;
@@ -143,105 +39,13 @@ const emptyForm: OpportunityFormData = {
   educationType: "",
   educationLevel: "",
   institution: "",
-  department: "",
-  targetDepartments: [],
+  departmentId: "",
+  targetDepartmentIds: [],
   departmentQuotas: {},
   description: "",
   status: "OPEN",
   deadline: "",
 };
-
-// Org Tree Node Component
-function OrgTreeNode({
-  node,
-  selectedIds,
-  onToggle,
-  depth = 0,
-}: {
-  node: OrgNode;
-  selectedIds: Set<string>;
-  onToggle: (node: OrgNode) => void;
-  depth?: number;
-}) {
-  const [expanded, setExpanded] = useState(depth < 2);
-  const hasChildren = node.children && node.children.length > 0;
-  const allDescendants = getAllDescendantIds(node);
-  const selectedCount = allDescendants.filter((id) =>
-    selectedIds.has(id),
-  ).length;
-  const isFullySelected = selectedCount === allDescendants.length;
-  const isPartiallySelected = selectedCount > 0 && !isFullySelected;
-  const isLeaf = !hasChildren;
-
-  return (
-    <div className={`${depth > 0 ? "ml-5 border-l border-gray-100 pl-3" : ""}`}>
-      <div
-        className={`flex items-center gap-2 py-1.5 px-2 rounded-lg transition-colors ${
-          isFullySelected
-            ? "bg-blue-50"
-            : isPartiallySelected
-              ? "bg-blue-50/40"
-              : "hover:bg-gray-50"
-        }`}
-      >
-        {hasChildren && (
-          <button
-            type="button"
-            onClick={() => setExpanded((e) => !e)}
-            className="text-gray-400 hover:text-gray-700 flex-shrink-0"
-          >
-            {expanded ? (
-              <ChevronDown className="h-3.5 w-3.5" />
-            ) : (
-              <ChevronRight className="h-3.5 w-3.5" />
-            )}
-          </button>
-        )}
-        {!hasChildren && <div className="w-3.5 flex-shrink-0" />}
-
-        <label className="flex items-center gap-2 cursor-pointer flex-1 min-w-0">
-          <div className="relative flex-shrink-0">
-            <input
-              type="checkbox"
-              className="peer h-4 w-4 cursor-pointer rounded border border-gray-300 bg-white transition-all checked:border-blue-600 checked:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 indeterminate:border-blue-100 indeterminate:bg-blue-100"
-              checked={isFullySelected}
-              ref={(el) => {
-                if (el) el.indeterminate = isPartiallySelected;
-              }}
-              onChange={() => onToggle(node)}
-            />
-          </div>
-          <span
-            className={`text-sm truncate ${
-              isLeaf ? "text-gray-700" : "font-semibold text-gray-800"
-            }`}
-          >
-            {node.label}
-          </span>
-          {isPartiallySelected && (
-            <span className="flex-shrink-0 rounded-full bg-blue-100 px-1.5 py-0.5 text-[9px] font-bold text-blue-600">
-              {selectedCount}/{allDescendants.length}
-            </span>
-          )}
-        </label>
-      </div>
-
-      {hasChildren && expanded && (
-        <div className="mt-0.5">
-          {node.children!.map((child) => (
-            <OrgTreeNode
-              key={child.id}
-              node={child}
-              selectedIds={selectedIds}
-              onToggle={onToggle}
-              depth={depth + 1}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 function normalizeDepartment(value: string | undefined | null): string {
   return (value || "").trim().toLowerCase();
@@ -254,8 +58,8 @@ function matchesDepartment(
   const normalizedUserDepartment = normalizeDepartment(userDepartment);
   if (!normalizedUserDepartment) return false;
 
-  const targets = Array.isArray(opportunity.targetDepartments)
-    ? opportunity.targetDepartments
+  const targets = Array.isArray(opportunity.targetDepartmentNames)
+    ? opportunity.targetDepartmentNames
     : [];
 
   if (
@@ -268,7 +72,7 @@ function matchesDepartment(
   }
 
   return (
-    normalizeDepartment(opportunity.department) === normalizedUserDepartment
+    normalizeDepartment(opportunity.departmentName) === normalizedUserDepartment
   );
 }
 
@@ -276,9 +80,8 @@ export default function EducationOpportunitiesPage() {
   const { t } = useLanguage();
   const { user } = useAuth();
 
-  const [opportunities, setOpportunities] = useState<EducationOpportunity[]>(
-    [],
-  );
+  const [opportunities, setOpportunities] = useState<EducationOpportunity[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
@@ -295,9 +98,9 @@ export default function EducationOpportunitiesPage() {
     });
   };
 
-  const getDeptLabel = (id: string) => {
-    const node = findNodeById(INSA_ORG_TREE, id);
-    return node ? node.label : id;
+  const getDeptLabel = (id: number) => {
+    const dept = departments.find((d) => d.id === id);
+    return dept ? dept.name : String(id);
   };
 
   const userDepartment =
@@ -308,13 +111,23 @@ export default function EducationOpportunitiesPage() {
 
   // Derived: selected IDs as a Set for O(1) lookup
   const selectedIdSet = useMemo(
-    () => new Set(formData.targetDepartments),
-    [formData.targetDepartments],
+    () => new Set(formData.targetDepartmentIds),
+    [formData.targetDepartmentIds],
   );
 
   useEffect(() => {
+    void fetchDepartments();
     void fetchOpportunities();
   }, []);
+
+  const fetchDepartments = async () => {
+    try {
+      const response = await departmentApi.getAll();
+      setDepartments(response.data.content || response.data || []);
+    } catch (error) {
+      console.error("Failed to fetch departments", error);
+    }
+  };
 
   const fetchOpportunities = async () => {
     try {
@@ -340,60 +153,51 @@ export default function EducationOpportunitiesPage() {
     if (!term) return base;
 
     return base.filter((opportunity) => {
-      const targets = Array.isArray(opportunity.targetDepartments)
-        ? opportunity.targetDepartments.join(" ")
+      const targets = Array.isArray(opportunity.targetDepartmentNames)
+        ? opportunity.targetDepartmentNames.join(" ")
         : "";
 
       return [
         opportunity.educationType,
         opportunity.educationLevel,
         opportunity.institution,
-        opportunity.department,
+        opportunity.departmentName,
         opportunity.description,
         targets,
       ]
-        .filter(Boolean)
+        .filter((v): v is string => typeof v === "string" && Boolean(v))
         .some((value) => value.toLowerCase().includes(term));
     });
   }, [opportunities, isDepartmentHead, isCenterUser, userDepartment, search]);
 
-  // handle toggling a node which cascades to all descendants
-  const handleNodeToggle = (node: OrgNode) => {
-    const allIds = getAllDescendantIds(node);
-    const isFullySelected = allIds.every((id) => selectedIdSet.has(id));
-
+  // handle toggling a department checkbox
+  const handleDepartmentToggle = (deptId: number) => {
     setFormData((prev) => {
-      const newSelected = new Set(prev.targetDepartments);
+      const newSelected = new Set(prev.targetDepartmentIds);
       const newQuotas = { ...prev.departmentQuotas };
 
-      if (isFullySelected) {
-        // Deselect all descendants
-        allIds.forEach((id) => {
-          newSelected.delete(id);
-          delete newQuotas[id];
-        });
+      if (newSelected.has(deptId)) {
+        newSelected.delete(deptId);
+        delete newQuotas[deptId];
       } else {
-        // Select all descendants
-        allIds.forEach((id) => {
-          newSelected.add(id);
-          if (!newQuotas[id]) {
-            newQuotas[id] = { candidates: 1, standby: 1 };
-          }
-        });
+        newSelected.add(deptId);
+        if (!newQuotas[deptId]) {
+          newQuotas[deptId] = { candidates: 1, standby: 1 };
+        }
       }
 
       const nextTargets = Array.from(newSelected);
       return {
         ...prev,
-        targetDepartments: nextTargets,
+        targetDepartmentIds: nextTargets,
         departmentQuotas: newQuotas,
-        department: nextTargets[0] || "",
+        departmentId: nextTargets[0] || "",
       };
     });
   };
 
   const handleQuotaChange = (
-    deptId: string,
+    deptId: number,
     field: "candidates" | "standby",
     value: number,
   ) => {
@@ -418,11 +222,9 @@ export default function EducationOpportunitiesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const cleanedTargets = formData.targetDepartments
-      .map((item) => item.trim())
-      .filter(Boolean);
+    const targets = formData.targetDepartmentIds;
 
-    if (cleanedTargets.length === 0) {
+    if (targets.length === 0) {
       alert("Please select at least one target department.");
       return;
     }
@@ -439,8 +241,8 @@ export default function EducationOpportunitiesPage() {
     const payload = {
       ...formData,
       status: finalStatus,
-      department: cleanedTargets[0],
-      targetDepartments: cleanedTargets,
+      departmentId: targets[0],
+      targetDepartmentIds: targets,
       departmentQuotas: formData.departmentQuotas,
     };
 
@@ -462,18 +264,18 @@ export default function EducationOpportunitiesPage() {
   const handleEdit = (opp: EducationOpportunity) => {
     setEditId(opp.id);
     const targets =
-      opp.targetDepartments && opp.targetDepartments.length > 0
-        ? opp.targetDepartments
-        : opp.department
-          ? [opp.department]
+      opp.targetDepartmentIds && opp.targetDepartmentIds.length > 0
+        ? opp.targetDepartmentIds
+        : opp.departmentId
+          ? [opp.departmentId]
           : [];
     const quotas = (opp as any).departmentQuotas || {};
     setFormData({
       educationType: opp.educationType,
       educationLevel: opp.educationLevel,
       institution: opp.institution,
-      department: opp.department || "",
-      targetDepartments: targets,
+      departmentId: opp.departmentId || "",
+      targetDepartmentIds: targets,
       departmentQuotas: quotas,
       description: opp.description || "",
       status: opp.status || "OPEN",
@@ -519,21 +321,10 @@ export default function EducationOpportunitiesPage() {
     [opportunities],
   );
 
-  // Selected leaf nodes that need quotas entered
-  const selectedLeafNodes = useMemo(() => {
-    const leaves: OrgNode[] = [];
-    const collectLeaves = (nodes: OrgNode[]) => {
-      nodes.forEach((node) => {
-        if (!node.children || node.children.length === 0) {
-          if (selectedIdSet.has(node.id)) leaves.push(node);
-        } else {
-          collectLeaves(node.children);
-        }
-      });
-    };
-    collectLeaves(INSA_ORG_TREE);
-    return leaves;
-  }, [selectedIdSet]);
+  // Selected departments that need quotas entered
+  const selectedDepartments = useMemo(() => {
+    return departments.filter(d => selectedIdSet.has(d.id));
+  }, [selectedIdSet, departments]);
 
   if (loading) {
     return (
@@ -698,32 +489,33 @@ export default function EducationOpportunitiesPage() {
                 </div>
               </div>
 
-              {/* â”€â”€ Hierarchical Department Tree â”€â”€ */}
+              {/* â”€â”€ Dynamic Department List â”€â”€ */}
               <div className="md:col-span-2">
                 <label className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
                   <Users className="h-4 w-4 text-blue-600" />
                   Target Departments
-                  {formData.targetDepartments.length > 0 && (
+                  {formData.targetDepartmentIds.length > 0 && (
                     <span className="rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-bold text-white">
-                      {formData.targetDepartments.length} selected
+                      {formData.targetDepartmentIds.length} selected
                     </span>
                   )}
                 </label>
-                <div className="rounded-xl border border-gray-200 bg-gray-50/50 p-4 max-h-72 overflow-y-auto">
-                  {INSA_ORG_TREE.map((node) => (
-                    <OrgTreeNode
-                      key={node.id}
-                      node={node}
-                      selectedIds={selectedIdSet}
-                      onToggle={handleNodeToggle}
-                      depth={0}
-                    />
+                <div className="rounded-xl border border-gray-200 bg-gray-50/50 p-4 max-h-72 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {departments.map((dept) => (
+                    <label key={dept.id} className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-white transition-colors border border-transparent hover:border-gray-200 shadow-sm">
+                      <input
+                        type="checkbox"
+                        checked={selectedIdSet.has(dept.id)}
+                        onChange={() => handleDepartmentToggle(dept.id)}
+                        className="peer h-4 w-4 cursor-pointer rounded border border-gray-300 bg-white transition-all checked:border-blue-600 checked:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                      />
+                      <span className="text-sm font-medium text-gray-700 truncate">{dept.name}</span>
+                    </label>
                   ))}
                 </div>
               </div>
 
-              {/* â”€â”€ Per-Department Quotas â”€â”€ */}
-              {selectedLeafNodes.length > 0 && (
+              {selectedDepartments.length > 0 && (
                 <div className="md:col-span-2">
                   <label className="mb-2 block text-sm font-medium text-gray-700">
                     Department Quotas{" "}
@@ -732,18 +524,18 @@ export default function EducationOpportunitiesPage() {
                     </span>
                   </label>
                   <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                    {selectedLeafNodes.map((node) => {
-                      const quota = formData.departmentQuotas[node.id] || {
+                    {selectedDepartments.map((dept) => {
+                      const quota = formData.departmentQuotas[dept.id] || {
                         candidates: 1,
                         standby: 1,
                       };
                       return (
                         <div
-                          key={node.id}
+                          key={dept.id}
                           className="flex items-center gap-3 rounded-lg border border-blue-100 bg-white px-4 py-2.5 shadow-sm"
                         >
                           <span className="flex-1 truncate text-xs font-semibold text-gray-700">
-                            {node.label}
+                            {dept.name}
                           </span>
                           <div className="flex items-center gap-2 flex-shrink-0">
                             <label className="text-[10px] font-bold uppercase text-gray-400">
@@ -755,7 +547,7 @@ export default function EducationOpportunitiesPage() {
                               value={quota.candidates}
                               onChange={(e) =>
                                 handleQuotaChange(
-                                  node.id,
+                                  dept.id,
                                   "candidates",
                                   Number(e.target.value),
                                 )
@@ -771,7 +563,7 @@ export default function EducationOpportunitiesPage() {
                               value={quota.standby}
                               onChange={(e) =>
                                 handleQuotaChange(
-                                  node.id,
+                                  dept.id,
                                   "standby",
                                   Number(e.target.value),
                                 )
@@ -851,12 +643,16 @@ export default function EducationOpportunitiesPage() {
               </thead>
               <tbody className="divide-y text-gray-600">
                 {visibleOpportunities.map((opp) => {
-                  const targets =
-                    opp.targetDepartments && opp.targetDepartments.length > 0
-                      ? opp.targetDepartments
-                      : opp.department
-                        ? [opp.department]
-                        : [];
+                  const targets: string[] =
+                    opp.targetDepartmentNames && opp.targetDepartmentNames.length > 0
+                      ? opp.targetDepartmentNames
+                      : opp.targetDepartments && opp.targetDepartments.length > 0
+                        ? opp.targetDepartments
+                        : opp.departmentName
+                          ? [opp.departmentName]
+                          : opp.department
+                            ? [opp.department]
+                            : [];
                   return (
                     <tr
                       key={opp.id}
@@ -881,7 +677,7 @@ export default function EducationOpportunitiesPage() {
                               key={`${opp.id}-${department}`}
                               className="rounded-lg bg-blue-50/50 border border-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-600 uppercase tracking-widest shadow-sm"
                             >
-                              {getDeptLabel(department)}
+                              {department}
                             </span>
                           ))}
                           {targets.length > 3 && (

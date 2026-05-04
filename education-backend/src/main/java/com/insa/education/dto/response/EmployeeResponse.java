@@ -19,7 +19,8 @@ public class EmployeeResponse {
     private Gender gender;
     private String phone;
     private String email;
-    private String department;
+    private Long departmentId;
+    private String departmentName;
     private String position;
     private Role role;
     private LocalDateTime createdAt;
