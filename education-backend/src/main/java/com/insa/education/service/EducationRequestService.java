@@ -3,6 +3,7 @@ package com.insa.education.service;
 import com.insa.education.dto.request.BulkEducationRequestDto;
 import com.insa.education.dto.request.EducationRequestDto;
 import com.insa.education.dto.response.EducationRequestResponse;
+import com.insa.education.entity.Department;
 import com.insa.education.entity.EducationOpportunity;
 import com.insa.education.entity.EducationRequest;
 import com.insa.education.entity.Employee;
@@ -382,14 +383,18 @@ public class EducationRequestService {
         if (opportunity == null) return;
 
         String employeeDepartment = normalizeDepartment(employee.getDepartment() != null ? employee.getDepartment().getName() : null);
-        List<String> targetDepartments = opportunity.getTargetDepartments();
+        List<Department> targetDepartments = opportunity.getTargetDepartments();
 
         if (employeeDepartment == null) {
             throw new BadRequestException("Employee department is required to apply for an education opportunity");
         }
 
         if (targetDepartments == null || targetDepartments.isEmpty()) {
-            String legacyDepartment = normalizeDepartment(opportunity.getDepartment());
+            // Fall back to primary department
+            String primaryDeptName = opportunity.getDepartment() != null
+                    ? opportunity.getDepartment().getName()
+                    : null;
+            String legacyDepartment = normalizeDepartment(primaryDeptName);
             if (legacyDepartment == null || !legacyDepartment.equals(employeeDepartment)) {
                 throw new BadRequestException("This education opportunity is not assigned to the employee's department");
             }
@@ -397,7 +402,7 @@ public class EducationRequestService {
         }
 
         boolean allowed = targetDepartments.stream()
-                .map(this::normalizeDepartment)
+                .map(dept -> normalizeDepartment(dept.getName()))
                 .anyMatch(employeeDepartment::equals);
 
         if (!allowed) {
