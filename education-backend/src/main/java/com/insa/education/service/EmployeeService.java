@@ -20,15 +20,17 @@ public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final EducationMapper mapper;
+    private final DepartmentService departmentService;
 
-    public EmployeeService(EmployeeRepository employeeRepository, EducationMapper mapper) {
+    public EmployeeService(EmployeeRepository employeeRepository, EducationMapper mapper, DepartmentService departmentService) {
         this.employeeRepository = employeeRepository;
         this.mapper = mapper;
+        this.departmentService = departmentService;
     }
 
     @Transactional(readOnly = true)
     public List<EmployeeResponse> findByDepartment(String department) {
-        return employeeRepository.findByDepartment(department).stream()
+        return employeeRepository.findByDepartment_NameIgnoreCase(department).stream()
                 .map(mapper::toEmployeeResponse)
                 .collect(Collectors.toList());
     }
@@ -69,7 +71,7 @@ public class EmployeeService {
                 .gender(dto.getGender())
                 .phone(dto.getPhone())
                 .email(dto.getEmail())
-                .department(dto.getDepartment())
+                .department(departmentService.findOrCreateByName(dto.getDepartment()))
                 .position(dto.getPosition())
                 .password(dto.getPassword())
                 .role(dto.getRole())
@@ -88,7 +90,7 @@ public class EmployeeService {
         employee.setLastName(dto.getLastName());
         employee.setGender(dto.getGender());
         employee.setPhone(dto.getPhone());
-        employee.setDepartment(dto.getDepartment());
+        employee.setDepartment(departmentService.findOrCreateByName(dto.getDepartment()));
         employee.setPosition(dto.getPosition());
         employee.setRole(dto.getRole());
 

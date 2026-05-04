@@ -38,8 +38,9 @@ public class Employee {
     @Column(length = 100, unique = true)
     private String email;
 
-    @Column(length = 100)
-    private String department;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "department_id")
+    private Department department;
 
     @Column(length = 100)
     private String position;

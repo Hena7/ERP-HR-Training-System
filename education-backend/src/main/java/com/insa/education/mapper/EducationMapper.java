@@ -22,8 +22,8 @@ public class EducationMapper {
         String phone  = entity.getEmployee() != null
                 ? entity.getEmployee().getPhone()
                 : entity.getManualEmployeePhone();
-        String dept   = entity.getEmployee() != null
-                ? entity.getEmployee().getDepartment()
+        String dept   = entity.getEmployee() != null && entity.getEmployee().getDepartment() != null
+                ? entity.getEmployee().getDepartment().getName()
                 : entity.getManualEmployeeDept();
 
         return EducationRequestResponse.builder()
@@ -111,8 +111,8 @@ public class EducationMapper {
                 .employeeName(entity.getEmployee() != null 
                         ? entity.getEmployee().getFirstName() + " " + entity.getEmployee().getLastName()
                         : (entity.getRequest() != null ? entity.getRequest().getManualEmployeeName() : ""))
-                .employeeDepartment(entity.getEmployee() != null 
-                        ? entity.getEmployee().getDepartment() 
+                .employeeDepartment(entity.getEmployee() != null && entity.getEmployee().getDepartment() != null
+                        ? entity.getEmployee().getDepartment().getName() 
                         : (entity.getRequest() != null ? entity.getRequest().getManualEmployeeDept() : ""))
                 .requestId(entity.getRequest().getId())
                 .university(entity.getUniversity())
@@ -183,7 +183,7 @@ public class EducationMapper {
                 .gender(entity.getGender())
                 .phone(entity.getPhone())
                 .email(entity.getEmail())
-                .department(entity.getDepartment())
+                .department(entity.getDepartment() != null ? entity.getDepartment().getName() : null)
                 .position(entity.getPosition())
                 .role(entity.getRole())
                 .createdAt(entity.getCreatedAt())

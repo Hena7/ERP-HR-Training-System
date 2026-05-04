@@ -28,17 +28,20 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final EducationMapper mapper;
+    private final DepartmentService departmentService;
 
     public AuthService(EmployeeRepository employeeRepository,
                        PasswordEncoder passwordEncoder,
                        JwtUtil jwtUtil,
                        AuthenticationManager authenticationManager,
-                       EducationMapper mapper) {
+                       EducationMapper mapper,
+                       DepartmentService departmentService) {
         this.employeeRepository = employeeRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.authenticationManager = authenticationManager;
         this.mapper = mapper;
+        this.departmentService = departmentService;
     }
 
     @Transactional
@@ -57,7 +60,7 @@ public class AuthService {
                 .gender(dto.getGender())
                 .phone(dto.getPhone())
                 .email(dto.getEmail())
-                .department(dto.getDepartment())
+                .department(departmentService.findOrCreateByName(dto.getDepartment()))
                 .position(dto.getPosition())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .role(dto.getRole())
@@ -84,7 +87,7 @@ public class AuthService {
                 .fullName(employee.getFirstName() + " " + employee.getLastName())
                 .role(employee.getRole())
                 .employeeId(employee.getId())
-                .department(employee.getDepartment())
+                .department(employee.getDepartment() != null ? employee.getDepartment().getName() : null)
                 .build();
     }
 }
