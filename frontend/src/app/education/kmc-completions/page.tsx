@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { completionApi, contractApi } from "@/lib/api";
 import { EducationCompletion, Contract } from "@/types";
 import { GraduationCap, CheckCircle, FileText, User } from "lucide-react";
+import GroupedTable from "@/components/GroupedTable";
 
 export default function KMCCompletionsPage() {
   const { t } = useLanguage();
@@ -74,74 +75,58 @@ export default function KMCCompletionsPage() {
               Education Completions Pending KMC Review
             </h2>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                <tr>
-                  <th className="px-6 py-4">ID</th>
-                  <th className="px-6 py-4">Employee</th>
-                  <th className="px-6 py-4">Department</th>
-                  <th className="px-6 py-4">Completion Date</th>
-                  <th className="px-6 py-4">Research Presentation</th>
-                  <th className="px-6 py-4 text-right">Status / Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {loading ? (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-gray-400">
-                      <div className="flex justify-center items-center gap-2">
-                         <div className="h-4 w-4 animate-spin rounded-full border-2 border-purple-500 border-t-transparent" />
-                         <span>Loading notifications...</span>
-                      </div>
-                    </td>
-                  </tr>
-                ) : completions.length > 0 ? (
-                  completions.map((c) => {
-                    const contract = getContractDetails(c.contractId);
-                    return (
-                      <tr key={c.id} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="px-6 py-4 text-xs font-bold text-blue-600">CMP-{c.id.toString().slice(-6)}</td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100">
-                                <User className="h-4 w-4 text-gray-400" />
-                             </div>
-                             <span className="font-bold text-gray-900">{contract?.employeeName || "Unknown Employee"}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 font-medium text-gray-600">{(contract as any)?.employeeDepartment || "—"}</td>
-                        <td className="px-6 py-4 font-medium text-gray-700">{c.completionDate}</td>
-                        <td className="px-6 py-4 font-medium text-gray-500">{c.researchPresentationDate || "—"}</td>
-                        <td className="px-6 py-4 text-right">
-                          {c.kmcAcknowledged ? (
-                            <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-50 px-3 py-1 text-xs font-bold text-purple-700 border border-purple-100">
-                              <CheckCircle className="h-3 w-3" />
-                              Acknowledged
-                            </span>
-                          ) : (
-                            <button
-                              onClick={() => handleAcknowledge(c.id)}
-                              className="rounded-lg bg-purple-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-purple-700 transition-all"
-                            >
-                              Acknowledge
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })
+          <GroupedTable
+            rows={completions}
+            groupBy={(c) => getContractDetails(c.contractId)?.program || "General"}
+            subGroupBy={(c) => (getContractDetails(c.contractId) as any)?.employeeDepartment || "—"}
+            rowKey={(c) => c.id}
+            columns={[
+              {
+                header: "ID",
+                render: (c) => <span className="font-bold text-blue-600">CMP-{c.id.toString().slice(-6)}</span>
+              },
+              {
+                header: "Employee",
+                render: (c) => {
+                  const contract = getContractDetails(c.contractId);
+                  return (
+                    <div className="flex items-center gap-2">
+                       <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100">
+                          <User className="h-4 w-4 text-gray-400" />
+                       </div>
+                       <span className="font-bold text-gray-900">{contract?.employeeName || "Unknown Employee"}</span>
+                    </div>
+                  );
+                }
+              },
+              {
+                header: "Completion Date",
+                key: "completionDate"
+              },
+              {
+                header: "Research Presentation",
+                render: (c) => <span className="text-gray-500">{c.researchPresentationDate || "—"}</span>
+              }
+            ]}
+            renderActions={(c) => (
+              <div className="flex justify-end gap-2">
+                {c.kmcAcknowledged ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-50 px-3 py-1 text-xs font-bold text-purple-700 border border-purple-100">
+                    <CheckCircle className="h-3 w-3" />
+                    Acknowledged
+                  </span>
                 ) : (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-gray-400">
-                      <FileText className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                      <p>No completion notifications found for KMC.</p>
-                    </td>
-                  </tr>
+                  <button
+                    onClick={() => handleAcknowledge(c.id)}
+                    className="rounded-lg bg-purple-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-purple-700 transition-all"
+                  >
+                    Acknowledge
+                  </button>
                 )}
-              </tbody>
-            </table>
-          </div>
+              </div>
+            )}
+            emptyMessage="No completion notifications found for KMC."
+          />
         </div>
       </div>
     </DashboardLayout>

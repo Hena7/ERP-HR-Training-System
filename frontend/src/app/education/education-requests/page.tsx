@@ -855,8 +855,6 @@ export default function EducationRequestsPage() {
             emptyMessage="No requests found matching your criteria."
           />
         </div>
-          </div>
-        </div>
       </div>
 
       {/* Education Detail Modal */}
@@ -1270,105 +1268,107 @@ export default function EducationRequestsPage() {
       {/* Request Detail Modal */}
       {selectedRequest && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="relative w-full max-w-2xl flex flex-col max-h-[90vh] rounded-2xl bg-white shadow-2xl border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="flex shrink-0 items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50/50">
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-3">
-                <div className="rounded-lg bg-blue-100 p-2">
-                  <FileText className="h-5 w-5 text-blue-600" />
+          {(() => {
+            const req = selectedRequest;
+            return (
+              <div className="relative w-full max-w-2xl flex flex-col max-h-[90vh] rounded-2xl bg-white shadow-2xl border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="flex shrink-0 items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+                  <h2 className="text-lg font-bold text-gray-900 flex items-center gap-3">
+                    <div className="rounded-lg bg-blue-100 p-2">
+                      <FileText className="h-5 w-5 text-blue-600" />
+                    </div>
+                    Request Detail — REQ-{req.id}
+                  </h2>
+                  <button
+                    onClick={() => setSelectedRequest(null)}
+                    className="rounded-lg p-2 hover:bg-gray-100 transition-colors"
+                  >
+                    <X className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  </button>
                 </div>
-                Request Detail — REQ-{selectedRequest.id}
-              </h2>
-              <button
-                onClick={() => setSelectedRequest(null)}
-                className="rounded-lg p-2 hover:bg-gray-100 transition-colors"
-              >
-                <X className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-              </button>
-            </div>
-            <div className="p-6 space-y-6 overflow-y-auto">
-              <div className="grid grid-cols-2 gap-x-8 gap-y-6">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-                    {t("fullName")}
-                  </p>
-                  <p className="text-sm font-bold text-gray-900">
-                    {selectedRequest.employeeName}
-                  </p>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
-                    {selectedRequest.candidateId || selectedRequest.employeeId}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-                    {t("department")}
-                  </p>
-                  <p className="text-sm font-bold text-gray-900">
-                    {selectedRequest.employeeDepartment || "-"}
-                  </p>
-                </div>
+                <div className="p-6 space-y-6 overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-x-8 gap-y-6">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                        {t("fullName")}
+                      </p>
+                      <p className="text-sm font-bold text-gray-900">
+                        {req.employeeName}
+                      </p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
+                        {req.candidateId || req.employeeId}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                        {t("department")}
+                      </p>
+                      <p className="text-sm font-bold text-gray-900">
+                        {req.employeeDepartment || "-"}
+                      </p>
+                    </div>
 
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-                    {t("educationOpportunity")}
-                  </p>
-                  <p className="text-sm font-bold text-gray-900">
-                    {selectedRequest.fieldOfStudy || t("notSpecified")}
-                  </p>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
-                    {selectedRequest.educationLevel}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-                    {t("institution")}
-                  </p>
-                  <p className="text-sm font-bold text-gray-900">
-                    {selectedRequest.institution || "-"}
-                  </p>
-                </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                        {t("educationOpportunity")}
+                      </p>
+                      <p className="text-sm font-bold text-gray-900">
+                        {req.fieldOfStudy || t("notSpecified")}
+                      </p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
+                        {req.educationLevel}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                        {t("institution")}
+                      </p>
+                      <p className="text-sm font-bold text-gray-900">
+                        {req.institution || "-"}
+                      </p>
+                    </div>
 
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-                    {t("award")} / {t("duration")}
-                  </p>
-                  <p className="text-sm font-bold text-gray-900">
-                    {selectedRequest.award || "-"} ({selectedRequest.duration}{" "}
-                    {t("years")})
-                  </p>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                        {t("award")} / {t("duration")}
+                      </p>
+                      <p className="text-sm font-bold text-gray-900">
+                        {req.award || "-"} ({req.duration} {t("years")})
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                        {t("location")} / {t("program")}
+                      </p>
+                      <p className="text-sm font-bold text-gray-900">
+                        {req.location} • {req.programTime}
+                      </p>
+                    </div>
+                  </div>
+
+                  {(req.description || (req as any).remark) && (
+                    <div className="rounded-xl border border-gray-100 bg-gray-50 p-5 mt-4">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-2">
+                        <FileText className="h-3.5 w-3.5 text-gray-400" />
+                        Description / Remark
+                      </p>
+                      <p className="text-sm text-gray-700 font-medium leading-relaxed">
+                        {req.description || (req as any).remark}
+                      </p>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-                    {t("location")} / {t("program")}
-                  </p>
-                  <p className="text-sm font-bold text-gray-900">
-                    {selectedRequest.location} • {selectedRequest.programTime}
-                  </p>
+                <div className="bg-gray-50/80 shrink-0 px-6 py-4 border-t border-gray-100 flex justify-end">
+                  <button
+                    onClick={() => setSelectedRequest(null)}
+                    className="rounded-lg bg-gray-900 px-6 py-2.5 text-sm font-bold text-white shadow-md hover:bg-gray-800 transition-colors"
+                  >
+                    Close
+                  </button>
                 </div>
               </div>
-
-              {((selectedRequest as any).remark ||
-                selectedRequest.description) && (
-                <div className="rounded-xl border border-gray-100 bg-gray-50 p-5 mt-4">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-2">
-                    <FileText className="h-3.5 w-3.5 text-gray-400" />
-                    Description / Remark
-                  </p>
-                  <p className="text-sm text-gray-700 font-medium leading-relaxed">
-                    {(selectedRequest as any).remark ||
-                      selectedRequest.description}
-                  </p>
-                </div>
-              )}
-            </div>
-            <div className="bg-gray-50/80 shrink-0 px-6 py-4 border-t border-gray-100 flex justify-end">
-              <button
-                onClick={() => setSelectedRequest(null)}
-                className="rounded-lg bg-gray-900 px-6 py-2.5 text-sm font-bold text-white shadow-md hover:bg-gray-800 transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </div>
+            );
+          })()}
         </div>
       )}
     </DashboardLayout>

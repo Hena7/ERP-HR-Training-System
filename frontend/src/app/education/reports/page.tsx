@@ -41,6 +41,8 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
+import GroupedTable from "@/components/GroupedTable";
+
 const COLORS = [
   "#6366f1",
   "#10b981",
@@ -709,82 +711,58 @@ export default function EducationReportsPage() {
               </div>
             </div>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-gray-100 bg-gray-50/30 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                  <th className="px-6 py-4">REQ-ID</th>
-                  <th className="px-6 py-4">Employee</th>
-                  <th className="px-6 py-4">Department</th>
-                  <th className="px-6 py-4">Field of Study</th>
-                  <th className="px-6 py-4">Level</th>
-                  <th className="px-6 py-4">Budget Year</th>
-                  <th className="px-6 py-4">Score</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4 text-right no-print">Details</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {filteredHistory.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={9}
-                      className="px-6 py-12 text-center text-sm text-gray-400"
-                    >
-                      No records found.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredHistory.map((req: any) => (
-                    <tr
-                      key={req.id}
-                      className="group hover:bg-gray-50/50 transition-colors"
-                    >
-                      <td className="px-6 py-4 text-xs font-bold text-indigo-600">
-                        EDQ-{String(req.id).slice(-6)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="text-xs font-bold text-gray-900">
-                          {req.employeeName || "—"}
-                        </p>
-                        <p className="text-[10px] text-gray-400">
-                          {req.candidateId || ""}
-                        </p>
-                      </td>
-                      <td className="px-6 py-4 text-xs font-medium text-gray-600 italic">
-                        {req.employeeDepartment || "—"}
-                      </td>
-                      <td className="px-6 py-4 text-xs font-semibold text-gray-700">
-                        {req.fieldOfStudy || req.educationType || "—"}
-                      </td>
-                      <td className="px-6 py-4 text-xs font-bold text-gray-700">
-                        {req.targetEducationLevel || req.educationLevel || "—"}
-                      </td>
-                      <td className="px-6 py-4 text-xs font-bold text-gray-500">
-                        {req.budgetYear || "—"}
-                      </td>
-                      <td className="px-6 py-4 text-xs font-black text-indigo-700">
-                        {req.totalScore ? `${req.totalScore.toFixed(1)}%` : "—"}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-1 text-[10px] font-bold text-indigo-700 border border-indigo-100">
-                          {req.status?.replace(/_/g, " ") || "—"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right no-print">
-                        <button
-                          onClick={() => setSelectedItem(req)}
-                          className="rounded-lg bg-white border border-gray-100 p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-100 transition-all shadow-sm"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+          <GroupedTable
+            rows={filteredHistory}
+            groupBy={(req) => req.fieldOfStudy || (req as any).educationType || "General"}
+            subGroupBy={(req) => req.employeeDepartment || "Unknown"}
+            rowKey={(req) => req.id}
+            columns={[
+              {
+                header: "REQ-ID",
+                render: (req) => <span className="font-bold text-indigo-600">EDQ-{String(req.id).slice(-6)}</span>
+              },
+              {
+                header: "Employee",
+                render: (req) => (
+                  <div>
+                    <p className="text-xs font-bold text-gray-900">{req.employeeName || "—"}</p>
+                    <p className="text-[10px] text-gray-400">{req.candidateId || ""}</p>
+                  </div>
+                )
+              },
+              {
+                header: "Level",
+                render: (req) => <span className="font-bold text-gray-700">{req.targetEducationLevel || req.educationLevel || "—"}</span>
+              },
+              {
+                header: "Budget Year",
+                render: (req) => <span className="font-bold text-gray-500">{req.budgetYear || "—"}</span>
+              },
+              {
+                header: "Score",
+                render: (req) => <span className="font-black text-indigo-700">{req.totalScore ? `${req.totalScore.toFixed(1)}%` : "—"}</span>
+              },
+              {
+                header: "Status",
+                render: (req) => (
+                  <span className="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-1 text-[10px] font-bold text-indigo-700 border border-indigo-100 uppercase tracking-widest italic">
+                    {req.status?.replace(/_/g, " ") || "—"}
+                  </span>
+                )
+              }
+            ]}
+            renderActions={(req) => (
+              <div className="flex justify-end">
+                <button
+                  onClick={() => setSelectedItem(req)}
+                  className="rounded-lg bg-white border border-gray-100 p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-100 transition-all shadow-sm"
+                >
+                  <Eye className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+            emptyMessage="No historical records found matching your criteria."
+          />
         </div>
       </div>
 

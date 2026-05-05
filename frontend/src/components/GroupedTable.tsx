@@ -29,6 +29,8 @@ export interface GroupedTableProps<T> {
   emptyMessage?: string;
   /** Whether all groups should start expanded */
   defaultExpanded?: boolean;
+  /** Custom render function for the group header */
+  renderGroupHeader?: (groupKey: string, rows: T[], isOpen: boolean, toggle: () => void) => React.ReactNode;
 }
 
 export default function GroupedTable<T>({
@@ -40,6 +42,7 @@ export default function GroupedTable<T>({
   rowKey,
   emptyMessage = "No data available",
   defaultExpanded = true,
+  renderGroupHeader,
 }: GroupedTableProps<T>) {
   // Build groups
   const groups: Record<string, T[]> = {};
@@ -90,24 +93,31 @@ export default function GroupedTable<T>({
         return (
           <div key={groupKey}>
             {/* ── Group Header ── */}
-            <button
-              onClick={() => toggleGroup(groupKey)}
-              className="flex w-full items-center gap-3 bg-gradient-to-r from-blue-900/90 to-blue-800/70 px-6 py-3.5 text-left hover:from-blue-900 hover:to-blue-800/80 transition-all"
-            >
-              <span className="flex items-center justify-center rounded-md bg-white/10 p-0.5">
-                {isOpen ? (
-                  <ChevronDown className="h-4 w-4 text-blue-200" />
-                ) : (
-                  <ChevronRight className="h-4 w-4 text-blue-200" />
-                )}
-              </span>
-              <span className="flex-1 text-sm font-bold text-white">
-                {groupKey}
-              </span>
-              <span className="rounded-full bg-blue-500/30 px-2.5 py-0.5 text-[10px] font-black text-blue-100 border border-blue-400/30">
-                {groupRows.length} {groupRows.length === 1 ? "record" : "records"}
-              </span>
-            </button>
+            {renderGroupHeader ? (
+              renderGroupHeader(groupKey, groupRows, isOpen, () =>
+                toggleGroup(groupKey),
+              )
+            ) : (
+              <button
+                onClick={() => toggleGroup(groupKey)}
+                className="flex w-full items-center gap-3 bg-gradient-to-r from-blue-900/90 to-blue-800/70 px-6 py-3.5 text-left hover:from-blue-900 hover:to-blue-800/80 transition-all"
+              >
+                <span className="flex items-center justify-center rounded-md bg-white/10 p-0.5">
+                  {isOpen ? (
+                    <ChevronDown className="h-4 w-4 text-blue-200" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 text-blue-200" />
+                  )}
+                </span>
+                <span className="flex-1 text-sm font-bold text-white">
+                  {groupKey}
+                </span>
+                <span className="rounded-full bg-blue-500/30 px-2.5 py-0.5 text-[10px] font-black text-blue-100 border border-blue-400/30">
+                  {groupRows.length}{" "}
+                  {groupRows.length === 1 ? "record" : "records"}
+                </span>
+              </button>
+            )}
 
             {/* ── Group Body ── */}
             {isOpen && (
