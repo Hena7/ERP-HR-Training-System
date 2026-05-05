@@ -407,66 +407,45 @@ export default function CDCScoringPage() {
               {t("scoredRequests")}
             </h2>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                <tr>
-                  <th className="px-6 py-4">ID</th>
-                  <th className="px-6 py-4">{t("educationRequests")} ID</th>
-                  <th className="px-6 py-4">Exp%</th>
-                  <th className="px-6 py-4">Perf%</th>
-                  <th className="px-6 py-4">Disc%</th>
-                  <th className="px-6 py-4 text-blue-600">{t("totalScore")}</th>
-                  <th className="px-6 py-4">{t("gradedBy")}</th>
-                  <th className="px-6 py-4 text-right">{t("verifiedAt")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {scorings.length > 0 ? (
-                  scorings.map((s) => (
-                    <tr
-                      key={s.id}
-                      className="hover:bg-gray-50/50 transition-colors"
-                    >
-                      <td className="px-6 py-4 text-xs font-bold text-blue-600">
-                        SCR-{s.id.toString().slice(-6)}
-                      </td>
-                      <td className="px-6 py-4 text-xs font-bold text-gray-500">
-                        REQ-{s.requestId.toString().slice(-6)}
-                      </td>
-                      <td className="px-6 py-4 text-sm font-medium text-gray-700">
-                        {s.experienceScore}
-                      </td>
-                      <td className="px-6 py-4 text-sm font-medium text-gray-700">
-                        {s.performanceScore}
-                      </td>
-                      <td className="px-6 py-4 text-sm font-medium text-gray-700">
-                        {s.disciplineScore}
-                      </td>
-                      <td className="px-6 py-4 font-bold text-blue-700">
-                        {s.totalScore}%
-                      </td>
-                      <td className="px-6 py-4 text-xs font-medium text-gray-500">
-                        {s.gradedBy}
-                      </td>
-                      <td className="px-6 py-4 text-right text-xs font-medium text-gray-400">
-                        {new Date(s.createdAt).toLocaleDateString()}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={8}
-                      className="px-4 py-8 text-center text-gray-500"
-                    >
-                      {t("noData")}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <GroupedTable
+            rows={scorings}
+            groupBy={(s) => {
+              const req = requests.find(r => r.id === s.requestId);
+              return req?.fieldOfStudy || (req as any)?.educationType || "General";
+            }}
+            rowKey={(s) => s.id}
+            columns={[
+              {
+                header: "ID",
+                render: (s) => <span className="font-bold text-blue-600">SCR-{s.id.toString().slice(-6)}</span>
+              },
+              {
+                header: t("educationRequests") + " ID",
+                render: (s) => <span className="font-bold text-gray-500 text-xs">REQ-{s.requestId.toString().slice(-6)}</span>
+              },
+              {
+                header: "Exp%",
+                key: "experienceScore" as any
+              },
+              {
+                header: "Perf%",
+                key: "performanceScore" as any
+              },
+              {
+                header: "Disc%",
+                key: "disciplineScore" as any
+              },
+              {
+                header: t("totalScore"),
+                render: (s) => <span className="font-bold text-blue-700">{s.totalScore}%</span>
+              },
+              {
+                header: t("gradedBy"),
+                render: (s) => <span className="text-xs font-medium text-gray-500">{s.gradedBy}</span>
+              }
+            ]}
+            emptyMessage={t("noData")}
+          />
         </div>
       </div>
 

@@ -18,6 +18,7 @@ import {
   Receipt
 } from "lucide-react";
 import StatusBadge from "@/components/StatusBadge";
+import GroupedTable from "@/components/GroupedTable";
 
 const fieldClass =
   "w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all";
@@ -149,56 +150,45 @@ export default function FinanceReportsPage() {
               Active Education Contracts
             </h2>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                <tr>
-                  <th className="px-6 py-4">ID</th>
-                  <th className="px-6 py-4">Institution / Program</th>
-                  <th className="px-6 py-4">Signed Date</th>
-                  <th className="px-6 py-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {contracts.length > 0 ? (
-                  contracts.map((c) => {
-                    const isSelected = selectedContractId === c.id;
-                    return (
-                      <tr key={c.id} className={`transition-colors ${isSelected ? "bg-emerald-50/60" : "hover:bg-gray-50/50"}`}>
-                        <td className="px-6 py-4 font-bold text-emerald-600">CTR-{c.id.toString().slice(-6)}</td>
-                        <td className="px-6 py-4">
-                          <p className="font-bold text-gray-900">{(c as any).university || (c as any).institution || "N/A"}</p>
-                          <p className="text-[10px] text-gray-500 uppercase tracking-tight">{(c as any).program || "Education"}</p>
-                        </td>
-                        <td className="px-6 py-4 text-xs text-gray-600 font-medium">
-                          {c.contractSignedDate ? new Date(c.contractSignedDate).toLocaleDateString() : "—"}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => handleSelectContract(c.id)}
-                            className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
-                              isSelected
-                                ? "bg-emerald-600 text-white shadow-emerald-200"
-                                : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-emerald-600 hover:text-white"
-                            }`}
-                          >
-                            {isSelected ? "Selected" : "Select to Report"}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan={4} className="px-4 py-12 text-center text-gray-400">
-                      <Wallet className="h-10 w-10 mx-auto mb-3 opacity-20" />
-                      <p className="font-bold uppercase tracking-widest text-[10px]">No active contracts found for reporting.</p>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <GroupedTable
+            rows={contracts}
+            groupBy={(c) => (c as any).program || "Education"}
+            rowKey={(c) => c.id}
+            columns={[
+              {
+                header: "ID",
+                render: (c) => <span className="font-bold text-emerald-600">CTR-{c.id.toString().slice(-6)}</span>
+              },
+              {
+                header: "Institution",
+                render: (c) => <span className="font-bold text-gray-900">{(c as any).university || (c as any).institution || "N/A"}</span>
+              },
+              {
+                header: "Signed Date",
+                render: (c) => (
+                  <span className="text-xs text-gray-600 font-medium">
+                    {c.contractSignedDate ? new Date(c.contractSignedDate).toLocaleDateString() : "—"}
+                  </span>
+                )
+              }
+            ]}
+            renderActions={(c) => {
+              const isSelected = selectedContractId === c.id;
+              return (
+                <button
+                  onClick={() => handleSelectContract(c.id)}
+                  className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
+                    isSelected
+                      ? "bg-emerald-600 text-white shadow-emerald-200"
+                      : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-emerald-600 hover:text-white"
+                  }`}
+                >
+                  {isSelected ? "Selected" : "Select to Report"}
+                </button>
+              );
+            }}
+            emptyMessage="No active contracts found for reporting."
+          />
         </div>
 
         {selectedContract && (

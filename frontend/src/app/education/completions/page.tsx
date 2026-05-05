@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { completionApi, contractApi } from "@/lib/api";
 import { EducationCompletion, Contract } from "@/types";
 import { GraduationCap, Edit, Trash2, FileText } from "lucide-react";
+import GroupedTable from "@/components/GroupedTable";
 
 const fieldClass =
   "w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all";
@@ -135,51 +136,45 @@ export default function CompletionsPage() {
               Education Contracts
             </h2>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                <tr>
-                  <th className="px-6 py-4">ID</th>
-                  <th className="px-6 py-4">{t("fullName")}</th>
-                  <th className="px-6 py-4">{t("department")}</th>
-                  <th className="px-6 py-4">{t("contractSignedDate")}</th>
-                  <th className="px-6 py-4 text-right">{t("actions")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {contracts.length > 0 ? contracts.map((c) => {
-                  const isSelected = selectedContractId === c.id;
-                  return (
-                    <tr key={c.id} className={`transition-colors ${isSelected ? "bg-blue-50/60" : "hover:bg-gray-50/50"}`}>
-                      <td className="px-6 py-4 text-xs font-bold text-blue-600">CTR-{c.id.toString().slice(-6)}</td>
-                      <td className="px-6 py-4 font-bold text-gray-900">{c.employeeName}</td>
-                      <td className="px-6 py-4 font-medium text-gray-600">{(c as any).employeeDepartment || "—"}</td>
-                      <td className="px-6 py-4 font-medium text-gray-500 text-xs">{c.contractSignedDate ? new Date(c.contractSignedDate).toLocaleDateString() : "—"}</td>
-                      <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => handleSelectContract(c.id)}
-                          className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
-                            isSelected
-                              ? "bg-blue-600 text-white shadow-blue-200"
-                              : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
-                          }`}
-                        >
-                          {isSelected ? "Selected" : "Select"}
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                }) : (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-gray-400">
-                      <FileText className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                      {t("noData")}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <GroupedTable
+            rows={contracts}
+            groupBy={(c) => (c as any).program || "General"}
+            rowKey={(c) => c.id}
+            columns={[
+              {
+                header: "ID",
+                render: (c) => <span className="font-bold text-blue-600">CTR-{c.id.toString().slice(-6)}</span>
+              },
+              {
+                header: t("fullName"),
+                render: (c) => <span className="font-bold text-gray-900">{c.employeeName}</span>
+              },
+              {
+                header: t("department"),
+                render: (c) => <span className="font-medium text-gray-600">{(c as any).employeeDepartment || "—"}</span>
+              },
+              {
+                header: t("contractSignedDate"),
+                render: (c) => <span className="font-medium text-gray-500 text-xs">{c.contractSignedDate ? new Date(c.contractSignedDate).toLocaleDateString() : "—"}</span>
+              }
+            ]}
+            renderActions={(c) => {
+              const isSelected = selectedContractId === c.id;
+              return (
+                <button
+                  onClick={() => handleSelectContract(c.id)}
+                  className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
+                    isSelected
+                      ? "bg-blue-600 text-white shadow-blue-200"
+                      : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
+                  }`}
+                >
+                  {isSelected ? "Selected" : "Select"}
+                </button>
+              );
+            }}
+            emptyMessage={t("noData")}
+          />
         </div>
 
         {/* Selection Banner */}
@@ -269,66 +264,71 @@ export default function CompletionsPage() {
               Completion Records
             </h2>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                <tr>
-                  <th className="px-6 py-4">ID</th>
-                  <th className="px-6 py-4">{t("contracts")} ID</th>
-                  <th className="px-6 py-4">{t("completionDate")}</th>
-                  <th className="px-6 py-4">{t("returnToWorkDate")}</th>
-                  <th className="px-6 py-4">{t("researchPresentationDate")}</th>
-                  <th className="px-6 py-4 text-right">Notifications / {t("actions")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {completions.length > 0 ? completions.map((c) => (
-                  <tr key={c.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-4 text-xs font-bold text-blue-600">CMP-{c.id.toString().slice(-6)}</td>
-                    <td className="px-6 py-4 text-xs font-bold text-gray-500">CTR-{c.contractId?.toString().slice(-6)}</td>
-                    <td className="px-6 py-4 font-medium text-gray-700">{c.completionDate}</td>
-                    <td className="px-6 py-4 font-medium text-gray-500">{c.returnToWorkDate || "—"}</td>
-                    <td className="px-6 py-4 font-medium text-gray-500">{c.researchPresentationDate || "—"}</td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end items-center gap-2">
-                        {!(c as any).sentToHr ? (
-                          <button
-                            onClick={() => handleNotifyHr(c.id)}
-                            className="rounded-md bg-green-50 border border-green-100 px-2 py-1 text-[10px] font-bold text-green-700 hover:bg-green-100 uppercase tracking-wide"
-                          >
-                            Send to HR
-                          </button>
-                        ) : (
-                          <span className="text-[10px] text-green-600 font-bold uppercase mr-1">HR ✓</span>
-                        )}
-                        {!(c as any).notifiedKmc ? (
-                          <button
-                            onClick={() => handleNotifyKmc(c.id)}
-                            className="rounded-md bg-purple-50 border border-purple-100 px-2 py-1 text-[10px] font-bold text-purple-700 hover:bg-purple-100 uppercase tracking-wide"
-                          >
-                            Notify KMC
-                          </button>
-                        ) : (
-                          <span className="text-[10px] text-purple-600 font-bold uppercase">KMC ✓</span>
-                        )}
-                        <div className="w-px h-4 bg-gray-200 mx-1" />
-                        <button onClick={() => handleEdit(c)} className="rounded-lg border border-gray-100 p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button onClick={() => handleDelete(c.id)} className="rounded-lg border border-gray-100 p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )) : (
-                  <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-gray-500">{t("noData")}</td>
-                  </tr>
+          <GroupedTable
+            rows={completions}
+            groupBy={(comp) => {
+              const contract = contracts.find((c) => c.id === comp.contractId);
+              return (contract as any)?.program || "General";
+            }}
+            rowKey={(c) => c.id}
+            columns={[
+              {
+                header: "ID",
+                render: (c) => <span className="font-bold text-blue-600">CMP-{c.id.toString().slice(-6)}</span>
+              },
+              {
+                header: "Employee",
+                render: (c) => {
+                  const contract = contracts.find((con) => con.id === c.contractId);
+                  return <span className="font-bold text-gray-900">{contract?.employeeName || "Unknown"}</span>;
+                }
+              },
+              {
+                header: t("completionDate"),
+                render: (c) => <span className="font-medium text-gray-700">{c.completionDate}</span>
+              },
+              {
+                header: t("returnToWorkDate"),
+                render: (c) => <span className="font-medium text-gray-500">{c.returnToWorkDate || "—"}</span>
+              },
+              {
+                header: t("researchPresentationDate"),
+                render: (c) => <span className="font-medium text-gray-500">{c.researchPresentationDate || "—"}</span>
+              }
+            ]}
+            renderActions={(c) => (
+              <div className="flex justify-end items-center gap-2">
+                {!(c as any).sentToHr ? (
+                  <button
+                    onClick={() => handleNotifyHr(c.id)}
+                    className="rounded-md bg-green-50 border border-green-100 px-2 py-1 text-[10px] font-bold text-green-700 hover:bg-green-100 uppercase tracking-wide"
+                  >
+                    Send to HR
+                  </button>
+                ) : (
+                  <span className="text-[10px] text-green-600 font-bold uppercase mr-1">HR ✓</span>
                 )}
-              </tbody>
-            </table>
-          </div>
+                {!(c as any).notifiedKmc ? (
+                  <button
+                    onClick={() => handleNotifyKmc(c.id)}
+                    className="rounded-md bg-purple-50 border border-purple-100 px-2 py-1 text-[10px] font-bold text-purple-700 hover:bg-purple-100 uppercase tracking-wide"
+                  >
+                    Notify KMC
+                  </button>
+                ) : (
+                  <span className="text-[10px] text-purple-600 font-bold uppercase">KMC ✓</span>
+                )}
+                <div className="w-px h-4 bg-gray-200 mx-1" />
+                <button onClick={() => handleEdit(c)} className="rounded-lg border border-gray-100 p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                  <Edit className="h-4 w-4" />
+                </button>
+                <button onClick={() => handleDelete(c.id)} className="rounded-lg border border-gray-100 p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors">
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+            emptyMessage={t("noData")}
+          />
         </div>
       </div>
     </DashboardLayout>

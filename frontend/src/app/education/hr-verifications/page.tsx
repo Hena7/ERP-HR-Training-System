@@ -616,87 +616,59 @@ export default function HRVerificationsPage() {
               semester 1, semester 2, and the auto-calculated average.
             </div>
           )}
-        </div>
-
-        <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+        </div>        <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
           <div className="border-b border-gray-50 bg-gray-50/30 px-6 py-4">
             <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400">
               Verified / Rejected Requests
             </h2>
           </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                <tr>
-                  <th className="px-6 py-4">ID</th>
-                  <th className="px-6 py-4">{t("educationRequests")} ID</th>
-                  <th className="px-6 py-4">{t("semester1Score")}</th>
-                  <th className="px-6 py-4">{t("semester2Score")}</th>
-                  <th className="px-6 py-4 text-blue-600">
-                    {t("averageScore")}
-                  </th>
-                  <th className="px-6 py-4">{t("disciplineRecord")}</th>
-                  <th className="px-6 py-4">{t("status")}</th>
-                  <th className="px-6 py-4">{t("verifiedBy")}</th>
-                  <th className="px-6 py-4">{t("verifiedAt")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {verifications.length > 0 ? (
-                  verifications.map((verification) => (
-                    <tr
-                      key={verification.id}
-                      className="hover:bg-gray-50/50 transition-colors"
-                    >
-                      <td className="px-6 py-4 text-xs font-bold text-blue-600 uppercase">
-                        VER-{verification.id.toString().slice(-6)}
-                      </td>
-                      <td className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">
-                        REQ-{verification.requestId.toString().slice(-6)}
-                      </td>
-                      <td className="px-6 py-4 font-medium text-gray-700">
-                        {verification.semester1Score}
-                      </td>
-                      <td className="px-6 py-4 font-medium text-gray-700">
-                        {verification.semester2Score}
-                      </td>
-                      <td className="px-6 py-4 font-bold text-blue-700 tracking-tight">
-                        {verification.averageScore}%
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col gap-1">
-                          <span
-                            className={`inline-flex w-fit rounded-lg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${verification.hasDiscipline ? "bg-red-50 text-red-600 border border-red-100" : "bg-emerald-50 text-emerald-600 border border-emerald-100"}`}
-                          >
-                            {verification.hasDiscipline ? t("yes") : t("no")}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        {renderVerificationStatus(verification.status)}
-                      </td>
-                      <td className="px-6 py-4 text-xs font-medium text-gray-500 italic">
-                        {verification.verifiedBy}
-                      </td>
-                      <td className="px-6 py-4 text-xs font-medium text-gray-400">
-                        {verification.verifiedAt}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={8}
-                      className="px-4 py-8 text-center text-gray-500"
-                    >
-                      {t("noData")}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <GroupedTable
+            rows={verifications}
+            groupBy={(v) => {
+              const req = requests.find(r => r.id === v.requestId);
+              return req?.fieldOfStudy || (req as any)?.educationType || "General";
+            }}
+            rowKey={(v) => v.id}
+            columns={[
+              {
+                header: "ID",
+                render: (v) => <span className="font-bold text-blue-600 uppercase">VER-{v.id.toString().slice(-6)}</span>
+              },
+              {
+                header: t("educationRequests") + " ID",
+                render: (v) => <span className="font-bold text-gray-500 uppercase text-xs">REQ-{v.requestId.toString().slice(-6)}</span>
+              },
+              {
+                header: t("semester1Score"),
+                key: "semester1Score" as any
+              },
+              {
+                header: t("semester2Score"),
+                key: "semester2Score" as any
+              },
+              {
+                header: t("averageScore"),
+                render: (v) => <span className="font-bold text-blue-700 tracking-tight">{v.averageScore}%</span>
+              },
+              {
+                header: t("disciplineRecord"),
+                render: (v) => (
+                  <span className={`inline-flex rounded-lg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${v.hasDiscipline ? "bg-red-50 text-red-600 border border-red-100" : "bg-emerald-50 text-emerald-600 border border-emerald-100"}`}>
+                    {v.hasDiscipline ? t("yes") : t("no")}
+                  </span>
+                )
+              },
+              {
+                header: t("status"),
+                render: (v) => renderVerificationStatus(v.status)
+              },
+              {
+                header: t("verifiedBy"),
+                render: (v) => <span className="text-xs font-medium text-gray-500 italic">{v.verifiedBy}</span>
+              }
+            ]}
+            emptyMessage={t("noData")}
+          />
         </div>
       </div>
     </DashboardLayout>

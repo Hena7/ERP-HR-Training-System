@@ -274,69 +274,57 @@ export default function ContractsPage() {
               Approved Education Requests (Pending Contracts)
             </h2>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                <tr>
-                  <th className="px-6 py-4">ID</th>
-                  <th className="px-6 py-4">{t("fullName")}</th>
-                  <th className="px-6 py-4">{t("educationOpportunity")}</th>
-                  <th className="px-6 py-4">{t("institution")}</th>
-                  <th className="px-6 py-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y text-xs">
-                {approvedRequests.length > 0 ? (
-                  approvedRequests.map((request) => {
-                    const isSelected = form.requestId === String(request.id);
-                    return (
-                      <tr
-                        key={request.id}
-                        className="hover:bg-gray-50/50 transition-colors"
-                      >
-                        <td className="px-6 py-4 font-bold text-blue-600">
-                          REQ-{request.id}
-                        </td>
-                        <td className="px-6 py-4 font-bold text-gray-900">
-                          {request.employeeName}
-                        </td>
-                        <td className="px-6 py-4 font-medium text-gray-700 italic">
-                          {request.fieldOfStudy || request.educationType} (
-                          {request.educationLevel})
-                        </td>
-                        <td className="px-6 py-4 font-medium text-gray-500">
-                          {request.institution || "-"}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() =>
-                              handleRequestSelect(String(request.id))
-                            }
-                            className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
-                              isSelected && showForm
-                                ? "bg-blue-600 text-white shadow-blue-200"
-                                : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
-                            }`}
-                          >
-                            {isSelected && showForm ? "Selected" : "Contract"}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="px-4 py-8 text-center text-gray-500"
-                    >
-                      {t("noData")}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <GroupedTable
+            rows={approvedRequests}
+            groupBy={(r) => r.fieldOfStudy || r.educationType || "General"}
+            rowKey={(r) => r.id}
+            columns={[
+              {
+                header: "ID",
+                render: (r) => (
+                  <span className="font-bold text-blue-600">REQ-{r.id}</span>
+                ),
+              },
+              {
+                header: t("fullName"),
+                render: (r) => (
+                  <span className="font-bold text-gray-900">{r.employeeName}</span>
+                ),
+              },
+              {
+                header: t("educationLevel"),
+                render: (r) => (
+                  <span className="font-medium text-gray-700 italic">
+                    {r.educationLevel}
+                  </span>
+                ),
+              },
+              {
+                header: t("institution"),
+                render: (r) => (
+                  <span className="font-medium text-gray-500">
+                    {r.institution || "-"}
+                  </span>
+                ),
+              },
+            ]}
+            renderActions={(request) => {
+              const isSelected = form.requestId === String(request.id);
+              return (
+                <button
+                  onClick={() => handleRequestSelect(String(request.id))}
+                  className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
+                    isSelected && showForm
+                      ? "bg-blue-600 text-white shadow-blue-200"
+                      : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
+                  }`}
+                >
+                  {isSelected && showForm ? "Selected" : "Contract"}
+                </button>
+              );
+            }}
+            emptyMessage={t("noData")}
+          />
         </div>
 
         {showForm && (

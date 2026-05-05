@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { educationRequestApi, hrVerificationApi } from "@/lib/api";
 import { EducationRequest, HRVerification } from "@/types";
 import { CheckCircle2, XCircle, ClipboardList, Award, Eye, X } from "lucide-react";
+import GroupedTable from "@/components/GroupedTable";
 
 export default function DirectorApprovalPage() {
   const { t } = useLanguage();
@@ -105,93 +106,73 @@ export default function DirectorApprovalPage() {
               Committee-Reported Candidates — Pending Director Approval
             </h2>
           </div>
-
-          {Object.keys(grouped).length > 0 ? (
-            Object.entries(grouped).map(([key, groupReqs]) => {
-              const [dept, opp] = key.split("|||");
-              return (
-                <div key={key} className="border-b border-gray-100 last:border-b-0">
-                  <div className="flex items-center gap-3 bg-gradient-to-r from-amber-50/80 to-orange-50/40 px-6 py-3 border-b border-amber-100/60">
-                    <span className="inline-flex items-center rounded-lg bg-amber-600 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-sm">
-                      {dept}
+          <GroupedTable
+            rows={requests}
+            groupBy={(req) => req.fieldOfStudy || (req as any).educationType || "General"}
+            subGroupBy={(req) => req.employeeDepartment || "Unknown"}
+            rowKey={(req) => req.id}
+            columns={[
+              {
+                header: "ID",
+                render: (req) => <span className="font-bold text-blue-600">REQ-{req.id.toString().slice(-6)}</span>
+              },
+              {
+                header: "Full Name",
+                render: (req) => <span className="font-bold text-gray-900">{req.employeeName}</span>
+              },
+              {
+                header: "Score",
+                render: (req) => {
+                  const hrVer = hrVerifications[req.id];
+                  const score = req.totalScore ?? hrVer?.totalCalculatedScore;
+                  return (
+                    <span className="font-black text-amber-700 bg-amber-50 px-3 py-1 rounded-lg border border-amber-100">
+                      {score?.toFixed(2) ?? "—"}%
                     </span>
-                    <span className="text-xs font-bold italic text-gray-700">{opp}</span>
-                    <span className="ml-auto rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-black text-amber-700">
-                      {groupReqs.length} candidate{groupReqs.length !== 1 ? "s" : ""}
+                  );
+                }
+              },
+              {
+                header: "Gender",
+                render: (req) => {
+                  const hrVer = hrVerifications[req.id];
+                  return (
+                    <span className={`inline-flex rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${hrVer?.gender === "Female" ? "bg-pink-50 text-pink-600 border border-pink-100" : "bg-blue-50 text-blue-600 border border-blue-100"}`}>
+                      {hrVer?.gender || "Male"}
                     </span>
-                  </div>
-                  <table className="w-full text-left text-sm">
-                    <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                      <tr>
-                        <th className="px-6 py-3">ID</th>
-                        <th className="px-6 py-3">Full Name</th>
-                        <th className="px-6 py-3">Score</th>
-                        <th className="px-6 py-3">Gender</th>
-                        <th className="px-6 py-3 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                      {groupReqs
-                        .sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0))
-                        .map((req) => {
-                          const hrVer = hrVerifications[req.id];
-                          const score = req.totalScore ?? hrVer?.totalCalculatedScore;
-                          return (
-                            <tr key={req.id} className="hover:bg-gray-50/50 transition-colors">
-                              <td className="px-6 py-4 text-xs font-bold text-blue-600">
-                                REQ-{req.id.toString().slice(-6)}
-                              </td>
-                              <td className="px-6 py-4 font-bold text-gray-900">{req.employeeName}</td>
-                              <td className="px-6 py-4">
-                                <span className="font-black text-amber-700 bg-amber-50 px-3 py-1 rounded-lg border border-amber-100">
-                                  {score?.toFixed(2) ?? "—"}%
-                                </span>
-                              </td>
-                              <td className="px-6 py-4">
-                                <span className={`inline-flex rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${hrVer?.gender === "Female" ? "bg-pink-50 text-pink-600 border border-pink-100" : "bg-blue-50 text-blue-600 border border-blue-100"}`}>
-                                  {hrVer?.gender || "Male"}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4 text-right">
-                                <div className="flex justify-end gap-2">
-                                  <button
-                                    onClick={() => setSelectedView(req)}
-                                    className="rounded-lg bg-gray-50 p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 transition-all border border-gray-100"
-                                    title="View Details"
-                                  >
-                                    <Eye className="h-4 w-4" />
-                                  </button>
-                                  <button
-                                    onClick={() => handleApprove(req.id)}
-                                    disabled={loading}
-                                    className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition-all disabled:opacity-50"
-                                  >
-                                    <CheckCircle2 className="h-3.5 w-3.5" />
-                                    Approve
-                                  </button>
-                                  <button
-                                    onClick={() => handleReject(req.id)}
-                                    disabled={loading}
-                                    className="flex items-center gap-1.5 rounded-lg bg-red-50 px-4 py-1.5 text-xs font-bold text-red-600 border border-red-200 hover:bg-red-600 hover:text-white transition-all disabled:opacity-50"
-                                  >
-                                    <XCircle className="h-3.5 w-3.5" />
-                                    Reject
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                    </tbody>
-                  </table>
-                </div>
-              );
-            })
-          ) : (
-            <div className="px-6 py-12 text-center text-gray-400 italic">
-              No committee-reported candidates pending director approval.
-            </div>
-          )}
+                  );
+                }
+              }
+            ]}
+            renderActions={(req) => (
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setSelectedView(req)}
+                  className="rounded-lg bg-gray-50 p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 transition-all border border-gray-100"
+                  title="View Details"
+                >
+                  <Eye className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => handleApprove(req.id)}
+                  disabled={loading}
+                  className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition-all disabled:opacity-50"
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  Approve
+                </button>
+                <button
+                  onClick={() => handleReject(req.id)}
+                  disabled={loading}
+                  className="flex items-center gap-1.5 rounded-lg bg-red-50 px-4 py-1.5 text-xs font-bold text-red-600 border border-red-200 hover:bg-red-600 hover:text-white transition-all disabled:opacity-50"
+                >
+                  <XCircle className="h-3.5 w-3.5" />
+                  Reject
+                </button>
+              </div>
+            )}
+            emptyMessage="No committee-reported candidates pending director approval."
+          />
         </div>
 
         {/* Approved history */}
@@ -202,39 +183,41 @@ export default function DirectorApprovalPage() {
                 Director-Approved (Ready for Commitment)
               </h2>
             </div>
-            <table className="w-full text-left text-sm">
-              <thead className="bg-emerald-50 text-[10px] font-bold uppercase tracking-widest text-emerald-700">
-                <tr>
-                  <th className="px-6 py-4">ID</th>
-                  <th className="px-6 py-4">Employee</th>
-                  <th className="px-6 py-4">Department</th>
-                  <th className="px-6 py-4">Education</th>
-                  <th className="px-6 py-4">Score</th>
-                  <th className="px-6 py-4 text-right">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y bg-white">
-                {approvedRequests.map((r) => (
-                  <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-4 text-xs font-bold text-blue-600">REQ-{r.id.toString().slice(-6)}</td>
-                    <td className="px-6 py-4 font-bold text-gray-900">{r.employeeName}</td>
-                    <td className="px-6 py-4 text-xs italic text-gray-600">{r.employeeDepartment || "—"}</td>
-                    <td className="px-6 py-4 text-xs italic text-gray-700">
+            <GroupedTable
+              rows={approvedRequests}
+              groupBy={(r) => r.fieldOfStudy || (r as any).educationType || "General"}
+              subGroupBy={(r) => r.employeeDepartment || "Unknown"}
+              rowKey={(r) => r.id}
+              columns={[
+                {
+                  header: "ID",
+                  render: (r) => <span className="font-bold text-blue-600">REQ-{r.id.toString().slice(-6)}</span>
+                },
+                {
+                  header: "Employee",
+                  render: (r) => <span className="font-bold text-gray-900">{r.employeeName}</span>
+                },
+                {
+                  header: "Education",
+                  render: (r) => (
+                    <span className="text-xs italic text-gray-700">
                       {r.fieldOfStudy || (r as any).educationType} ({r.educationLevel})
-                    </td>
-                    <td className="px-6 py-4 font-black text-emerald-700">
-                      {r.totalScore?.toFixed(2) ?? "—"}%
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-100 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700 border border-emerald-200">
-                        <CheckCircle2 className="h-3 w-3" />
-                        Director Approved
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </span>
+                  )
+                },
+                {
+                  header: "Score",
+                  render: (r) => <span className="font-black text-emerald-700">{r.totalScore?.toFixed(2) ?? "—"}%</span>
+                }
+              ]}
+              renderActions={(r) => (
+                <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-100 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700 border border-emerald-200">
+                  <CheckCircle2 className="h-3 w-3" />
+                  Director Approved
+                </span>
+              )}
+              emptyMessage={t("noData")}
+            />
           </div>
         )}
       </div>

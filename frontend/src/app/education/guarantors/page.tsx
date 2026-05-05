@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { guarantorApi, witnessApi, contractApi, userApi, employeeApi } from "@/lib/api";
 import { Guarantor, Witness, Contract } from "@/types";
 import { Shield, Plus, Trash2, Edit, Eye, X, Users } from "lucide-react";
+import GroupedTable from "@/components/GroupedTable";
 
 export default function GuarantorsPage() {
   const { t } = useLanguage();
@@ -223,64 +224,59 @@ export default function GuarantorsPage() {
               Active Contracts (Select to Manage)
             </h2>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                <tr>
-                  <th className="px-6 py-4">ID</th>
-                  <th className="px-6 py-4">{t("fullName")}</th>
-                  <th className="px-6 py-4">Department</th>
-                  <th className="px-6 py-4">{t("university")}</th>
-                  <th className="px-6 py-4">{t("program")}</th>
-                  <th className="px-6 py-4">Signed Date</th>
-                  <th className="px-6 py-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y text-xs">
-                {contracts.length > 0 ? (
-                  contracts.map((c) => {
-                    const isSelected = selectedContract === String(c.id);
-                    return (
-                      <tr key={c.id} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="px-6 py-4 font-bold text-blue-600">CON-{c.id}</td>
-                        <td className="px-6 py-4 font-bold text-gray-900">
-                          {c.employeeName && c.employeeName !== "Keycloak User"
-                            ? c.employeeName 
-                            : users.find(u => String(u.id) === String(c.employeeId))?.fullName || c.employeeName || `EMP-${c.employeeId}`}
-                        </td>
-                        <td className="px-6 py-4 text-xs italic text-gray-600">
-                          {c.employeeDepartment || "—"}
-                        </td>
-                        <td className="px-6 py-4 font-medium text-gray-700">{c.university || "-"}</td>
-                        <td className="px-6 py-4 font-medium text-gray-500">{c.program}</td>
-                        <td className="px-6 py-4 font-medium text-gray-700">
-                          {c.contractSignedDate ? new Date(c.contractSignedDate).toLocaleDateString() : "—"}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => handleContractChange(String(c.id))}
-                            className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
-                              isSelected
-                                ? "bg-blue-600 text-white shadow-blue-200"
-                                : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
-                            }`}
-                          >
-                            {isSelected ? "Selected" : "Manage"}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
-                      {t("noData")}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <GroupedTable
+            rows={contracts}
+            groupBy={(c) => c.program || "General"}
+            rowKey={(c) => c.id}
+            columns={[
+              {
+                header: "ID",
+                render: (c) => <span className="font-bold text-blue-600">CON-{c.id}</span>
+              },
+              {
+                header: t("fullName"),
+                render: (c) => (
+                  <span className="font-bold text-gray-900">
+                    {c.employeeName && c.employeeName !== "Keycloak User"
+                      ? c.employeeName 
+                      : users.find(u => String(u.id) === String(c.employeeId))?.fullName || c.employeeName || `EMP-${c.employeeId}`}
+                  </span>
+                )
+              },
+              {
+                header: "Department",
+                render: (c) => <span className="text-xs italic text-gray-600">{c.employeeDepartment || "—"}</span>
+              },
+              {
+                header: t("university"),
+                key: "university" as any
+              },
+              {
+                header: "Signed Date",
+                render: (c) => (
+                  <span className="font-medium text-gray-700">
+                    {c.contractSignedDate ? new Date(c.contractSignedDate).toLocaleDateString() : "—"}
+                  </span>
+                )
+              }
+            ]}
+            renderActions={(c) => {
+              const isSelected = selectedContract === String(c.id);
+              return (
+                <button
+                  onClick={() => handleContractChange(String(c.id))}
+                  className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
+                    isSelected
+                      ? "bg-blue-600 text-white shadow-blue-200"
+                      : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
+                  }`}
+                >
+                  {isSelected ? "Selected" : "Manage"}
+                </button>
+              );
+            }}
+            emptyMessage={t("noData")}
+          />
         </div>
 
         {showForm && (

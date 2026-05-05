@@ -18,6 +18,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { EducationOpportunity } from "@/types";
 import { educationOpportunityApi } from "@/lib/api";
 
+import GroupedTable from "@/components/GroupedTable";
+
 // INSA Organizational Hierarchy
 interface OrgNode {
   id: string;
@@ -834,118 +836,79 @@ export default function EducationOpportunitiesPage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400 border-b border-gray-100">
-                <tr>
-                  <th className="px-6 py-5">{t("educationType")}</th>
-                  <th className="px-6 py-5">{t("educationLevel")}</th>
-                  <th className="px-6 py-5">{t("institution")}</th>
-                  <th className="px-6 py-5">Target Departments</th>
-                  <th className="px-6 py-5">{t("deadline")}</th>
-                  <th className="px-6 py-5">{t("status")}</th>
-                  {isCenterUser && (
-                    <th className="px-6 py-5 text-right">{t("actions")}</th>
-                  )}
-                </tr>
-              </thead>
-              <tbody className="divide-y text-gray-600">
-                {visibleOpportunities.map((opp) => {
-                  const targets =
-                    opp.targetDepartments && opp.targetDepartments.length > 0
-                      ? opp.targetDepartments
-                      : opp.department
-                        ? [opp.department]
-                        : [];
+          <GroupedTable
+            rows={visibleOpportunities}
+            groupBy={(opp) => opp.educationLevel || "General"}
+            rowKey={(opp) => opp.id}
+            columns={[
+              {
+                header: t("educationType"),
+                render: (opp) => <span className="font-bold text-gray-900 uppercase tracking-tight">{opp.educationType}</span>
+              },
+              {
+                header: t("institution"),
+                render: (opp) => <span className="font-medium text-gray-800">{opp.institution}</span>
+              },
+              {
+                header: "Target Departments",
+                render: (opp) => {
+                  const targets = opp.targetDepartments && opp.targetDepartments.length > 0 ? opp.targetDepartments : opp.department ? [opp.department] : [];
                   return (
-                    <tr
-                      key={opp.id}
-                      className="hover:bg-gray-50/50 transition-colors group"
-                    >
-                      <td className="px-6 py-5 font-bold text-gray-900 uppercase tracking-tight">
-                        {opp.educationType}
-                      </td>
-                      <td className="px-6 py-5 font-medium text-gray-600 italic text-xs">
-                        {opp.educationLevel}
-                      </td>
-                      <td className="px-6 py-5 font-medium text-gray-800">
-                        {opp.institution}
-                      </td>
-                      <td className="px-6 py-5">
-                        <div className="flex flex-wrap gap-1.5 max-w-md">
-                          {(expandedRows.has(opp.id)
-                            ? targets
-                            : targets.slice(0, 3)
-                          ).map((department) => (
-                            <span
-                              key={`${opp.id}-${department}`}
-                              className="rounded-lg bg-blue-50/50 border border-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-600 uppercase tracking-widest shadow-sm"
-                            >
-                              {getDeptLabel(department)}
-                            </span>
-                          ))}
-                          {targets.length > 3 && (
-                            <button
-                              onClick={() => toggleRow(opp.id)}
-                              className="rounded-lg bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-500 hover:bg-gray-200 transition-colors border border-gray-200"
-                            >
-                              {expandedRows.has(opp.id)
-                                ? "Show Less"
-                                : `+${targets.length - 3} more...`}
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-5 text-xs font-bold text-gray-500 whitespace-nowrap">
-                        {opp.deadline || "-"}
-                      </td>
-                      <td className="px-6 py-5">
-                        <StatusBadge
-                          status={
-                            opp.deadline &&
-                            new Date(opp.deadline) <
-                              new Date(new Date().setHours(0, 0, 0, 0))
-                              ? "EXPIRED"
-                              : opp.status
-                          }
-                        />
-                      </td>
-                      {isCenterUser && (
-                        <td className="px-6 py-5 text-right">
-                          <div className="flex justify-end gap-3">
-                            <button
-                              onClick={() => handleEdit(opp)}
-                              className="rounded-lg p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
-                              title={t("edit")}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(opp.id)}
-                              className="rounded-lg p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all"
-                              title={t("delete")}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
+                    <div className="flex flex-wrap gap-1.5 max-w-md">
+                      {(expandedRows.has(opp.id) ? targets : targets.slice(0, 3)).map((department) => (
+                        <span key={`${opp.id}-${department}`} className="rounded-lg bg-blue-50/50 border border-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-600 uppercase tracking-widest shadow-sm">
+                          {getDeptLabel(department)}
+                        </span>
+                      ))}
+                      {targets.length > 3 && (
+                        <button
+                          onClick={() => toggleRow(opp.id)}
+                          className="rounded-lg bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-500 hover:bg-gray-200 transition-colors border border-gray-200"
+                        >
+                          {expandedRows.has(opp.id) ? "Show Less" : `+${targets.length - 3} more...`}
+                        </button>
                       )}
-                    </tr>
+                    </div>
                   );
-                })}
-                {visibleOpportunities.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={isCenterUser ? 7 : 6}
-                      className="p-8 text-center text-gray-500"
-                    >
-                      {t("noData")}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                }
+              },
+              {
+                header: t("deadline"),
+                render: (opp) => <span className="text-xs font-bold text-gray-500 whitespace-nowrap">{opp.deadline || "-"}</span>
+              },
+              {
+                header: t("status"),
+                render: (opp) => (
+                  <StatusBadge
+                    status={
+                      opp.deadline && new Date(opp.deadline) < new Date(new Date().setHours(0, 0, 0, 0))
+                        ? "EXPIRED"
+                        : opp.status
+                    }
+                  />
+                )
+              }
+            ]}
+            renderActions={isCenterUser ? (opp) => (
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => handleEdit(opp)}
+                  className="rounded-lg p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
+                  title={t("edit")}
+                >
+                  <Edit className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => handleDelete(opp.id)}
+                  className="rounded-lg p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all"
+                  title={t("delete")}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            ) : undefined}
+            emptyMessage={t("noData")}
+          />
         </div>
       </div>
     </DashboardLayout>

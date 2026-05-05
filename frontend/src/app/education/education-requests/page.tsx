@@ -30,6 +30,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import StatusBadge from "@/components/StatusBadge";
+import GroupedTable from "@/components/GroupedTable";
 
 interface Candidate {
   id: number | string; // string for manual entries
@@ -786,98 +787,74 @@ export default function EducationRequestsPage() {
               </div>
             </div>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50/50 text-[10px] font-bold uppercase tracking-widest text-gray-400 border-b border-gray-100">
-                <tr>
-                  <th className="px-8 py-5"># ID</th>
-                  <th className="px-8 py-5">{t("fullName")}</th>
-                  <th className="px-8 py-5">{t("department")}</th>
-                  <th className="px-8 py-5">Goal / Field</th>
-                  <th className="px-8 py-5">Year</th>
-                  <th className="px-8 py-5">{t("status")}</th>
-                  <th className="px-8 py-5 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50 text-[13px]">
-                {filteredRequests.map((req) => (
-                  <tr
-                    key={req.id}
-                    className="hover:bg-gray-50/80 transition-all"
+          <GroupedTable
+            rows={filteredRequests}
+            groupBy={(req) => req.fieldOfStudy || (req as any).educationType || "General"}
+            subGroupBy={(req) => req.employeeDepartment || "Unknown"}
+            rowKey={(req) => req.id}
+            columns={[
+              {
+                header: "# ID",
+                render: (req) => <span className="font-mono text-[10px] font-bold text-blue-600">REQ-{req.id.toString().slice(-6)}</span>
+              },
+              {
+                header: t("fullName"),
+                render: (req) => <span className="font-bold text-gray-900">{req.employeeName}</span>
+              },
+              {
+                header: "Goal / Field",
+                render: (req) => (
+                  <div className="flex flex-col">
+                    <span className="font-medium text-gray-800">{req.fieldOfStudy || (req as any).educationType}</span>
+                    <span className="text-[10px] text-gray-400 italic">{(req as any).educationLevel || (req as any).targetEducationLevel}</span>
+                  </div>
+                )
+              },
+              {
+                header: "Year",
+                key: "budgetYear" as any
+              },
+              {
+                header: t("status"),
+                render: (req) => <StatusBadge status={req.status} />
+              }
+            ]}
+            renderActions={(req) => (
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => {
+                    setSelectedRequest(req);
+                  }}
+                  className="rounded-lg bg-gray-50 p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all border border-gray-100"
+                  title="View Detail"
+                >
+                  <Eye className="h-4 w-4" />
+                </button>
+                {req.status === "PENDING" && isDepartmentHead && (
+                  <button
+                    onClick={() => submitToCenter(req.id)}
+                    disabled={busyId === req.id}
+                    className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 disabled:opacity-50 transition-all"
                   >
-                    <td className="px-8 py-5 font-mono text-[11px] font-bold text-gray-300">
-                      REQ-{req.id}
-                    </td>
-                    <td className="px-8 py-5 text-gray-900">
-                      <div className="flex flex-col">
-                        <span className="font-bold text-gray-900">
-                          {req.employeeName}
-                        </span>
-                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">
-                          {req.candidateId || req.employeeId}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-5 text-xs italic text-gray-600">
-                      {req.employeeDepartment || "—"}
-                    </td>
-                    <td className="px-8 py-5">
-                      <div className="flex flex-col">
-                        <span className="font-bold text-gray-800">
-                          {req.fieldOfStudy || t("notSpecified")}
-                        </span>
-                        <span className="text-xs font-medium text-gray-500 uppercase tracking-tighter">
-                          {req.educationLevel} • {req.institution}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-5 text-gray-600 font-bold">
-                      {req.budgetYear || "-"}
-                    </td>
-                    <td className="px-8 py-5">
-                      <StatusBadge status={req.status as any} />
-                    </td>
-                    <td className="px-8 py-5 text-right">
-                      <div className="flex justify-end gap-3">
-                        <button
-                          onClick={() => setSelectedRequest(req)}
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 border border-gray-100 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
-                        >
-                          <Eye className="h-3.5 w-3.5" />
-                          {t("view") || "View"}
-                        </button>
-                        {req.status === "SUBMITTED_TO_CENTER" &&
-                          (isCenter || isAdmin) && (
-                            <button
-                              onClick={() => approveRequest(req.id)}
-                              disabled={busyId === req.id}
-                              className="inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-4 py-2 text-[10px] font-bold text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm border border-emerald-100 uppercase tracking-widest italic"
-                            >
-                              <CheckCircle2 />
-                              Forward to HR
-                            </button>
-                          )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {requests.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="py-24 text-center">
-                      <div className="flex flex-col items-center opacity-40">
-                        <FileText className="h-12 w-12 text-gray-300 mb-4" />
-                        <p className="text-base font-bold text-gray-900">
-                          No submissions found
-                        </p>
-                        <p className="text-xs font-medium">
-                          Any requests you make will appear here.
-                        </p>
-                      </div>
-                    </td>
-                  </tr>
+                    <Send className="h-3 w-3" />
+                    Submit to Center
+                  </button>
                 )}
-              </tbody>
-            </table>
+                {req.status === "SUBMITTED_TO_CENTER" && isCenter && (
+                  <button
+                    onClick={() => approveRequest(req.id)}
+                    disabled={busyId === req.id}
+                    className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50 transition-all"
+                  >
+                    <CheckCircle2 className="h-3 w-3" />
+                    Forward to HR
+                  </button>
+                )}
+              </div>
+            )}
+            emptyMessage="No requests found matching your criteria."
+          />
+        </div>
           </div>
         </div>
       </div>
