@@ -3,6 +3,7 @@ package com.insa.training.dto;
 import com.insa.training.enums.TrainingStatus;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -25,4 +26,5 @@ public class TrainingRequestDto {
     private String requesterPhone;
     private String requesterGender;
     private String requesterPosition;
+    private List<TrainingTraineeDto> trainees;
 }

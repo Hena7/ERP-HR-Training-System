@@ -3,6 +3,7 @@ package com.insa.training.dto;
 import com.insa.training.enums.TrainingStatus;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -31,4 +32,5 @@ public class TrainingRequestResponse {
     private Long contractId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private List<TrainingTraineeDto> trainees;
 }

@@ -9,8 +9,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.insa.training.dto.TrainingTraineeDto;
+import com.insa.training.entity.TrainingTrainee;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +41,22 @@ public class TrainingRequestService {
                 .requesterPosition(dto.getRequesterPosition())
                 .status(TrainingStatus.SUBMITTED)
                 .build();
+
+        if (dto.getTrainees() != null) {
+            List<TrainingTrainee> trainees = dto.getTrainees().stream()
+                    .map(t -> TrainingTrainee.builder()
+                            .employeeId(t.getEmployeeId())
+                            .fullName(t.getFullName())
+                            .department(t.getDepartment())
+                            .email(t.getEmail())
+                            .phone(t.getPhone())
+                            .city(t.getCity())
+                            .houseNo(t.getHouseNo())
+                            .trainingRequest(request)
+                            .build())
+                    .collect(Collectors.toList());
+            request.setTrainees(trainees);
+        }
 
         return mapToResponse(repository.save(request));
     }
@@ -97,6 +116,18 @@ public class TrainingRequestService {
                 .contractId(request.getContractId())
                 .createdAt(request.getCreatedAt())
                 .updatedAt(request.getUpdatedAt())
+                .trainees(request.getTrainees() == null ? new ArrayList<>() : request.getTrainees().stream()
+                        .map(t -> TrainingTraineeDto.builder()
+                                .id(t.getId())
+                                .employeeId(t.getEmployeeId())
+                                .fullName(t.getFullName())
+                                .department(t.getDepartment())
+                                .email(t.getEmail())
+                                .phone(t.getPhone())
+                                .city(t.getCity())
+                                .houseNo(t.getHouseNo())
+                                .build())
+                        .collect(Collectors.toList()))
                 .build();
     }
 }

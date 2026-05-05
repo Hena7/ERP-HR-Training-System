@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import StatusBadge from "@/components/StatusBadge";
 import { trainingRequestApi } from "@/app/training/services/trainingApi";
 import { TrainingRequest } from "@/types/training";
+import GroupedTable from "@/components/GroupedTable";
 import {
   BookOpen,
   Filter,
@@ -117,87 +118,71 @@ export default function TrainingRequestsListPage() {
 
         {/* Table */}
         <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-100">
-            <thead className="bg-gray-50/80 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-              <tr>
-                {[
-                  "REQ-ID",
-                  t("department"),
-                  t("trainingTitle"),
-                  t("estimatedCost") + " (Total)",
-                  t("numTrainees"),
-                  t("status"),
-                  t("actions"),
-                ].map((h) => (
-                  <th key={h} className="px-6 py-4 text-left">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {loading ? (
-                <tr>
-                  <td
-                    colSpan={7}
-                    className="py-16 text-center text-sm text-gray-400"
-                  >
-                    {t("loading")}
-                  </td>
-                </tr>
-              ) : filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="py-16 text-center">
-                    <div className="flex flex-col items-center opacity-40">
-                      <FileText className="h-10 w-10 text-gray-300 mb-3" />
-                      <p className="text-sm font-bold text-gray-700">
-                        {t("noData")}
-                      </p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((req) => (
-                  <tr
-                    key={req.id}
-                    className="hover:bg-gray-50/80 transition-colors"
-                  >
-                    <td className="px-6 py-4 text-xs font-bold text-blue-600">
-                      TRQ-{req.id.toString().slice(-6)}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                      {req.department}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-gray-800 max-w-[200px] truncate">
-                      {req.trainingTitle}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-700">
-                      {req.estimatedCost.toLocaleString()} Birr
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">
-                      {req.numTrainees}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold ${statusColor[req.status] || "bg-gray-100 text-gray-700"}`}
-                      >
-                        {req.status.replace(/_/g, " ")}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => setSelected(req)}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 border border-gray-100 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
-                      >
-                        <Eye className="h-3.5 w-3.5" />
-                        {t("view")}
-                      </button>
-                    </td>
-                  </tr>
-                ))
+          {loading ? (
+            <div className="py-16 text-center text-sm text-gray-400">
+              {t("loading")}
+            </div>
+          ) : (
+            <GroupedTable
+              rows={filtered}
+              groupBy={(r) => r.trainingTitle}
+              rowKey={(r) => r.id}
+              emptyMessage={t("noData")}
+              columns={[
+                {
+                  header: "REQ-ID",
+                  render: (r) => (
+                    <span className="font-bold text-blue-600">
+                      TRQ-{r.id.toString().slice(-6)}
+                    </span>
+                  ),
+                },
+                {
+                  header: t("department"),
+                  key: "department",
+                  render: (r) => (
+                    <span className="font-medium text-gray-900">
+                      {r.department}
+                    </span>
+                  ),
+                },
+                {
+                  header: t("estimatedCost") + " (Total)",
+                  render: (r) => (
+                    <span className="font-medium text-gray-700">
+                      {r.estimatedCost.toLocaleString()} Birr
+                    </span>
+                  ),
+                },
+                {
+                  header: t("numTrainees"),
+                  key: "numTrainees",
+                  render: (r) => (
+                    <span className="text-gray-700">{r.numTrainees}</span>
+                  ),
+                },
+                {
+                  header: t("status"),
+                  render: (r) => (
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold ${statusColor[r.status] || "bg-gray-100 text-gray-700"}`}
+                    >
+                      {r.status.replace(/_/g, " ")}
+                    </span>
+                  ),
+                },
+              ]}
+              renderActions={(r) => (
+                <button
+                  onClick={() => setSelected(r)}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 border border-gray-100 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  {t("view")}
+                </button>
               )}
-            </tbody>
-          </table>
+            />
+          )}
         </div>
       </div>
       {/* Detail Modal */}

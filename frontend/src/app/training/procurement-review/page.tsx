@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { calculateObligation } from "@/app/training/services/obligationCalculator";
+import GroupedTable from "@/components/GroupedTable";
 
 const THRESHOLD = 200000;
 
@@ -43,12 +44,26 @@ export default function ProcurementReviewPage() {
   const load = () => {
     setLoading(true);
     trainingRequestApi.getAll().then(({ data }) => {
-      setRequests(
-        data.filter((r: TrainingRequest) => r.status === "SUBMITTED"),
-      );
+      const filtered = data.filter((r: TrainingRequest) => r.status === "SUBMITTED");
+      setRequests(filtered);
       setLoading(false);
     });
   };
+
+  const flattenedTrainees = useMemo(() => {
+    const flat: { request: TrainingRequest; trainee: any }[] = [];
+    requests.forEach(req => {
+      if (req.trainees && req.trainees.length > 0) {
+        req.trainees.forEach(t => {
+          flat.push({ request: req, trainee: t });
+        });
+      } else {
+        // Fallback if no trainees are assigned yet (shouldn't happen with new logic but for safety)
+        flat.push({ request: req, trainee: { fullName: "Not assigned", employeeId: "N/A" } });
+      }
+    });
+    return flat;
+  }, [requests]);
 
   useEffect(load, []);
 
@@ -110,131 +125,85 @@ export default function ProcurementReviewPage() {
         </div>
 
         <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-100">
-            <thead className="bg-gray-50/80 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-              <tr>
-                {[
-                  "REQ-ID",
-                  t("department"),
-                  t("trainingTitle"),
-                  t("estimatedCost"),
-                  "Service Obligation",
-                  t("numTrainees"),
-                  t("actions"),
-                ].map((h) => (
-                  <th key={h} className="px-6 py-4 text-left">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {loading ? (
-                <tr>
-                  <td
-                    colSpan={7}
-                    className="py-16 text-center text-sm text-gray-400"
-                  >
-                    {t("loading")}
-                  </td>
-                </tr>
-              ) : requests.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="py-16 text-center">
-                    <div className="flex flex-col items-center opacity-40">
-                      <CheckCircle2 className="h-10 w-10 text-gray-300 mb-3" />
-                      <p className="text-sm font-bold text-gray-700">
-                        No pending requests
-                      </p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                requests.map((req) => (
-                  <tr
-                    key={req.id}
-                    className="hover:bg-gray-50/80 transition-colors"
-                  >
-                    <td className="px-6 py-4 text-xs font-bold text-blue-600">
-                      TRQ-{req.id.toString().slice(-6)}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                      {req.department}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-gray-800 max-w-[180px] truncate">
-                      {req.trainingTitle}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center gap-1 text-sm font-bold ${(req.estimatedCost / (req.numTrainees || 1)) >= THRESHOLD ? "text-red-600" : "text-emerald-600"}`}
-                      >
-                        {req.estimatedCost.toLocaleString()} Birr
+          {loading ? (
+            <div className="py-16 text-center text-sm text-gray-400">
+              {t("loading")}
+            </div>
+          ) : (
+            <GroupedTable
+              rows={flattenedTrainees}
+              groupBy={(r) => r.request.trainingTitle}
+              subGroupBy={(r) => `TRQ-${r.request.id.toString().slice(-6)} — ${r.request.department}`}
+              rowKey={(r) => `${r.request.id}-${r.trainee.employeeId || Math.random()}`}
+              emptyMessage="No pending requests found"
+              columns={[
+                {
+                  header: "Employee ID",
+                  render: (r) => <span className="font-mono text-[10px] font-bold text-gray-900">{r.trainee.employeeId}</span>
+                },
+                {
+                  header: "Participant Name",
+                  render: (r) => <span className="font-bold text-gray-900">{r.trainee.fullName}</span>
+                },
+                {
+                  header: "Cost (Individual)",
+                  render: (r) => {
+                    const individualCost = r.request.estimatedCost / (r.request.numTrainees || 1);
+                    return (
+                      <span className={`text-xs font-bold ${individualCost >= THRESHOLD ? "text-red-600" : "text-emerald-600"}`}>
+                        {individualCost.toLocaleString()} Birr
                       </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      {(req.estimatedCost / (req.numTrainees || 1)) >= THRESHOLD ? (
-                        (() => {
-                          const individualCost = req.estimatedCost / (req.numTrainees || 1);
-                          const obl = calculateObligation(individualCost);
-                          return (
-                            <span className="inline-flex flex-col">
-                              <span className="text-xs font-bold text-amber-700">
-                                {obl.label}
-                              </span>
-                              <span className="text-[10px] text-gray-400">
-                                {individualCost.toLocaleString()} per trainee
-                              </span>
-                            </span>
-                          );
-                        })()
-                      ) : (
-                        <span className="text-[10px] text-emerald-600 font-bold">
-                          No obligation
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">
-                      {req.numTrainees}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => setSelected(req)}
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 border border-gray-100 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
-                        >
-                          <Eye className="h-3.5 w-3.5" />
-                          {t("view")}
-                        </button>
-                        <button
-                          onClick={() => setShowNoteModal(req)}
-                          disabled={busyId === req.id}
-                          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${(req.estimatedCost / (req.numTrainees || 1)) >= THRESHOLD ? "bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white"}`}
-                        >
-                          {(req.estimatedCost / (req.numTrainees || 1)) >= THRESHOLD ? (
-                            <>
-                              <FileSignature /> {t("requireContract")}
-                            </>
-                          ) : (
-                            <>
-                              <CheckCircle2 className="h-3.5 w-3.5" />{" "}
-                              {t("approveDirectly")}
-                            </>
-                          )}
-                        </button>
-                        <button
-                          onClick={() => handleReject(req.id)}
-                          disabled={busyId === req.id}
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700 hover:bg-red-600 hover:text-white transition-all shadow-sm"
-                        >
-                          <X className="h-3.5 w-3.5" /> {t("reject")}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                    );
+                  }
+                },
+                {
+                  header: "Obligation",
+                  render: (r) => {
+                    const individualCost = r.request.estimatedCost / (r.request.numTrainees || 1);
+                    if (individualCost >= THRESHOLD) {
+                      const obl = calculateObligation(individualCost);
+                      return <span className="text-[10px] font-bold text-amber-700">{obl.label}</span>;
+                    }
+                    return <span className="text-[10px] text-emerald-600 font-bold italic">No obligation</span>;
+                  }
+                }
+              ]}
+              renderActions={(r) => (
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    onClick={() => setSelected(r.request)}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 border border-gray-100 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                    {t("view")}
+                  </button>
+                  <button
+                    onClick={() => setShowNoteModal(r.request)}
+                    disabled={busyId === r.request.id}
+                    className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${(r.request.estimatedCost / (r.request.numTrainees || 1)) >= THRESHOLD ? "bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white"}`}
+                  >
+                    {(r.request.estimatedCost / (r.request.numTrainees || 1)) >= THRESHOLD ? (
+                      <>
+                        <FileSignature className="h-3 w-3" /> {t("requireContract")}
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="h-3.5 w-3.5" />{" "}
+                        {t("approveDirectly")}
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleReject(r.request.id)}
+                    disabled={busyId === r.request.id}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700 hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                  >
+                    <X className="h-3.5 w-3.5" /> {t("reject")}
+                  </button>
+                </div>
               )}
-            </tbody>
-          </table>
+            />
+          )}
         </div>
       </div>
 

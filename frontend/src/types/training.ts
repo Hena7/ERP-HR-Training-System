@@ -22,6 +22,18 @@ export interface TrainingRequest {
   contractId?: number;
   createdAt: string;
   updatedAt: string;
+  trainees?: TrainingTrainee[];
+}
+
+export interface TrainingTrainee {
+  id?: number;
+  employeeId: string;
+  fullName: string;
+  department: string;
+  email: string;
+  phone: string;
+  city: string;
+  houseNo?: string;
 }
 
 export type TrainingStatus =

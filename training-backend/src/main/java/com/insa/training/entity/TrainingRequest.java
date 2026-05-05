@@ -4,6 +4,8 @@ import com.insa.training.enums.TrainingStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "training_requests")
@@ -72,6 +74,10 @@ public class TrainingRequest {
 
     @Column(name = "contract_id")
     private Long contractId;
+
+    @OneToMany(mappedBy = "trainingRequest", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<TrainingTrainee> trainees = new ArrayList<>();
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

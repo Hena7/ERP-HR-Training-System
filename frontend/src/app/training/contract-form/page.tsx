@@ -20,6 +20,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { calculateObligation } from "@/app/training/services/obligationCalculator";
+import GroupedTable from "@/components/GroupedTable";
 
 const fieldClass =
   "w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all";
@@ -75,19 +76,33 @@ export default function TrainingContractFormPage() {
       setTrainees([]);
     } else {
       setSelectedRequest(r);
-      // Initialize trainees based on numTrainees
-      const count = r.numTrainees || 1;
-      setTrainees(
-        Array(count).fill({
-          employeeId: "",
-          fullName: "",
-          phone: "",
-          email: "",
-          department: "",
-          city: "",
-          houseNo: "",
-        }),
-      );
+      // Initialize trainees based on request data if available, otherwise based on numTrainees
+      if (r.trainees && r.trainees.length > 0) {
+        setTrainees(
+          r.trainees.map((t: any) => ({
+            employeeId: t.employeeId || "",
+            fullName: t.fullName || "",
+            phone: t.phone || "",
+            email: t.email || "",
+            department: t.department || "",
+            city: t.city || "",
+            houseNo: t.houseNo || "",
+          })),
+        );
+      } else {
+        const count = r.numTrainees || 1;
+        setTrainees(
+          Array(count).fill({
+            employeeId: "",
+            fullName: "",
+            phone: "",
+            email: "",
+            department: "",
+            city: "",
+            houseNo: "",
+          }),
+        );
+      }
       // Auto-fill cost and duration from requested estimate (individual basis)
       const numTrainees = r.numTrainees || 1;
       const individualCost = r.estimatedCost / numTrainees;
@@ -212,88 +227,78 @@ export default function TrainingContractFormPage() {
             </h2>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                <tr>
-                  <th className="px-6 py-4">ID</th>
-                  <th className="px-6 py-4">{t("fullName")}</th>
-                  <th className="px-6 py-4">{t("department")}</th>
-                  <th className="px-6 py-4">{t("trainingTitle")}</th>
-                  <th className="px-6 py-4 text-right">{t("actions")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y text-xs">
-                {loading ? (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="px-4 py-12 text-center text-gray-400"
+            {loading ? (
+              <div className="px-4 py-12 text-center text-gray-400">
+                <RefreshCw className="h-10 w-10 mx-auto mb-3 opacity-20 animate-spin" />
+                <p className="font-bold uppercase tracking-widest text-[10px]">
+                  Loading eligible requests...
+                </p>
+              </div>
+            ) : (
+              <GroupedTable
+                rows={eligibleRequests}
+                groupBy={(r) => r.trainingTitle}
+                rowKey={(r) => r.id}
+                emptyMessage="No eligible requests found"
+                columns={[
+                  {
+                    header: "ID",
+                    render: (r) => (
+                      <span className="font-bold text-blue-600">
+                        TRQ-{r.id.toString().slice(-6)}
+                      </span>
+                    ),
+                  },
+                  {
+                    header: t("fullName"),
+                    render: (r) =>
+                      r.requesterName && r.requesterName !== "Keycloak User"
+                        ? r.requesterName
+                        : employees.find(
+                            (e) => String(e.employeeId) === String(r.requesterId),
+                          )?.fullName ||
+                          r.requesterName ||
+                          "Keycloak User",
+                  },
+                  {
+                    header: t("department"),
+                    key: "department",
+                    render: (r) => r.department || "—",
+                  },
+                  {
+                    header: "Trainees",
+                    render: (r) => (
+                      <div className="flex flex-col gap-0.5">
+                        {r.trainees && r.trainees.length > 0 ? (
+                          r.trainees.map((t: any, idx: number) => (
+                            <span key={idx} className="text-[10px] text-gray-500 font-medium">
+                              • {t.fullName}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-[10px] text-gray-400 italic">No trainees assigned</span>
+                        )}
+                      </div>
+                    )
+                  }
+                ]}
+                renderActions={(r) => {
+                  const isSelected = selectedRequest?.id === r.id;
+                  return (
+                    <button
+                      onClick={() => handleSelectRequest(r)}
+                      className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
+                        isSelected
+                          ? "bg-blue-600 text-white shadow-blue-200"
+                          : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
+                      }`}
                     >
-                      <RefreshCw className="h-10 w-10 mx-auto mb-3 opacity-20 animate-spin" />
-                      <p className="font-bold uppercase tracking-widest text-[10px]">
-                        Loading eligible requests...
-                      </p>
-                    </td>
-                  </tr>
-                ) : eligibleRequests.length > 0 ? (
-                  eligibleRequests.map((r) => {
-                    const isSelected = selectedRequest?.id === r.id;
-                    return (
-                      <tr
-                        key={r.id}
-                        className={`transition-colors ${isSelected ? "bg-blue-50/60" : "hover:bg-gray-50/50"}`}
-                      >
-                        <td className="px-6 py-4 font-bold text-blue-600">
-                          TRQ-{r.id.toString().slice(-6)}
-                        </td>
-                        <td className="px-6 py-4 font-bold text-gray-900">
-                          {r.requesterName &&
-                          r.requesterName !== "Keycloak User"
-                            ? r.requesterName
-                            : employees.find(
-                                (e) =>
-                                  String(e.employeeId) ===
-                                  String(r.requesterId),
-                              )?.fullName ||
-                              r.requesterName ||
-                              "Keycloak User"}
-                        </td>
-                        <td className="px-6 py-4 font-medium text-gray-600">
-                          {r.department || "—"}
-                        </td>
-                        <td className="px-6 py-4 font-medium text-gray-700 text-xs italic">
-                          {r.trainingTitle}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => handleSelectRequest(r)}
-                            className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
-                              isSelected
-                                ? "bg-blue-600 text-white shadow-blue-200"
-                                : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
-                            }`}
-                          >
-                            {isSelected ? "Selected" : "Select"}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="px-4 py-12 text-center text-gray-400"
-                    >
-                      <FileText className="h-10 w-10 mx-auto mb-3 opacity-20" />
-                      <p className="font-bold uppercase tracking-widest text-[10px]">
-                        No eligible requests found
-                      </p>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                      {isSelected ? "Selected" : "Select"}
+                    </button>
+                  );
+                }}
+              />
+            )}
           </div>
         </div>
 
