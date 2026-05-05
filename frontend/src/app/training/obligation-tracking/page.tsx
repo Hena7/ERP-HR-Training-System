@@ -226,6 +226,11 @@ export default function ObligationTrackingPage() {
       icon: AlertTriangle,
       label: "Violated",
     },
+    VIOLATION_PAID: {
+      color: "bg-purple-100 text-purple-800",
+      icon: CheckCircle2,
+      label: "Violation Paid",
+    },
   };
 
   const fieldClass =
@@ -517,6 +522,17 @@ export default function ObligationTrackingPage() {
                                     Violate
                                   </button>
                                 </>
+                              )}
+                              {ob.status === "VIOLATED" && (
+                                <button
+                                  onClick={() =>
+                                    handleStatusChange(ob.id, "VIOLATION_PAID")
+                                  }
+                                  disabled={busyId === ob.id}
+                                  className="rounded-lg bg-purple-50 px-2.5 py-1 text-[10px] font-bold text-purple-700 hover:bg-purple-600 hover:text-white transition-all outline outline-1 outline-purple-100"
+                                >
+                                  Complete Payment
+                                </button>
                               )}
                             </div>
                           </td>

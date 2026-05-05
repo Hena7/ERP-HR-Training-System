@@ -62,12 +62,15 @@ export default function TrainingContractFormPage() {
 
   useEffect(() => {
     setLoading(true);
-    trainingRequestApi.getAll().then(({ data }) => {
-      setEligibleRequests(
-        data.filter((r: TrainingRequest) => r.status === "CONTRACT_REQUIRED"),
-      );
-      setLoading(false);
-    }).catch(() => setLoading(false));
+    trainingRequestApi
+      .getAll()
+      .then(({ data }) => {
+        setEligibleRequests(
+          data.filter((r: TrainingRequest) => r.status === "CONTRACT_REQUIRED"),
+        );
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, [success]);
 
   const handleSelectRequest = (r: TrainingRequest) => {
@@ -252,12 +255,13 @@ export default function TrainingContractFormPage() {
                     ),
                   },
                   {
-                    header: t("fullName"),
+                    header: t("requesterName"),
                     render: (r) =>
                       r.requesterName && r.requesterName !== "Keycloak User"
                         ? r.requesterName
                         : employees.find(
-                            (e) => String(e.employeeId) === String(r.requesterId),
+                            (e) =>
+                              String(e.employeeId) === String(r.requesterId),
                           )?.fullName ||
                           r.requesterName ||
                           "Keycloak User",
@@ -273,16 +277,21 @@ export default function TrainingContractFormPage() {
                       <div className="flex flex-col gap-0.5">
                         {r.trainees && r.trainees.length > 0 ? (
                           r.trainees.map((t: any, idx: number) => (
-                            <span key={idx} className="text-[10px] text-gray-500 font-medium">
+                            <span
+                              key={idx}
+                              className="text-[10px] text-gray-500 font-medium"
+                            >
                               • {t.fullName}
                             </span>
                           ))
                         ) : (
-                          <span className="text-[10px] text-gray-400 italic">No trainees assigned</span>
+                          <span className="text-[10px] text-gray-400 italic">
+                            No trainees assigned
+                          </span>
                         )}
                       </div>
-                    )
-                  }
+                    ),
+                  },
                 ]}
                 renderActions={(r) => {
                   const isSelected = selectedRequest?.id === r.id;

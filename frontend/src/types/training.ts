@@ -93,7 +93,7 @@ export interface TrainingObligation {
   startDate: string;
   endDate: string;
   obligationMonths: number;
-  status: "ACTIVE" | "COMPLETED" | "VIOLATED";
+  status: "ACTIVE" | "COMPLETED" | "VIOLATED" | "VIOLATION_PAID";
   releasedAt?: string;
   guarantorReleased?: boolean;
   createdAt: string;

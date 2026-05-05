@@ -43,16 +43,22 @@ public class TrainingObligationService {
 
     @Transactional
     public TrainingObligationResponse updateStatus(Long id, ContractStatus status) {
-        TrainingObligation obligation = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Obligation not found"));
-        
-        obligation.setStatus(status);
-        if (status == ContractStatus.COMPLETED) {
-            obligation.setReleasedAt(LocalDateTime.now());
-            obligation.setGuarantorReleased(true);
+        try {
+            TrainingObligation obligation = repository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Obligation not found"));
+            
+            obligation.setStatus(status);
+            if (status == ContractStatus.COMPLETED || status == ContractStatus.VIOLATION_PAID) {
+                obligation.setReleasedAt(LocalDateTime.now());
+                obligation.setGuarantorReleased(true);
+            }
+            
+            return mapToResponse(repository.save(obligation));
+        } catch (Exception e) {
+            System.err.println("Error updating obligation status: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
-        
-        return mapToResponse(repository.save(obligation));
     }
 
     private TrainingObligationResponse mapToResponse(TrainingObligation obligation) {
