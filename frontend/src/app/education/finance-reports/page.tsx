@@ -152,12 +152,21 @@ export default function FinanceReportsPage() {
           </div>
           <GroupedTable
             rows={contracts}
-            groupBy={(c) => (c as any).program || "Education"}
+            groupBy={(c) => `${c.program || "Education"} — ${c.employeeName}`}
             rowKey={(c) => c.id}
             columns={[
               {
                 header: "ID",
                 render: (c) => <span className="font-bold text-emerald-600">CTR-{c.id.toString().slice(-6)}</span>
+              },
+              {
+                header: "Employee",
+                render: (c) => (
+                  <div>
+                    <p className="text-xs font-bold text-gray-900">{c.employeeName}</p>
+                    <p className="text-[10px] text-gray-400">{(c as any).employeeDepartment || ""}</p>
+                  </div>
+                )
               },
               {
                 header: "Institution",
@@ -297,7 +306,7 @@ export default function FinanceReportsPage() {
               <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
                 <div className="border-b border-gray-50 bg-gray-50/30 px-6 py-4">
                   <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400">
-                    Expense History for CTR-{selectedContract.id.toString().slice(-6)}
+                    Expense History for {selectedContract.employeeName} (CTR-{selectedContract.id.toString().slice(-6)})
                   </h2>
                 </div>
                 <div className="overflow-x-auto">
