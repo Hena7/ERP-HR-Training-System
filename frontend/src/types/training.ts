@@ -56,6 +56,7 @@ export interface TrainingContract {
   trainingCountry: string;
   trainingCity: string;
   trainingType: string;
+  trainingTitle?: string;
   totalCost: number;
   contractDurationMonths: number;
   signedDate: string;

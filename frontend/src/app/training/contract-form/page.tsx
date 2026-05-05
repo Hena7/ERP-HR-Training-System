@@ -179,6 +179,8 @@ export default function TrainingContractFormPage() {
             employeeDepartment: t.department || selectedRequest.department,
             email: t.email,
             phone: t.phone,
+            trainingType: form.trainingType,
+            trainingTitle: selectedRequest.trainingTitle,
             totalCost: parseFloat(form.totalCost),
             contractDurationMonths: parseInt(form.contractDurationMonths),
           }),

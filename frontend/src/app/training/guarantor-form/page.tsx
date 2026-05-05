@@ -9,6 +9,7 @@ import {
   trainingWitnessApi,
 } from "@/app/training/services/trainingApi";
 import { TrainingContract, TrainingGuarantor, TrainingWitness } from "@/types/training";
+import GroupedTable from "@/components/GroupedTable";
 import {
   Shield,
   Plus,
@@ -173,52 +174,65 @@ export default function TrainingGuarantorFormPage() {
             </h2>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                <tr>
-                  <th className="px-6 py-4">ID</th>
-                  <th className="px-6 py-4">{t("fullName")}</th>
-                  <th className="px-6 py-4">{t("department")}</th>
-                  <th className="px-6 py-4">Total Cost (ETB)</th>
-                  <th className="px-6 py-4 text-right">{t("actions")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {contracts.length > 0 ? contracts.map((c) => {
-                  const isSelected = selectedContractId === c.id;
-                  const maxG = c.totalCost >= 800_000 ? 2 : 1;
-                  return (
-                    <tr key={c.id} className={`transition-colors ${isSelected ? "bg-blue-50/60" : "hover:bg-gray-50/50"}`}>
-                      <td className="px-6 py-4 text-xs font-bold text-blue-600">CTR-{c.id.toString().slice(-6)}</td>
-                      <td className="px-6 py-4 font-bold text-gray-900">{c.employeeName}</td>
-                      <td className="px-6 py-4 font-medium text-gray-600">{c.employeeDepartment || "—"}</td>
-                      <td className="px-6 py-4 font-black text-emerald-600">
-                        {c.totalCost.toLocaleString()} <span className="text-xs font-medium text-gray-400">(Max: {maxG})</span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => handleSelectContract(c.id)}
-                          className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
-                            isSelected
-                              ? "bg-blue-600 text-white shadow-blue-200"
-                              : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
-                          }`}
-                        >
-                          {isSelected ? "Selected" : "Select"}
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                }) : (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-gray-400">
-                      <FileText className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                      {t("noData")}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+            <GroupedTable
+              rows={contracts}
+              groupBy={(c) => c.trainingTitle || c.trainingType || "General Training"}
+              rowKey={(c) => c.id}
+              emptyMessage={t("noData")}
+              columns={[
+                {
+                  header: "ID",
+                  render: (c) => (
+                    <span className="font-bold text-blue-600">
+                      CTR-{c.id.toString().slice(-6)}
+                    </span>
+                  ),
+                },
+                {
+                  header: t("fullName"),
+                  render: (c) => (
+                    <span className="font-bold text-gray-900">{c.employeeName}</span>
+                  ),
+                },
+                {
+                  header: t("department"),
+                  render: (c) => (
+                    <span className="font-medium text-gray-600">
+                      {c.employeeDepartment || "—"}
+                    </span>
+                  ),
+                },
+                {
+                  header: "Total Cost (ETB)",
+                  render: (c) => {
+                    const maxG = c.totalCost >= 800_000 ? 2 : 1;
+                    return (
+                      <span className="font-black text-emerald-600">
+                        {c.totalCost.toLocaleString()}{" "}
+                        <span className="text-[10px] font-medium text-gray-400 italic">
+                          (Max: {maxG})
+                        </span>
+                      </span>
+                    );
+                  }
+                }
+              ]}
+              renderActions={(c) => {
+                const isSelected = selectedContractId === c.id;
+                return (
+                  <button
+                    onClick={() => handleSelectContract(c.id)}
+                    className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
+                      isSelected
+                        ? "bg-blue-600 text-white shadow-blue-200"
+                        : "bg-gray-50 text-gray-700 border border-gray-100 hover:bg-blue-600 hover:text-white"
+                    }`}
+                  >
+                    {isSelected ? "Selected" : "Select"}
+                  </button>
+                );
+              }}
+            />
           </div>
         </div>
 

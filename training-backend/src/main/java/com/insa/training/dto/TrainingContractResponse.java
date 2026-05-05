@@ -22,6 +22,7 @@ public class TrainingContractResponse {
     private String trainingCountry;
     private String trainingCity;
     private String trainingType;
+    private String trainingTitle;
     private Double totalCost;
     private Integer contractDurationMonths;
     private LocalDateTime signedDate;

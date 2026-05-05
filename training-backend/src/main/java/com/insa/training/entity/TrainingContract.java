@@ -48,6 +48,9 @@ public class TrainingContract {
     @Column(name = "training_type", nullable = false)
     private String trainingType;
 
+    @Column(name = "training_title")
+    private String trainingTitle;
+
     @Column(name = "total_cost", nullable = false)
     private Double totalCost;
 
