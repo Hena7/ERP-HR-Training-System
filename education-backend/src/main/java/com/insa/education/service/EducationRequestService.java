@@ -292,8 +292,12 @@ public class EducationRequestService {
 
     /**
      * COMMITTEE step:
-     * SCORED -> COMMITTEE_REPORTED
-     * This creates a committee decision record if it doesn't already exist.
+     * SCORED or COMMITTEE_REVIEW -> COMMITTEE_REPORTED
+     *
+     * Accepts both SCORED (no votes recorded yet) and COMMITTEE_REVIEW
+     * (status set automatically on the first committee approval vote) as
+     * valid source statuses, so the "Forward to Director" action works
+     * regardless of how many votes have already been cast.
      */
     @Transactional
     public EducationRequestResponse reportByCommittee(Long requestId) {
@@ -316,12 +320,23 @@ public class EducationRequestService {
             throw new BadRequestException("Request must have at least 4 committee approvals to be reported.");
         }
 
-        return transitionStatus(
-                requestId,
-                RequestStatus.SCORED,
-                RequestStatus.COMMITTEE_REPORTED,
-                "Reported by Committee for Director approval"
-        );
+        // Accept SCORED (no votes cast yet) OR COMMITTEE_REVIEW (first vote already
+        // moved the status from SCORED → COMMITTEE_REVIEW in CommitteeDecisionService).
+        if (request.getStatus() != RequestStatus.SCORED
+                && request.getStatus() != RequestStatus.COMMITTEE_REVIEW) {
+            throw new BadRequestException(
+                    String.format("Invalid status transition. Expected SCORED or COMMITTEE_REVIEW but found %s",
+                            request.getStatus()));
+        }
+
+        RequestStatus previousStatus = request.getStatus();
+        request.setStatus(RequestStatus.COMMITTEE_REPORTED);
+        EducationRequest saved = requestRepository.save(request);
+
+        log.info("Reported by Committee for Director approval: requestId={}, from={}, to={}, by={}",
+                requestId, previousStatus, RequestStatus.COMMITTEE_REPORTED, currentUsername());
+
+        return mapper.toEducationRequestResponse(saved);
     }
 
     /**
