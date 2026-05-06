@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -81,29 +81,6 @@ export default function EducationRequestsPage() {
     {},
   );
   const [searchTerm, setSearchTerm] = useState("");
-  const [historySearch, setHistorySearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL");
-
-  const filteredRequests = useMemo(() => {
-    let result = [...requests].sort((a, b) => (b.id || 0) - (a.id || 0));
-
-    if (statusFilter !== "ALL") {
-      result = result.filter((r) => r.status === statusFilter);
-    }
-
-    if (!historySearch.trim()) return result;
-
-    const term = historySearch.toLowerCase();
-    return result.filter(
-      (r) =>
-        r.employeeName?.toLowerCase().includes(term) ||
-        r.employeeId?.toString().includes(term) ||
-        r.candidateId?.toLowerCase().includes(term) ||
-        r.employeeDepartment?.toLowerCase().includes(term) ||
-        r.fieldOfStudy?.toLowerCase().includes(term) ||
-        r.institution?.toLowerCase().includes(term),
-    );
-  }, [requests, historySearch, statusFilter]);
 
   const isDepartmentHead = user?.role === "DEPARTMENT_HEAD";
   const isCenter = user?.role === "CYBER_DEVELOPMENT_CENTER";
@@ -119,41 +96,17 @@ export default function EducationRequestsPage() {
 
   const loadRequests = async () => {
     try {
-      const isRegularEmployee =
-        user?.role === "EMPLOYEE" &&
-        ![
-          "DEPARTMENT_HEAD",
-          "ADMIN",
-          "HR_OFFICER",
-          "CYBER_DEVELOPMENT_CENTER",
-          "COMMITTEE_MEMBER",
-        ].includes(user?.role);
-
-      const res =
-        isRegularEmployee && user?.employeeId
-          ? await educationRequestApi.getMyRequests(user.employeeId, 0, 100)
-          : await educationRequestApi.getAll(0, 100);
-
+      const res = await educationRequestApi.getAll(0, 100);
       setRequests(res.data.content || []);
     } catch (err) {
-      console.error("Failed to load education requests", err);
+      console.error(err);
     }
   };
 
   const loadOpportunities = async () => {
     try {
       const res = await educationOpportunityApi.getAll(0, 100);
-      const allOpps = res.data.content || [];
-      // Only show OPEN opportunities for request initiation
-      setOpportunities(
-        allOpps.filter((o: any) => {
-          const isStatusOpen = o.status === "OPEN";
-          const deadlinePassed =
-            o.deadline &&
-            new Date(o.deadline) < new Date(new Date().setHours(0, 0, 0, 0));
-          return isStatusOpen && !deadlinePassed;
-        }),
-      );
+      setOpportunities(res.data.content || []);
     } catch (err) {
       console.error(err);
     }
@@ -246,27 +199,19 @@ export default function EducationRequestsPage() {
     setLoading(true);
     try {
       const payload = {
-        opportunityId: batchEducation.opportunityId
-          ? Number(batchEducation.opportunityId)
-          : null,
-        educationCategory: batchEducation.educationCategory,
-        educationLevel: batchEducation.educationLevel,
-        fieldOfStudy: batchEducation.fieldOfStudy,
-        institution: batchEducation.institution,
-        budgetYear: Number(batchEducation.budgetYear),
-        description: batchEducation.remark,
+        ...batchEducation,
+        requesterName: user?.fullName,
+        requesterId: user?.id,
+        requesterDepartment: (user as any)?.department,
         candidates: candidates.map((c) => ({
-          // DB-backed: use numeric id; Manual: send null, backend resolves via candidateId string
-          employeeId: c.isManual ? null : Number(c.id),
+          ...c,
+          employeeId: typeof c.id === "number" ? c.id : null,
+          employeeName: c.name,
+          employeePhone: c.phone || "-",
+          employeeDepartment: c.dept,
           candidateId: c.candidateId,
-          name: c.name,
-          phone: c.phone,
-          award: c.award,
-          duration: Number(c.duration),
-          programTime: c.program,
-          location: c.location,
-          dept: c.dept,
         })),
+        createdAt: new Date().toISOString(),
       };
 
       await educationRequestApi.createBulk(payload);
@@ -286,11 +231,7 @@ export default function EducationRequestsPage() {
       setShowForm(false);
       loadRequests();
     } catch (err: any) {
-      alert(
-        err.response?.data?.message ||
-          err?.message ||
-          "Failed to submit batch request",
-      );
+      alert(err?.message || "Failed to submit batch request");
     } finally {
       setLoading(false);
     }
@@ -311,7 +252,7 @@ export default function EducationRequestsPage() {
   const approveRequest = async (id: number) => {
     setBusyId(id);
     try {
-      await educationRequestApi.forwardToHr(id);
+      await educationRequestApi.centerReview(id);
       loadRequests();
     } catch (err: any) {
       alert(err?.message || "Failed to approve");
@@ -571,10 +512,7 @@ export default function EducationRequestsPage() {
                     <tr>
                       <th className="px-6 py-4">ID / Emp ID</th>
                       <th className="px-6 py-4">Name</th>
-                      <th className="px-6 py-4">Department</th>
-                      <th className="px-6 py-4">
-                        የአባሉ የትምህርት ደረጃ / Degree Point
-                      </th>
+                      <th className="px-6 py-4">Award</th>
                       <th className="px-6 py-4">Duration</th>
                       <th className="px-6 py-4">Program</th>
                       <th className="px-6 py-4 text-right">Actions</th>
@@ -601,9 +539,6 @@ export default function EducationRequestsPage() {
                             </span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-xs italic text-gray-500">
-                          {c.dept || "—"}
-                        </td>
                         <td className="px-6 py-4 font-medium text-gray-600">
                           {c.award || "-"}
                         </td>
@@ -619,7 +554,7 @@ export default function EducationRequestsPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <div className="flex justify-end gap-1.5">
+                          <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={() => {
                                 setCurrentCandidate(c);
@@ -689,52 +624,16 @@ export default function EducationRequestsPage() {
         {/* History Table */}
 
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-          <div className="border-b border-gray-100 px-6 py-5 bg-gray-50/50">
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-gray-800">
-                  Process History
-                </h2>
-                <div className="relative group no-print">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
-                  <input
-                    type="text"
-                    placeholder="Search history..."
-                    value={historySearch}
-                    onChange={(e) => setHistorySearch(e.target.value)}
-                    className="w-64 rounded-xl border border-gray-100 bg-white pl-9 py-2 text-xs font-bold transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none shadow-sm"
-                  />
-                </div>
-              </div>
-
-              {/* Status Filter Dropdown */}
-              <div className="no-print flex items-center gap-3">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                  Filter by Status:
-                </span>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="rounded-xl border border-gray-100 bg-white px-4 py-2 text-xs font-bold text-gray-700 transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none shadow-sm cursor-pointer"
-                >
-                  {[
-                    { id: "ALL", label: "All Statuses" },
-                    { id: "SUBMITTED_TO_CENTER", label: "Sent to CDC" },
-                    { id: "FORWARDED_TO_HR", label: "Forwarded to HR" },
-                    { id: "CDC_APPROVED", label: "CDC Approved" },
-                    { id: "HR_VERIFIED", label: "HR Verified" },
-                    { id: "SCORED", label: "CDC Scored" },
-                    { id: "COMMITTEE_REVIEW", label: "Committee Review" },
-                    { id: "COMMITTEE_REPORTED", label: "Committee Ranked" },
-                    { id: "APPROVED", label: "Final Approved" },
-                    { id: "CONTRACT_CREATED", label: "Commitment Created" },
-                    { id: "REJECTED", label: "Rejected" },
-                  ].map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.label}
-                    </option>
-                  ))}
-                </select>
+          <div className="border-b border-gray-100 px-6 py-5 flex items-center justify-between bg-gray-50/50">
+            <h2 className="text-lg font-bold text-gray-800">Process History</h2>
+            <div className="flex items-center gap-2">
+              <div className="flex rounded-lg border border-gray-200 bg-white p-1">
+                <button className="rounded-md bg-gray-100 px-3 py-1 text-xs font-bold text-gray-900">
+                  All
+                </button>
+                <button className="rounded-md px-3 py-1 text-xs font-bold text-gray-500 hover:text-gray-700 hover:bg-gray-50">
+                  Draft
+                </button>
               </div>
             </div>
           </div>
@@ -744,7 +643,6 @@ export default function EducationRequestsPage() {
                 <tr>
                   <th className="px-8 py-5"># ID</th>
                   <th className="px-8 py-5">{t("fullName")}</th>
-                  <th className="px-8 py-5">{t("department")}</th>
                   <th className="px-8 py-5">Goal / Field</th>
                   <th className="px-8 py-5">Year</th>
                   <th className="px-8 py-5">{t("status")}</th>
@@ -752,7 +650,7 @@ export default function EducationRequestsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 text-[13px]">
-                {filteredRequests.map((req) => (
+                {requests.map((req) => (
                   <tr
                     key={req.id}
                     className="hover:bg-gray-50/80 transition-all"
@@ -770,13 +668,10 @@ export default function EducationRequestsPage() {
                         </span>
                       </div>
                     </td>
-                    <td className="px-8 py-5 text-xs italic text-gray-600">
-                      {req.employeeDepartment || "—"}
-                    </td>
                     <td className="px-8 py-5">
                       <div className="flex flex-col">
                         <span className="font-bold text-gray-800">
-                          {req.fieldOfStudy || t("notSpecified")}
+                          {req.fieldOfStudy}
                         </span>
                         <span className="text-xs font-medium text-gray-500 uppercase tracking-tighter">
                           {req.educationLevel} • {req.institution}
@@ -798,15 +693,15 @@ export default function EducationRequestsPage() {
                           <Eye className="h-3.5 w-3.5" />
                           {t("view") || "View"}
                         </button>
-                        {req.status === "SUBMITTED_TO_CENTER" &&
+                        {req.status === "SUBMITTED" &&
                           (isCenter || isAdmin) && (
                             <button
                               onClick={() => approveRequest(req.id)}
                               disabled={busyId === req.id}
                               className="inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-4 py-2 text-[10px] font-bold text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm border border-emerald-100 uppercase tracking-widest italic"
                             >
-                              <CheckCircle2 />
-                              Forward to HR
+                              <CheckCircle2 className="h-3.5 w-3.5" />
+                              Approve
                             </button>
                           )}
                       </div>
@@ -836,7 +731,7 @@ export default function EducationRequestsPage() {
 
       {/* Education Detail Modal */}
       {showEducationModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 sm:p-10 shadow-2xl animate-in zoom-in-95 duration-200 border border-gray-100">
             <h3 className="mb-8 text-2xl font-bold text-gray-900 flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
@@ -897,15 +792,10 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="space-y-2">
-                <label
-                  htmlFor="educationLevel"
-                  className="text-[10px] font-bold uppercase tracking-widest text-gray-400"
-                >
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                   {t("educationLevel")}
                 </label>
-                <input
-                  id="educationLevel"
-                  list="level-options"
+                <select
                   value={batchEducation.educationLevel}
                   onChange={(e) =>
                     setBatchEducation({
@@ -914,29 +804,20 @@ export default function EducationRequestsPage() {
                     })
                   }
                   className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-bold text-gray-900 transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none"
-                  placeholder="e.g. BSc, MSc"
-                />
-                <datalist id="level-options">
-                  <option value="BSc" />
-                  <option value="MSc" />
-                  <option value="PhD" />
-                  <option value="Diploma" />
-                  <option value="Certificate" />
-                </datalist>
+                >
+                  <option value="Diploma">Diploma</option>
+                  <option value="BSc">BSc</option>
+                  <option value="MSc">MSc</option>
+                  <option value="PhD">PhD</option>
+                </select>
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <label
-                  htmlFor="fieldOfStudy"
-                  className="text-xs font-black uppercase tracking-widest text-gray-400"
-                >
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
                   {t("fieldOfStudy")}
                 </label>
                 <input
-                  id="fieldOfStudy"
                   type="text"
-                  name="fieldOfStudy"
-                  autoComplete="education-major"
                   value={batchEducation.fieldOfStudy}
                   onChange={(e) =>
                     setBatchEducation({
@@ -950,17 +831,11 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <label
-                  htmlFor="institution"
-                  className="text-xs font-black uppercase tracking-widest text-gray-400"
-                >
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
                   {t("institution")}
                 </label>
                 <input
-                  id="institution"
                   type="text"
-                  name="institution"
-                  autoComplete="organization"
                   value={batchEducation.institution}
                   onChange={(e) =>
                     setBatchEducation({
@@ -973,17 +848,11 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label
-                  htmlFor="budgetYear"
-                  className="text-xs font-black uppercase tracking-widest text-gray-400"
-                >
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
                   {t("budgetYear")}
                 </label>
                 <input
-                  id="budgetYear"
                   type="number"
-                  name="budgetYear"
-                  autoComplete="off"
                   value={batchEducation.budgetYear}
                   onChange={(e) =>
                     setBatchEducation({
@@ -1050,7 +919,7 @@ export default function EducationRequestsPage() {
 
       {/* Candidate Modal */}
       {showCandidateModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-200">
             <h3 className="mb-8 text-2xl font-bold text-gray-900 border-b border-gray-100 pb-6 flex items-center gap-3">
               <div className="rounded-lg bg-blue-600 p-2 text-white">
@@ -1083,17 +952,11 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <label
-                  htmlFor="fullName"
-                  className="text-xs font-black uppercase tracking-widest text-gray-400"
-                >
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
                   Full Name
                 </label>
                 <input
-                  id="fullName"
                   type="text"
-                  name="fullName"
-                  autoComplete="name"
                   required
                   readOnly={!currentCandidate.isManual}
                   value={currentCandidate.name}
@@ -1110,7 +973,7 @@ export default function EducationRequestsPage() {
 
               <div className="col-span-2 space-y-1.5">
                 <label className="text-xs font-black uppercase tracking-widest text-gray-400">
-                  የአባሉ የትምህርት ደረጃ / Degree Point
+                  Award / Degree Point
                 </label>
                 <input
                   type="text"
@@ -1127,17 +990,11 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <label
-                  htmlFor="candidateInstitution"
-                  className="text-xs font-black uppercase tracking-widest text-gray-400"
-                >
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
                   Target Institution (If specific)
                 </label>
                 <input
-                  id="candidateInstitution"
                   type="text"
-                  name="institution"
-                  autoComplete="organization"
                   value={currentCandidate.institution}
                   onChange={(e) =>
                     setCurrentCandidate({
@@ -1150,16 +1007,11 @@ export default function EducationRequestsPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label
-                  htmlFor="candidateDuration"
-                  className="text-xs font-black uppercase tracking-widest text-gray-400"
-                >
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
                   Duration (Years)
                 </label>
                 <input
-                  id="candidateDuration"
                   type="number"
-                  name="duration"
                   value={currentCandidate.duration}
                   onChange={(e) =>
                     setCurrentCandidate({
@@ -1176,7 +1028,6 @@ export default function EducationRequestsPage() {
                   Program Time
                 </label>
                 <select
-                  name="program"
                   value={currentCandidate.program}
                   onChange={(e) =>
                     setCurrentCandidate({
@@ -1232,7 +1083,7 @@ export default function EducationRequestsPage() {
 
       {/* Request Detail Modal */}
       {selectedRequest && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="relative w-full max-w-2xl flex flex-col max-h-[90vh] rounded-2xl bg-white shadow-2xl border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="flex shrink-0 items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50/50">
               <h2 className="text-lg font-bold text-gray-900 flex items-center gap-3">
@@ -1275,7 +1126,8 @@ export default function EducationRequestsPage() {
                     {t("educationOpportunity")}
                   </p>
                   <p className="text-sm font-bold text-gray-900">
-                    {selectedRequest.fieldOfStudy || t("notSpecified")}
+                    {selectedRequest.fieldOfStudy ||
+                      selectedRequest.educationType}
                   </p>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
                     {selectedRequest.educationLevel}
@@ -1292,19 +1144,24 @@ export default function EducationRequestsPage() {
 
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-                    {t("award")} / {t("duration")}
+                    {t("duration")} & {t("budgetYear")}
                   </p>
                   <p className="text-sm font-bold text-gray-900">
-                    {selectedRequest.award || "-"} ({selectedRequest.duration}{" "}
-                    {t("years")})
+                    {selectedRequest.duration
+                      ? `${selectedRequest.duration} Years`
+                      : "-"}
+                    {selectedRequest.budgetYear
+                      ? ` • Yr ${selectedRequest.budgetYear}`
+                      : ""}
                   </p>
                 </div>
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-                    {t("location")} / {t("program")}
+                    Program & Location
                   </p>
                   <p className="text-sm font-bold text-gray-900">
-                    {selectedRequest.location} • {selectedRequest.programTime}
+                    {selectedRequest.programTime || "Regular"} •{" "}
+                    {selectedRequest.location || "Local"}
                   </p>
                 </div>
               </div>

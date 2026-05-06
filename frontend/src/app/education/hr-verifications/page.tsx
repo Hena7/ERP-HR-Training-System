@@ -62,15 +62,18 @@ export default function HRVerificationsPage() {
 
   const loadData = async () => {
     try {
-      const [forwardedRes, verificationRes] = await Promise.all([
-        educationRequestApi.getByStatus("FORWARDED_TO_HR", 0, 100),
+      const [requestRes, verificationRes] = await Promise.all([
+        educationRequestApi.getByStatus(
+          ["CDC_APPROVED", "FORWARDED_TO_HR"],
+          0,
+          100,
+        ),
         hrVerificationApi.getAll(0, 100),
       ]);
 
-      setRequests(forwardedRes.data.content || []);
+      setRequests(requestRes.data.content || []);
       setVerifications(verificationRes.data.content || []);
     } catch {
-
       // keep page resilient in mock/offline mode
     }
   };
@@ -281,7 +284,7 @@ export default function HRVerificationsPage() {
                           {request.employeeDepartment}
                         </td>
                         <td className="px-6 py-4 font-medium text-gray-700 text-xs italic">
-                          {request.fieldOfStudy || (request as any).educationType} ({(request as any).targetEducationLevel || (request as any).educationLevel})
+                          {request.educationType} ({request.educationLevel})
                         </td>
                         <td className="px-6 py-4 font-medium text-gray-500">
                           {request.institution}
@@ -346,7 +349,8 @@ export default function HRVerificationsPage() {
                       {t("educationOpportunity")}
                     </p>
                     <p className="font-bold text-gray-900">
-                      {selectedRequest.fieldOfStudy || (selectedRequest as any).educationType} ({(selectedRequest as any).targetEducationLevel || (selectedRequest as any).educationLevel})
+                      {selectedRequest.educationType} (
+                      {selectedRequest.educationLevel})
                     </p>
                   </div>
                   <div className="space-y-1">
